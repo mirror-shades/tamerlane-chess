@@ -5,7 +5,7 @@ I am building a Tamerlane chess engine in C++. This engine was previously built 
 ## Compiling
 
 using minGW 6.1.0 > 6.3.0, run in powershell:
-`mingw32-make -f Makefile; if ($?) { ./main.exe }`
+`mingw32-make -f Makefile; if ($?) { ./build/main.exe }`
 
 ## todo
 
