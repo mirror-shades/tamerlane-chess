@@ -2,10 +2,18 @@
 #include <string>
 #include <iostream>
 
+struct Coord
+{
+    int x;
+    int y;
+};
+
 const int squareSize = 75;
 const int circleSize = 25;
 const int rows = 10;
 const int cols = 11;
+bool pieceSelected = false;
+Coord selectedSquare = {-1, -1};
 
 std::map<std::string, sf::Texture> textures;
 std::map<std::string, sf::Sprite> images;
@@ -21,12 +29,6 @@ std::string chessboard[rows][cols] = {
     {"wp0", "wpW", "wpC", "wpE", "wpA", "wpK", "wpV", "wpG", "wpT", "wpM", "wpR"},
     {"wRk", "wMo", "wTa", "wGi", "wAd", "wKa", "wVi", "wGi", "wTa", "wMo", "wRk"},
     {"wEl", "---", "wCa", "---", "wWe", "---", "wWe", "---", "wCa", "---", "wEl"}};
-
-struct Coord
-{
-    int x;
-    int y;
-};
 
 std::map<std::string, sf::Sprite> loadImages()
 {
@@ -67,27 +69,54 @@ std::map<std::string, sf::Sprite> loadImages()
 
 Coord calculateSquare(int x, int y)
 {
-    int _x = x / squareSize;
+    int _x = x / squareSize - 1;
     int _y = y / squareSize;
-    Coord coord = {_x - 1, _y};
+    Coord coord = {_x, _y};
     return coord;
 }
 
-bool clickInBoard(int x, int y)
+bool clickInBoard(const int x, const int y)
 {
-    if (x < 75)
-    {
-        return false;
-    }
-    if (x > 900)
-    {
-        return false;
-    }
-    if (y > 750)
+    const int boardOffset = 75;
+    const int boardWidth = 900;
+    const int boardHeight = 750;
+    if (x < boardOffset || x > boardWidth || y > boardHeight)
     {
         return false;
     }
     return true;
+}
+
+void clickLogic(int x, int y)
+{
+    Coord coord = calculateSquare(x, y);
+    std::cout << coord.x << ", " << coord.y << std::endl;
+    std::string const selected = chessboard[coord.y][coord.x];
+    // if reclicking on selected square, or on a non-valid square
+    if ((selectedSquare.x == coord.x + 1 && selectedSquare.y == coord.y) || selected == "---")
+    {
+        pieceSelected = false;
+        selectedSquare = {-1, -1};
+    }
+    else
+    {
+        pieceSelected = true;
+        selectedSquare = {coord.x + 1, coord.y};
+    }
+}
+
+void highlightSquare(sf::RenderWindow &window)
+{
+    sf::RectangleShape square(sf::Vector2f(squareSize, squareSize));
+
+    // Position the square
+    square.setPosition(selectedSquare.x * squareSize, selectedSquare.y * squareSize);
+
+    // highlight
+    square.setFillColor(sf::Color(250, 250, 210));
+
+    // Draw the square
+    window.draw(square);
 }
 
 void drawBoard(sf::RenderWindow &window)
@@ -194,14 +223,10 @@ int main()
             {
                 if (event.mouseButton.button == sf::Mouse::Left)
                 {
-                    std::cout << "Left mouse button pressed at ("
-                              << event.mouseButton.x << ", "
-                              << event.mouseButton.y << ")\n";
                     bool boardClick = clickInBoard(event.mouseButton.x, event.mouseButton.y);
                     if (boardClick)
                     {
-                        Coord coord = calculateSquare(event.mouseButton.x, event.mouseButton.y);
-                        std::cout << coord.x << ", " << coord.y << std::endl;
+                        clickLogic(event.mouseButton.x, event.mouseButton.y);
                     }
                 }
             }
@@ -213,6 +238,8 @@ int main()
         window.draw(backgroundSprite);
         // Draw the chessboard
         drawBoard(window);
+        // highlight selected piece
+        highlightSquare(window);
         // Draw the pieces
         drawPieces(window, pieceImages);
 
