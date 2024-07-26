@@ -8,7 +8,7 @@ I am building a Tamerlane chess engine in C++. This engine was previously built 
 [x] implement clicking  
 [ ] draw pieces  
 [ ] implement moves   
-[ ] implement peice rules  
+[ ] implement piece rules  
 [ ] implement game rules  
 [ ] implement menus  
 [ ] implement AI  
