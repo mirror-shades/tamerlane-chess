@@ -1,5 +1,5 @@
 # Define directories
-SRC_DIR := .
+SRC_DIR := ./src
 BUILD_DIR := build
 INCLUDE_DIR := src/include
 LIB_DIR := src/lib
