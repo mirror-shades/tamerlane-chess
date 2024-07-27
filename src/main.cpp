@@ -1,34 +1,23 @@
+#include "include/logic.h"
+#include "include/types.h"
+#include "include/globals.h"
 #include <SFML/Graphics.hpp>
 #include <string>
+#include <vector>
 #include <iostream>
 
-struct Coord
-{
-    int x;
-    int y;
-};
+Logic logic;
 
-const int squareSize = 75;
-const int circleSize = 25;
+int turns = 1;
 const int rows = 10;
 const int cols = 11;
+const int squareSize = 75;
 bool pieceSelected = false;
-Coord selectedSquare = {-1, -1};
+std::vector<Types::Coord> moveList;
+Types::Coord selectedSquare = {-1, -1};
 
 std::map<std::string, sf::Texture> textures;
 std::map<std::string, sf::Sprite> images;
-
-std::string chessboard[rows][cols] = {
-    {"bEl", "---", "bCa", "---", "bWe", "---", "bWe", "---", "bCa", "---", "bEl"},
-    {"bRk", "bMo", "bTa", "bGi", "bVi", "bKa", "bAd", "bGi", "bTa", "bMo", "bRk"},
-    {"bpR", "bpM", "bpT", "bpG", "bpV", "bpK", "bpA", "bpE", "bpC", "bpW", "bp0"},
-    {"---", "---", "---", "---", "---", "---", "---", "---", "---", "---", "---"},
-    {"---", "---", "---", "---", "---", "---", "---", "---", "---", "---", "---"},
-    {"---", "---", "---", "---", "---", "---", "---", "---", "---", "---", "---"},
-    {"---", "---", "---", "---", "---", "---", "---", "---", "---", "---", "---"},
-    {"wp0", "wpW", "wpC", "wpE", "wpA", "wpK", "wpV", "wpG", "wpT", "wpM", "wpR"},
-    {"wRk", "wMo", "wTa", "wGi", "wAd", "wKa", "wVi", "wGi", "wTa", "wMo", "wRk"},
-    {"wEl", "---", "wCa", "---", "wWe", "---", "wWe", "---", "wCa", "---", "wEl"}};
 
 std::map<std::string, sf::Sprite> loadImages()
 {
@@ -67,11 +56,11 @@ std::map<std::string, sf::Sprite> loadImages()
     return images;
 }
 
-Coord calculateSquare(int x, int y)
+Types::Coord calculateSquare(int x, int y)
 {
     int _x = x / squareSize - 1;
     int _y = y / squareSize;
-    Coord coord = {_x, _y};
+    Types::Coord coord = {_x, _y};
     return coord;
 }
 
@@ -87,21 +76,47 @@ bool clickInBoard(const int x, const int y)
     return true;
 }
 
+std::vector<Types::Coord> getMoves(Types::Coord coord, std::string piece, char player)
+{
+    std::vector<Types::Coord> _moveList = {};
+    if (piece[1] == 'p')
+    {
+        _moveList = logic.getPawnMoves(coord, player);
+    }
+    return _moveList;
+}
+
 void clickLogic(int x, int y)
 {
-    Coord coord = calculateSquare(x, y);
-    std::cout << coord.x << ", " << coord.y << std::endl;
-    std::string const selected = chessboard[coord.y][coord.x];
+    Types::Coord coord = calculateSquare(x, y);
+    std::cout << coord.x << ", " << coord.y << " | " << chessboard.getPiece(coord) << std::endl;
+    auto boardState = chessboard.getBoardState();
+    std::string const selected = chessboard.getPiece(coord);
+    char player = (turns % 2 == 0) ? 'b' : 'w'; // player turn is decided by even/odd (white goes on turn 1)
     // if reclicking on selected square, or on a non-valid square
+    if (pieceSelected)
+    {
+        for (const auto &move : moveList)
+        {
+            if (coord == move)
+            {
+                chessboard.setCell(coord, "---");
+                chessboard.setCell(move, selected);
+                break;
+            }
+        }
+    }
     if ((selectedSquare.x == coord.x + 1 && selectedSquare.y == coord.y) || selected == "---")
     {
         pieceSelected = false;
+        moveList = {};
         selectedSquare = {-1, -1};
     }
-    else
+    else if (selected[0] == player)
     {
         pieceSelected = true;
         selectedSquare = {coord.x + 1, coord.y};
+        moveList = getMoves(coord, selected, player);
     }
 }
 
@@ -113,10 +128,19 @@ void highlightSquare(sf::RenderWindow &window)
     square.setPosition(selectedSquare.x * squareSize, selectedSquare.y * squareSize);
 
     // highlight
-    square.setFillColor(sf::Color(250, 250, 210));
-
+    square.setFillColor(sf::Color(250, 250, 210, 200));
     // Draw the square
     window.draw(square);
+
+    for (const auto &coord : moveList)
+    { // Position the square
+        square.setPosition((coord.x + 1) * squareSize, coord.y * squareSize);
+
+        // highlight
+        square.setFillColor(sf::Color(250, 250, 210, 200));
+        // Draw the square
+        window.draw(square);
+    }
 }
 
 void drawBoard(sf::RenderWindow &window)
@@ -160,12 +184,12 @@ void drawBoard(sf::RenderWindow &window)
 
 void drawPieces(sf::RenderWindow &window, auto images)
 {
-
+    auto boardState = chessboard.getBoardState();
     for (int row = 0; row < rows; ++row)
     {
         for (int col = 0; col < cols; ++col)
         {
-            std::string piece = chessboard[row][col];
+            std::string piece = boardState[row][col];
             if (piece != "---")
             {
                 sf::Sprite sprite = images[piece];
