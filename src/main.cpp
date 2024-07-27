@@ -12,9 +12,10 @@ int turns = 1;
 const int rows = 10;
 const int cols = 11;
 const int squareSize = 75;
-bool pieceSelected = false;
+bool isPieceSelected = false;
 std::vector<Types::Coord> moveList;
 Types::Coord selectedSquare = {-1, -1};
+std::string selectedPiece;
 
 std::map<std::string, sf::Texture> textures;
 std::map<std::string, sf::Sprite> images;
@@ -94,29 +95,34 @@ void clickLogic(int x, int y)
     std::string const selected = chessboard.getPiece(coord);
     char player = (turns % 2 == 0) ? 'b' : 'w'; // player turn is decided by even/odd (white goes on turn 1)
     // if reclicking on selected square, or on a non-valid square
-    if (pieceSelected)
+    if (isPieceSelected)
     {
         for (const auto &move : moveList)
         {
             if (coord == move)
             {
-                chessboard.setCell(coord, "---");
-                chessboard.setCell(move, selected);
+                std::cout << "selected " << selectedSquare.x << ", " << selectedSquare.y << std::endl;
+                std::cout << "move " << move.x << ", " << move.y << std::endl;
+                Types::Coord selectedOffset = {selectedSquare.x, selectedSquare.y};
+                chessboard.setCell(selectedOffset, "---");
+                chessboard.setCell(move, selectedPiece);
                 break;
             }
         }
     }
     if ((selectedSquare.x == coord.x + 1 && selectedSquare.y == coord.y) || selected == "---")
     {
-        pieceSelected = false;
+        isPieceSelected = false;
         moveList = {};
         selectedSquare = {-1, -1};
     }
     else if (selected[0] == player)
     {
-        pieceSelected = true;
-        selectedSquare = {coord.x + 1, coord.y};
+        isPieceSelected = true;
+        selectedSquare = {coord.x, coord.y};
+        selectedPiece = chessboard.getPiece(selectedSquare);
         moveList = getMoves(coord, selected, player);
+        std::cout << selectedPiece << std::endl;
     }
 }
 
@@ -125,7 +131,7 @@ void highlightSquare(sf::RenderWindow &window)
     sf::RectangleShape square(sf::Vector2f(squareSize, squareSize));
 
     // Position the square
-    square.setPosition(selectedSquare.x * squareSize, selectedSquare.y * squareSize);
+    square.setPosition((selectedSquare.x + 1) * squareSize, selectedSquare.y * squareSize);
 
     // highlight
     square.setFillColor(sf::Color(250, 250, 210, 200));
