@@ -106,6 +106,9 @@ void clickLogic(int x, int y)
                 Types::Coord selectedOffset = {selectedSquare.x, selectedSquare.y};
                 chessboard.setCell(selectedOffset, "---");
                 chessboard.setCell(move, selectedPiece);
+                isPieceSelected = false;
+                moveList = {};
+                selectedSquare = {-1, -1};
                 break;
             }
         }
@@ -206,17 +209,13 @@ void drawPieces(sf::RenderWindow &window, auto images)
     }
 }
 
-int main()
+sf::Sprite renderBackground(sf::RenderWindow &window, sf::Texture &backgroundTexture)
 {
-    // Create the main window
-    sf::RenderWindow window(sf::VideoMode(975, 900), "Chessboard");
-
     // Load background texture from a file
-    sf::Texture backgroundTexture;
     if (!backgroundTexture.loadFromFile("assets/wood.png"))
     {
         std::cerr << "Error loading background texture" << std::endl;
-        return -1;
+        throw;
     }
 
     // Create a sprite using the texture
@@ -233,6 +232,17 @@ int main()
 
     // Apply the scale to the sprite
     backgroundSprite.setScale(scaleX, scaleY);
+    return backgroundSprite;
+}
+
+int main()
+{
+    // Create the main window
+    sf::RenderWindow window(sf::VideoMode(975, 900), "Chessboard");
+
+    // Declare the texture outside of the renderBackground function for persistence
+    sf::Texture backgroundTexture;
+    sf::Sprite backgroundSprite = renderBackground(window, backgroundTexture);
 
     // Load piece images
     auto pieceImages = loadImages();
