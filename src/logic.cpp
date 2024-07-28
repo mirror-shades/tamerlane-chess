@@ -23,7 +23,7 @@ std::vector<Types::Coord> Logic::getPawnMoves(Types::Coord coord, char player)
     }
 
     Types::Coord rightCapture = {coord.x + 1, coord.y + direction};
-    if (rightCapture.x >= 0 && rightCapture.x < Chessboard::rows &&
+    if (rightCapture.x >= 0 && rightCapture.x <= Chessboard::rows &&
         rightCapture.y >= 0 && rightCapture.y < Chessboard::cols &&
         chessboard.getPiece(rightCapture)[0] == enemy)
     {

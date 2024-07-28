@@ -30,7 +30,7 @@ const std::string Chessboard::getPiece(Types::Coord coord) const
 
 void Chessboard::setCell(Types::Coord coord, const std::string &value)
 {
-    if (coord.x >= 0 && coord.x < rows && coord.y >= 0 && coord.y < cols)
+    if (coord.x >= 0 && coord.x <= rows && coord.y >= 0 && coord.y < cols)
     {
         chessboard[coord.y][coord.x] = value;
     }
