@@ -13,12 +13,22 @@ using minGW 6.1.0 > 6.3.0, run in powershell:
 [x] draw board  
 [x] implement clicking  
 [x] draw pieces  
-[x] piece highlighting  
-[ ] implement moves
+[x] piece highlighting
 
-- [x] pawn moves
-- [x] rook moves  
-       [ ] implement piece rules  
-       [ ] implement game rules  
-       [ ] implement menus  
-       [ ] implement AI
+implement moves:  
+[x] pawn moves  
+[x] rook moves  
+[ ] Taliah moves  
+[ ] Elephant moves  
+[ ] Camel moves  
+[ ] Mongol moves  
+[ ] Khan moves  
+[ ] Adminstrator moves  
+[ ] Vizir moves  
+[ ] Giraffe moves  
+[ ] War Engine moves
+
+[ ] implement piece rules  
+[ ] implement game rules  
+[ ] implement menus  
+[ ] implement AI
