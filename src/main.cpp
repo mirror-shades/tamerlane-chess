@@ -8,7 +8,7 @@
 
 Logic logic;
 
-int turns = 1;
+int turns = 2;
 const int rows = 10;
 const int cols = 11;
 const int squareSize = 75;
@@ -84,6 +84,10 @@ std::vector<Types::Coord> getMoves(Types::Coord coord, std::string piece, char p
     {
         _moveList = logic.getPawnMoves(coord, player);
     }
+    if (piece[1] == 'R')
+    {
+        _moveList = logic.getRookMoves(coord, player);
+    }
     return _moveList;
 }
 
@@ -101,8 +105,6 @@ void clickLogic(int x, int y)
         {
             if (coord == move)
             {
-                std::cout << "selected " << selectedSquare.x << ", " << selectedSquare.y << std::endl;
-                std::cout << "move " << move.x << ", " << move.y << std::endl;
                 Types::Coord selectedOffset = {selectedSquare.x, selectedSquare.y};
                 chessboard.setCell(selectedOffset, "---");
                 chessboard.setCell(move, selectedPiece);
@@ -125,7 +127,6 @@ void clickLogic(int x, int y)
         selectedSquare = {coord.x, coord.y};
         selectedPiece = chessboard.getPiece(selectedSquare);
         moveList = getMoves(coord, selected, player);
-        std::cout << selectedPiece << std::endl;
     }
 }
 

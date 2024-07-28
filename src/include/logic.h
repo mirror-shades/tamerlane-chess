@@ -7,4 +7,5 @@ class Logic
 {
 public:
     std::vector<Types::Coord> getPawnMoves(Types::Coord coord, char player);
+    std::vector<Types::Coord> getRookMoves(Types::Coord coord, char player);
 };

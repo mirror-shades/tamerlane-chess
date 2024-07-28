@@ -14,8 +14,11 @@ using minGW 6.1.0 > 6.3.0, run in powershell:
 [x] implement clicking  
 [x] draw pieces  
 [x] piece highlighting
-[ ] implement moves  
-[ ] implement piece rules  
-[ ] implement game rules  
-[ ] implement menus  
-[ ] implement AI
+[ ] implement moves
+
+- [x] pawn moves
+- [x] rook moves
+      [ ] implement piece rules  
+      [ ] implement game rules  
+      [ ] implement menus  
+      [ ] implement AI
