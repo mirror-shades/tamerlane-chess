@@ -100,6 +100,14 @@ std::vector<Types::Coord> getMoves(Types::Coord coord, std::string piece, char p
     {
         _moveList = logic.getElephantMoves(coord, player);
     }
+    if (piece[1] == 'V')
+    {
+        _moveList = logic.getVizierMoves(coord, player);
+    }
+    if (piece[1] == 'W')
+    {
+        _moveList = logic.getWarEngineMoves(coord, player);
+    }
     return _moveList;
 }
 

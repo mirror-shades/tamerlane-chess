@@ -259,6 +259,47 @@ std::vector<Types::Coord> Logic::getElephantMoves(Types::Coord coord, char playe
     std::vector<Types::Coord> moves;
     char enemy = (player == 'w') ? 'b' : 'w';
 
+    Types::Coord upLeft = {coord.x - 2, coord.y - 2};
+    if (upLeft.x >= 0 && upLeft.x <= Chessboard::rows &&
+        upLeft.y >= 0 && upLeft.y < Chessboard::cols &&
+        chessboard.getPiece(upLeft)[0] != player)
+    {
+        moves.push_back(upLeft);
+    }
+
+    Types::Coord upRight = {coord.x + 2, coord.y - 2};
+    if (upRight.x >= 0 && upRight.x <= Chessboard::rows &&
+        upRight.y >= 0 && upRight.y < Chessboard::cols &&
+        chessboard.getPiece(upRight)[0] != player)
+    {
+        moves.push_back(upRight);
+    }
+
+    Types::Coord downLeft = {coord.x - 2, coord.y + 2};
+    if (downLeft.x >= 0 && downLeft.x <= Chessboard::rows &&
+        downLeft.y >= 0 && downLeft.y < Chessboard::cols - 1 &&
+        chessboard.getPiece(downLeft)[0] != player)
+    {
+        moves.push_back(downLeft);
+    }
+
+    Types::Coord downRight = {coord.x + 2, coord.y + 2};
+    if (downRight.x >= 0 && downRight.x <= Chessboard::rows &&
+        downRight.y >= 0 && downRight.y < Chessboard::cols - 1 &&
+        chessboard.getPiece(downRight)[0] != player)
+    {
+        moves.push_back(downRight);
+    }
+
+    return moves;
+}
+
+std::vector<Types::Coord> Logic::getVizierMoves(Types::Coord coord, char player)
+{
+    auto boardState = chessboard.getBoardState();
+    std::vector<Types::Coord> moves;
+    char enemy = (player == 'w') ? 'b' : 'w';
+
     Types::Coord upLeft = {coord.x - 1, coord.y - 1};
     if (upLeft.x >= 0 && upLeft.x <= Chessboard::rows &&
         upLeft.y >= 0 && upLeft.y < Chessboard::cols &&
@@ -327,10 +368,40 @@ std::vector<Types::Coord> Logic::getKhanMoves(Types::Coord coord, char player)
     return moves;
 }
 
-// Elephant
+std::vector<Types::Coord> Logic::getWarEngineMoves(Types::Coord coord, char player)
+{
+    auto boardState = chessboard.getBoardState();
+    std::vector<Types::Coord> moves;
+    char enemy = (player == 'w') ? 'b' : 'w';
+
+    Types::Coord up = {coord.x, coord.y - 2};
+    if (up.y >= 0 && chessboard.getPiece(up)[0] != player)
+    {
+        moves.push_back(up);
+    }
+
+    Types::Coord right = {coord.x + 2, coord.y};
+    if (right.x <= Chessboard::rows && chessboard.getPiece(right)[0] != player)
+    {
+        moves.push_back(right);
+    }
+
+    Types::Coord down = {coord.x, coord.y + 2};
+    if (down.y < Chessboard::cols - 1 && chessboard.getPiece(down)[0] != player)
+    {
+        moves.push_back(down);
+    }
+
+    Types::Coord left = {coord.x - 2, coord.y};
+    if (left.x >= 0 && chessboard.getPiece(left)[0] != player)
+    {
+        moves.push_back(left);
+    }
+
+    return moves;
+}
+
 // Camel
 // Mongol
 // Adminstrator
-// Vizir
 // Giraffe
-// War Engine

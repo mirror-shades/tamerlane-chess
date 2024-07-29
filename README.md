@@ -19,14 +19,14 @@ implement moves:
 [x] pawn moves  
 [x] rook moves  
 [ ] Taliah moves  
-[ ] Elephant moves  
+[x] Elephant moves  
 [ ] Camel moves  
 [ ] Mongol moves  
-[ ] Khan moves  
+[x] Khan moves  
 [ ] Adminstrator moves  
 [ ] Vizir moves  
 [ ] Giraffe moves  
-[ ] War Engine moves
+[x] War Engine moves
 
 [ ] implement game rules  
 [ ] implement menus  
