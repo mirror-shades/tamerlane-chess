@@ -17,6 +17,11 @@ std::vector<Types::Coord> moveList;
 Types::Coord selectedSquare = {-1, -1};
 std::string selectedPiece;
 
+sf::Color colour1 = sf::Color(0xE5E5E5ff);
+sf::Color colour2 = sf::Color(0x26403Cff);
+sf::Color colourSelected = sf::Color(0x6290c8ff);
+sf::Color colourMove = sf::Color(0xFBFF1280);
+
 std::map<std::string, sf::Texture> textures;
 std::map<std::string, sf::Sprite> images;
 
@@ -174,7 +179,8 @@ void highlightSquare(sf::RenderWindow &window)
     square.setPosition((selectedSquare.x + 1) * squareSize, selectedSquare.y * squareSize);
 
     // highlight
-    square.setFillColor(sf::Color(250, 250, 210, 200));
+
+    square.setFillColor(colourSelected);
     // Draw the square
     window.draw(square);
 
@@ -183,7 +189,7 @@ void highlightSquare(sf::RenderWindow &window)
         square.setPosition((coord.x + 1) * squareSize, coord.y * squareSize);
 
         // highlight
-        square.setFillColor(sf::Color(250, 250, 210, 200));
+        square.setFillColor(colourMove);
         // Draw the square
         window.draw(square);
     }
@@ -202,13 +208,13 @@ void drawBoard(sf::RenderWindow &window)
             square.setPosition((col + 1) * squareSize, row * squareSize);
 
             // Alternate colors
-            if ((row + col) % 2 == 0)
+            if ((row + col) % 2 != 0)
             {
-                square.setFillColor(sf::Color::Black);
+                square.setFillColor(colour1);
             }
             else
             {
-                square.setFillColor(sf::Color(165, 42, 42));
+                square.setFillColor(colour2);
             }
 
             // Draw the square
@@ -219,12 +225,12 @@ void drawBoard(sf::RenderWindow &window)
     // Draw the fortresses (squares on the sides)
     sf::RectangleShape lFortress(sf::Vector2f(squareSize, squareSize));
     lFortress.setPosition(0, squareSize);
-    lFortress.setFillColor(sf::Color::Black);
+    lFortress.setFillColor(colour2);
     window.draw(lFortress);
 
     sf::RectangleShape rFortress(sf::Vector2f(squareSize, squareSize));
     rFortress.setPosition(squareSize * 12, squareSize * 8);
-    rFortress.setFillColor(sf::Color(165, 42, 42));
+    rFortress.setFillColor(colour1);
     window.draw(rFortress);
 }
 
