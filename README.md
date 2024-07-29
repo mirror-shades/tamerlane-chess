@@ -28,7 +28,13 @@ implement moves:
 [x] Giraffe moves  
 [x] War Engine moves
 
-[x] turn history
-[ ] implement game rules  
+implement game logic:  
+[x] checks
+[ ] checkmates
+[ ] stalemates
+[ ] promotions
+[ ] draws
+
+[x] turn history  
 [ ] implement menus  
 [ ] implement AI
