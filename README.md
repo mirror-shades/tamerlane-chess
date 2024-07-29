@@ -28,7 +28,6 @@ implement moves:
 [ ] Giraffe moves  
 [ ] War Engine moves
 
-[ ] implement piece rules  
 [ ] implement game rules  
 [ ] implement menus  
 [ ] implement AI

@@ -8,7 +8,7 @@
 
 Logic logic;
 
-int turns = 2;
+int turns = 1;
 const int rows = 10;
 const int cols = 11;
 const int squareSize = 75;
@@ -87,6 +87,18 @@ std::vector<Types::Coord> getMoves(Types::Coord coord, std::string piece, char p
     if (piece[1] == 'R')
     {
         _moveList = logic.getRookMoves(coord, player);
+    }
+    if (piece[1] == 'T')
+    {
+        _moveList = logic.getTaliaMoves(coord, player);
+    }
+    if (piece[1] == 'K')
+    {
+        _moveList = logic.getKhanMoves(coord, player);
+    }
+    if (piece[1] == 'E')
+    {
+        _moveList = logic.getElephantMoves(coord, player);
     }
     return _moveList;
 }
