@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 namespace Types
 {
@@ -16,5 +17,15 @@ namespace Types
         {
             return !(*this == other);
         }
+    };
+
+    struct Turn
+    {
+        int turn;
+        char player;
+        Coord initialSquare;
+        Coord finalSquare;
+        std::string pieceMoved;
+        std::string pieceCaptured;
     };
 }

@@ -47,7 +47,6 @@ std::vector<Types::Coord> Logic::getRookMoves(Types::Coord coord, char player)
     {
         int newY = coord.y + i + 1;
         Types::Coord newCoord = {coord.x, newY};
-        std::cout << newY << std::endl;
         std::string target = chessboard.getPiece(newCoord);
         if (target == "---")
         {

@@ -25,6 +25,7 @@ const int cols = 11;
 const int squareSize = 75;
 bool isPieceSelected = false;
 std::vector<Types::Coord> moveList;
+std::vector<Types::Turn> turnHistory;
 Types::Coord selectedSquare = {-1, -1};
 std::string selectedPiece;
 
@@ -300,11 +301,21 @@ void clickLogic(int x, int y)
             {
                 // Animate moving the piece
                 startAnimation(selectedPiece, selectedSquare, move, 0.5f);
-
+                std::string target = chessboard.getPiece(move);
                 // Update the board state (but don't display yet)
                 chessboard.setCell(selectedSquare, "---");
                 chessboard.setCell(move, selectedPiece);
 
+                Types::Turn newTurn = {
+                    turns,
+                    player,
+                    selectedSquare,
+                    move,
+                    selectedPiece,
+                    target};
+
+                turnHistory.push_back(newTurn);
+                turns++;
                 isPieceSelected = false;
                 moveList = {};
                 selectedSquare = {-1, -1};
