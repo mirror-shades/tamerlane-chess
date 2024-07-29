@@ -174,35 +174,28 @@ void highlightSquare(sf::RenderWindow &window)
 {
     sf::RectangleShape square(sf::Vector2f(squareSize, squareSize));
 
-    // Position the square
+    // Position and draw the selected square
     square.setPosition((selectedSquare.x + 1) * squareSize, selectedSquare.y * squareSize);
-
-    // Highlight
     square.setFillColor(colourSelected);
-    // Draw the square
     window.draw(square);
 
+    // Position and draw the possible move squares
     for (const auto &coord : moveList)
     {
-        // Position the square
         square.setPosition((coord.x + 1) * squareSize, coord.y * squareSize);
-
-        // Highlight
         square.setFillColor(colourMove);
-        // Draw the square
         window.draw(square);
     }
 }
 
 void drawBoard(sf::RenderWindow &window)
 {
-    // Draw the chessboard
+    sf::RectangleShape square(sf::Vector2f(squareSize, squareSize));
+
     for (int row = 0; row < 10; ++row)
     {
         for (int col = 0; col < 11; ++col)
         {
-            sf::RectangleShape square(sf::Vector2f(squareSize, squareSize));
-
             // Position the square
             square.setPosition((col + 1) * squareSize, row * squareSize);
 
@@ -215,22 +208,23 @@ void drawBoard(sf::RenderWindow &window)
             {
                 square.setFillColor(colour2);
             }
-
             // Draw the square
             window.draw(square);
         }
     }
 
     // Draw the fortresses (squares on the sides)
-    sf::RectangleShape lFortress(sf::Vector2f(squareSize, squareSize));
-    lFortress.setPosition(0, squareSize);
-    lFortress.setFillColor(colour2);
-    window.draw(lFortress);
+    square.setSize(sf::Vector2f(squareSize, squareSize));
 
-    sf::RectangleShape rFortress(sf::Vector2f(squareSize, squareSize));
-    rFortress.setPosition(squareSize * 12, squareSize * 8);
-    rFortress.setFillColor(colour1);
-    window.draw(rFortress);
+    // Left Fortress
+    square.setPosition(0, squareSize);
+    square.setFillColor(colour2);
+    window.draw(square);
+
+    // Right Fortress
+    square.setPosition(squareSize * 12, squareSize * 8);
+    square.setFillColor(colour1);
+    window.draw(square);
 }
 
 void drawPieces(sf::RenderWindow &window, auto images)

@@ -12,14 +12,18 @@ public:
     static const int rows = 10;
     static const int cols = 11;
 
-    Chessboard(); // Constructor declaration
-    const std::array<std::array<std::string, cols>, rows> &getBoardState() const;
+    Chessboard(); // Constructor
+
+    // New method to load a specific board
+    void setBoard(const std::array<std::array<std::string, 11>, 10> &newBoard);
+
+    const std::array<std::array<std::string, 11>, 10> &getBoardState() const;
     const std::string getPiece(Types::Coord coord) const;
     void setCell(Types::Coord coord, const std::string &value);
     bool isValidCoord(Types::Coord coord) const;
 
 private:
-    std::array<std::array<std::string, cols>, rows> chessboard;
+    std::array<std::array<std::string, 11>, 10> chessboard;
 };
 
 #endif // CHESSBOARD_H
