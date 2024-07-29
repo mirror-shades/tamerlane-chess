@@ -633,6 +633,7 @@ bool Logic::isKingInCheck(const char &player)
                 {
                     if (move == kingPosition)
                     {
+                        std::cout << player << " king in check" << std::endl;
                         return true;
                     }
                 }

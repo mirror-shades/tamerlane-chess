@@ -139,6 +139,32 @@ void highlightSquare(sf::RenderWindow &window)
     }
 }
 
+void highlightKing(sf::RenderWindow &window, const char &player)
+{
+    auto boardState = chessboard.getBoardState();
+    Types::Coord kingPosition;
+    std::string king = player == 'w' ? "wKa" : "bKa";
+    for (int row = 0; row < Chessboard::rows; ++row)
+    {
+        for (int col = 0; col < Chessboard::cols; ++col)
+        {
+            if (boardState[row][col] == king)
+            {
+                kingPosition = {col, row};
+                break;
+            }
+        }
+    }
+
+    if (logic.isKingInCheck(player))
+    {
+        sf::RectangleShape square(sf::Vector2f(squareSize, squareSize));
+        square.setPosition((kingPosition.x + 1) * squareSize, kingPosition.y * squareSize);
+        square.setFillColor(sf::Color::Red); // Or any color you'd like for indicating check
+        window.draw(square);
+    }
+}
+
 void drawBoard(sf::RenderWindow &window)
 {
     sf::RectangleShape square(sf::Vector2f(squareSize, squareSize));
@@ -391,6 +417,9 @@ int main()
         drawBoard(window);
         // highlight selected piece
         highlightSquare(window);
+        // highlight checks
+        highlightKing(window, 'w');
+        highlightKing(window, 'b');
         // Draw the pieces
         drawPieces(window, pieceImages);
 
