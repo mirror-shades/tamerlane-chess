@@ -18,13 +18,13 @@ using minGW 6.1.0 > 6.3.0, run in powershell:
 implement moves:  
 [x] pawn moves  
 [x] rook moves  
-[ ] Taliah moves  
+[x] Taliah moves  
 [x] Elephant moves  
 [ ] Camel moves  
 [ ] Mongol moves  
 [x] Khan moves  
 [ ] Adminstrator moves  
-[ ] Vizir moves  
+[x] Vizir moves  
 [ ] Giraffe moves  
 [x] War Engine moves
 

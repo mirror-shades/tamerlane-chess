@@ -259,36 +259,21 @@ std::vector<Types::Coord> Logic::getElephantMoves(Types::Coord coord, char playe
     std::vector<Types::Coord> moves;
     char enemy = (player == 'w') ? 'b' : 'w';
 
-    Types::Coord upLeft = {coord.x - 2, coord.y - 2};
-    if (upLeft.x >= 0 && upLeft.x <= Chessboard::rows &&
-        upLeft.y >= 0 && upLeft.y < Chessboard::cols &&
-        chessboard.getPiece(upLeft)[0] != player)
-    {
-        moves.push_back(upLeft);
-    }
+    std::vector<Types::Coord> possibleMoves = {
+        {coord.x - 2, coord.y + 2}, // down left
+        {coord.x + 2, coord.y + 2}, // down right
+        {coord.x - 2, coord.y - 2}, // up left
+        {coord.x + 2, coord.y - 2}  // up right
+    };
 
-    Types::Coord upRight = {coord.x + 2, coord.y - 2};
-    if (upRight.x >= 0 && upRight.x <= Chessboard::rows &&
-        upRight.y >= 0 && upRight.y < Chessboard::cols &&
-        chessboard.getPiece(upRight)[0] != player)
+    for (const auto &move : possibleMoves)
     {
-        moves.push_back(upRight);
-    }
-
-    Types::Coord downLeft = {coord.x - 2, coord.y + 2};
-    if (downLeft.x >= 0 && downLeft.x <= Chessboard::rows &&
-        downLeft.y >= 0 && downLeft.y < Chessboard::cols - 1 &&
-        chessboard.getPiece(downLeft)[0] != player)
-    {
-        moves.push_back(downLeft);
-    }
-
-    Types::Coord downRight = {coord.x + 2, coord.y + 2};
-    if (downRight.x >= 0 && downRight.x <= Chessboard::rows &&
-        downRight.y >= 0 && downRight.y < Chessboard::cols - 1 &&
-        chessboard.getPiece(downRight)[0] != player)
-    {
-        moves.push_back(downRight);
+        if (move.x >= 0 && move.x <= Chessboard::rows &&
+            move.y >= 0 && move.y < Chessboard::cols - 1 &&
+            chessboard.getPiece(move)[0] != player)
+        {
+            moves.push_back(move);
+        }
     }
 
     return moves;
@@ -300,36 +285,21 @@ std::vector<Types::Coord> Logic::getVizierMoves(Types::Coord coord, char player)
     std::vector<Types::Coord> moves;
     char enemy = (player == 'w') ? 'b' : 'w';
 
-    Types::Coord upLeft = {coord.x - 1, coord.y - 1};
-    if (upLeft.x >= 0 && upLeft.x <= Chessboard::rows &&
-        upLeft.y >= 0 && upLeft.y < Chessboard::cols &&
-        chessboard.getPiece(upLeft)[0] != player)
-    {
-        moves.push_back(upLeft);
-    }
+    std::vector<Types::Coord> possibleMoves = {
+        {coord.x - 1, coord.y + 1}, // down left
+        {coord.x + 1, coord.y + 1}, // down right
+        {coord.x - 1, coord.y - 1}, // up left
+        {coord.x + 1, coord.y - 1}  // up right
+    };
 
-    Types::Coord upRight = {coord.x + 1, coord.y - 1};
-    if (upRight.x >= 0 && upRight.x <= Chessboard::rows &&
-        upRight.y >= 0 && upRight.y < Chessboard::cols &&
-        chessboard.getPiece(upRight)[0] != player)
+    for (const auto &move : possibleMoves)
     {
-        moves.push_back(upRight);
-    }
-
-    Types::Coord downLeft = {coord.x - 1, coord.y + 1};
-    if (downLeft.x >= 0 && downLeft.x <= Chessboard::rows &&
-        downLeft.y >= 0 && downLeft.y < Chessboard::cols - 1 &&
-        chessboard.getPiece(downLeft)[0] != player)
-    {
-        moves.push_back(downLeft);
-    }
-
-    Types::Coord downRight = {coord.x + 1, coord.y + 1};
-    if (downRight.x >= 0 && downRight.x <= Chessboard::rows &&
-        downRight.y >= 0 && downRight.y < Chessboard::cols - 1 &&
-        chessboard.getPiece(downRight)[0] != player)
-    {
-        moves.push_back(downRight);
+        if (move.x >= 0 && move.x <= Chessboard::rows &&
+            move.y >= 0 && move.y < Chessboard::cols - 1 &&
+            chessboard.getPiece(move)[0] != player)
+        {
+            moves.push_back(move);
+        }
     }
 
     return moves;
@@ -341,28 +311,25 @@ std::vector<Types::Coord> Logic::getKhanMoves(Types::Coord coord, char player)
     std::vector<Types::Coord> moves;
     char enemy = (player == 'w') ? 'b' : 'w';
 
-    Types::Coord up = {coord.x, coord.y - 1};
-    if (up.y >= 0 && chessboard.getPiece(up)[0] != player)
-    {
-        moves.push_back(up);
-    }
+    std::vector<Types::Coord> possibleMoves = {
+        {coord.x, coord.y - 1},     // up
+        {coord.x, coord.y + 1},     // down
+        {coord.x - 1, coord.y},     // left
+        {coord.x + 1, coord.y},     // right
+        {coord.x - 1, coord.y + 1}, // down left
+        {coord.x + 1, coord.y + 1}, // down right
+        {coord.x - 1, coord.y - 1}, // up left
+        {coord.x + 1, coord.y - 1}  // up right
+    };
 
-    Types::Coord right = {coord.x + 1, coord.y};
-    if (right.x <= Chessboard::rows && chessboard.getPiece(right)[0] != player)
+    for (const auto &move : possibleMoves)
     {
-        moves.push_back(right);
-    }
-
-    Types::Coord down = {coord.x, coord.y + 1};
-    if (down.y < Chessboard::cols - 1 && chessboard.getPiece(down)[0] != player)
-    {
-        moves.push_back(down);
-    }
-
-    Types::Coord left = {coord.x - 1, coord.y};
-    if (left.x >= 0 && chessboard.getPiece(left)[0] != player)
-    {
-        moves.push_back(left);
+        if (move.x >= 0 && move.x <= Chessboard::rows &&
+            move.y >= 0 && move.y < Chessboard::cols - 1 &&
+            chessboard.getPiece(move)[0] != player)
+        {
+            moves.push_back(move);
+        }
     }
 
     return moves;
@@ -374,33 +341,80 @@ std::vector<Types::Coord> Logic::getWarEngineMoves(Types::Coord coord, char play
     std::vector<Types::Coord> moves;
     char enemy = (player == 'w') ? 'b' : 'w';
 
-    Types::Coord up = {coord.x, coord.y - 2};
-    if (up.y >= 0 && chessboard.getPiece(up)[0] != player)
-    {
-        moves.push_back(up);
-    }
+    std::vector<Types::Coord> possibleMoves = {
+        {coord.x, coord.y - 2}, // up
+        {coord.x, coord.y + 2}, // down
+        {coord.x - 2, coord.y}, // left
+        {coord.x + 2, coord.y}, // right
+    };
 
-    Types::Coord right = {coord.x + 2, coord.y};
-    if (right.x <= Chessboard::rows && chessboard.getPiece(right)[0] != player)
+    for (const auto &move : possibleMoves)
     {
-        moves.push_back(right);
-    }
-
-    Types::Coord down = {coord.x, coord.y + 2};
-    if (down.y < Chessboard::cols - 1 && chessboard.getPiece(down)[0] != player)
-    {
-        moves.push_back(down);
-    }
-
-    Types::Coord left = {coord.x - 2, coord.y};
-    if (left.x >= 0 && chessboard.getPiece(left)[0] != player)
-    {
-        moves.push_back(left);
+        if (move.x >= 0 && move.x <= Chessboard::rows &&
+            move.y >= 0 && move.y < Chessboard::cols - 1 &&
+            chessboard.getPiece(move)[0] != player)
+        {
+            moves.push_back(move);
+        }
     }
 
     return moves;
 }
 
+std::vector<Types::Coord> Logic::getAdminMoves(Types::Coord coord, char player)
+{
+    auto boardState = chessboard.getBoardState();
+    std::vector<Types::Coord> moves;
+    char enemy = (player == 'w') ? 'b' : 'w';
+
+    std::vector<Types::Coord> possibleMoves = {
+        {coord.x, coord.y - 1}, // up
+        {coord.x, coord.y + 1}, // down
+        {coord.x - 1, coord.y}, // left
+        {coord.x + 1, coord.y}, // right
+    };
+
+    for (const auto &move : possibleMoves)
+    {
+        if (move.x >= 0 && move.x <= Chessboard::rows &&
+            move.y >= 0 && move.y < Chessboard::cols - 1 &&
+            chessboard.getPiece(move)[0] != player)
+        {
+            moves.push_back(move);
+        }
+    }
+
+    return moves;
+}
+
+std::vector<Types::Coord> getKnightMoves(Types::Coord coord, char player)
+{
+    Chessboard chessboard;
+    std::vector<Types::Coord> moves;
+    char enemy = (player == 'w') ? 'b' : 'w';
+
+    std::vector<Types::Coord> possibleMoves = {
+        {coord.x + 1, coord.y + 2},
+        {coord.x + 1, coord.y - 2},
+        {coord.x - 1, coord.y + 2},
+        {coord.x - 1, coord.y - 2},
+        {coord.x + 2, coord.y + 1},
+        {coord.x + 2, coord.y - 1},
+        {coord.x - 2, coord.y + 1},
+        {coord.x - 2, coord.y - 1}};
+
+    for (const auto &move : possibleMoves)
+    {
+        if (move.x >= 0 && move.x <= Chessboard::rows &&
+            move.y >= 0 && move.y < Chessboard::cols - 1 &&
+            chessboard.getPiece(move)[0] != player)
+        {
+            moves.push_back(move);
+        }
+    }
+
+    return moves;
+}
 // Camel
 // Mongol
 // Adminstrator

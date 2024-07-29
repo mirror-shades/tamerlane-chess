@@ -108,6 +108,10 @@ std::vector<Types::Coord> getMoves(Types::Coord coord, std::string piece, char p
     {
         _moveList = logic.getWarEngineMoves(coord, player);
     }
+    if (piece[1] == 'A')
+    {
+        _moveList = logic.getAdminMoves(coord, player);
+    }
     return _moveList;
 }
 
