@@ -94,56 +94,6 @@ bool clickInBoard(const int x, const int y)
     return true;
 }
 
-std::vector<Types::Coord> getMoves(Types::Coord coord, std::string piece, char player)
-{
-    std::vector<Types::Coord> _moveList = {};
-    if (piece[1] == 'p')
-    {
-        _moveList = logic.getPawnMoves(coord, player);
-    }
-    if (piece[1] == 'R')
-    {
-        _moveList = logic.getRookMoves(coord, player);
-    }
-    if (piece[1] == 'T')
-    {
-        _moveList = logic.getTaliaMoves(coord, player);
-    }
-    if (piece[1] == 'K')
-    {
-        _moveList = logic.getKhanMoves(coord, player);
-    }
-    if (piece[1] == 'E')
-    {
-        _moveList = logic.getElephantMoves(coord, player);
-    }
-    if (piece[1] == 'V')
-    {
-        _moveList = logic.getVizierMoves(coord, player);
-    }
-    if (piece[1] == 'W')
-    {
-        _moveList = logic.getWarEngineMoves(coord, player);
-    }
-    if (piece[1] == 'A')
-    {
-        _moveList = logic.getAdminMoves(coord, player);
-    }
-    if (piece[1] == 'M')
-    {
-        _moveList = logic.getMongolMoves(coord, player);
-    }
-    if (piece[1] == 'C')
-    {
-        _moveList = logic.getCamelMoves(coord, player);
-    }
-    if (piece[1] == 'G')
-    {
-        _moveList = logic.getGiraffeMoves(coord, player);
-    }
-    return _moveList;
-}
-
 void startAnimation(std::string piece, Types::Coord start, Types::Coord end, float duration)
 {
     animation.isActive = true;
@@ -292,6 +242,7 @@ void clickLogic(int x, int y)
     auto boardState = chessboard.getBoardState();
     std::string const selected = chessboard.getPiece(coord);
     char player = (turns % 2 == 0) ? 'b' : 'w'; // player turn is decided by even/odd (white goes on turn 1)
+
     // if reclicking on selected square, or on a non-valid square
     if (isPieceSelected)
     {
@@ -302,9 +253,19 @@ void clickLogic(int x, int y)
                 // Animate moving the piece
                 startAnimation(selectedPiece, selectedSquare, move, 0.5f);
                 std::string target = chessboard.getPiece(move);
+
                 // Update the board state (but don't display yet)
                 chessboard.setCell(selectedSquare, "---");
                 chessboard.setCell(move, selectedPiece);
+
+                // Check if the move puts the opponent's king in check
+                auto newBoardState = chessboard.getBoardState();
+                char enemy = (player == 'w') ? 'b' : 'w';
+                if (logic.isKingInCheck(enemy))
+                {
+                    std::cout << "Check!" << std::endl;
+                    // Optionally, you can add additional logic to visually indicate the check
+                }
 
                 Types::Turn newTurn = {
                     turns,
@@ -334,7 +295,7 @@ void clickLogic(int x, int y)
         isPieceSelected = true;
         selectedSquare = {coord.x, coord.y};
         selectedPiece = chessboard.getPiece(selectedSquare);
-        moveList = getMoves(coord, selected, player);
+        moveList = logic.getMoves(coord, selected, player);
     }
 }
 

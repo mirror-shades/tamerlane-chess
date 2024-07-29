@@ -550,3 +550,95 @@ std::vector<Types::Coord> Logic::getGiraffeMoves(Types::Coord coord, char player
 
     return moves;
 }
+
+std::vector<Types::Coord> Logic::getMoves(Types::Coord coord, std::string piece, char player)
+{
+    std::vector<Types::Coord> _moveList = {};
+    if (piece[1] == 'p')
+    {
+        _moveList = getPawnMoves(coord, player);
+    }
+    if (piece[1] == 'R')
+    {
+        _moveList = getRookMoves(coord, player);
+    }
+    if (piece[1] == 'T')
+    {
+        _moveList = getTaliaMoves(coord, player);
+    }
+    if (piece[1] == 'K')
+    {
+        _moveList = getKhanMoves(coord, player);
+    }
+    if (piece[1] == 'E')
+    {
+        _moveList = getElephantMoves(coord, player);
+    }
+    if (piece[1] == 'V')
+    {
+        _moveList = getVizierMoves(coord, player);
+    }
+    if (piece[1] == 'W')
+    {
+        _moveList = getWarEngineMoves(coord, player);
+    }
+    if (piece[1] == 'A')
+    {
+        _moveList = getAdminMoves(coord, player);
+    }
+    if (piece[1] == 'M')
+    {
+        _moveList = getMongolMoves(coord, player);
+    }
+    if (piece[1] == 'C')
+    {
+        _moveList = getCamelMoves(coord, player);
+    }
+    if (piece[1] == 'G')
+    {
+        _moveList = getGiraffeMoves(coord, player);
+    }
+    return _moveList;
+}
+
+bool Logic::isKingInCheck(const char &player)
+{
+    // Find the king's position
+    Types::Coord kingPosition;
+    auto boardState = chessboard.getBoardState();
+    std::string king = player == 'w' ? "wK" : "bK";
+    for (int row = 0; row < Chessboard::rows; ++row)
+    {
+        for (int col = 0; col < Chessboard::cols; ++col)
+        {
+            if (boardState[row][col] == king)
+            {
+                kingPosition = {col, row};
+                break;
+            }
+        }
+    }
+
+    // Check if any opposing piece can move to the king's position
+    char enemyPlayer = (player == 'w') ? 'b' : 'w';
+    for (int row = 0; row < Chessboard::rows; ++row)
+    {
+        for (int col = 0; col < Chessboard::cols; ++col)
+        {
+            std::string piece = boardState[row][col];
+            if (piece[0] == enemyPlayer)
+            {
+                std::vector<Types::Coord> moves = getMoves({col, row}, piece, enemyPlayer);
+                for (const auto &move : moves)
+                {
+                    if (move == kingPosition)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+    return false;
+}
