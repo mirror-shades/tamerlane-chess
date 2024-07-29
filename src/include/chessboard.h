@@ -16,6 +16,7 @@ public:
     const std::array<std::array<std::string, cols>, rows> &getBoardState() const;
     const std::string getPiece(Types::Coord coord) const;
     void setCell(Types::Coord coord, const std::string &value);
+    bool isValidCoord(Types::Coord coord) const;
 
 private:
     std::array<std::array<std::string, cols>, rows> chessboard;

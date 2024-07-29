@@ -22,7 +22,7 @@ Chessboard::Chessboard()
                    {"bpR", "---", "bpT", "bpG", "bpV", "bpK", "bpA", "bpE", "bpC", "bpW", "bp0"},
                    {"---", "---", "---", "---", "---", "---", "---", "---", "---", "---", "---"},
                    {"---", "wRk", "---", "---", "wEl", "---", "---", "---", "---", "---", "---"},
-                   {"---", "---", "---", "---", "---", "wWe", "---", "---", "---", "---", "---"},
+                   {"---", "---", "---", "---", "---", "wGi", "---", "---", "---", "---", "---"},
                    {"---", "---", "wCa", "---", "---", "---", "---", "---", "---", "---", "---"},
                    {"wp0", "---", "---", "wpE", "wpA", "---", "wpV", "wpG", "wpT", "wpM", "wpR"},
                    {"wRk", "bpT", "wTa", "wGi", "wAd", "wKa", "wVi", "wGi", "wTa", "wMo", "wRk"},
@@ -36,13 +36,22 @@ const std::array<std::array<std::string, Chessboard::cols>, Chessboard::rows> &C
 
 const std::string Chessboard::getPiece(Types::Coord coord) const
 {
-    return chessboard[coord.y][coord.x];
+    if (isValidCoord(coord))
+    {
+        return chessboard[coord.y][coord.x];
+    }
+    return "Invalid"; // or handle the invalid case appropriately
 }
 
 void Chessboard::setCell(Types::Coord coord, const std::string &value)
 {
-    if (coord.x >= 0 && coord.x <= rows && coord.y >= 0 && coord.y < cols)
+    if (isValidCoord(coord))
     {
         chessboard[coord.y][coord.x] = value;
     }
+}
+
+bool Chessboard::isValidCoord(Types::Coord coord) const
+{
+    return coord.x >= 0 && coord.x < Chessboard::cols && coord.y >= 0 && coord.y < Chessboard::rows;
 }

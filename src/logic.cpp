@@ -286,10 +286,10 @@ std::vector<Types::Coord> Logic::getVizierMoves(Types::Coord coord, char player)
     char enemy = (player == 'w') ? 'b' : 'w';
 
     std::vector<Types::Coord> possibleMoves = {
-        {coord.x - 1, coord.y + 1}, // down left
-        {coord.x + 1, coord.y + 1}, // down right
-        {coord.x - 1, coord.y - 1}, // up left
-        {coord.x + 1, coord.y - 1}  // up right
+        {coord.x - 1, coord.y + 1}, // left down
+        {coord.x + 1, coord.y + 1}, // right down
+        {coord.x - 1, coord.y - 1}, // left up
+        {coord.x + 1, coord.y - 1}  // right up
     };
 
     for (const auto &move : possibleMoves)
@@ -389,7 +389,7 @@ std::vector<Types::Coord> Logic::getAdminMoves(Types::Coord coord, char player)
 
 std::vector<Types::Coord> Logic::getMongolMoves(Types::Coord coord, char player)
 {
-    Chessboard chessboard;
+    auto boardState = chessboard.getBoardState();
     std::vector<Types::Coord> moves;
     char enemy = (player == 'w') ? 'b' : 'w';
 
@@ -418,7 +418,7 @@ std::vector<Types::Coord> Logic::getMongolMoves(Types::Coord coord, char player)
 
 std::vector<Types::Coord> Logic::getCamelMoves(Types::Coord coord, char player)
 {
-    Chessboard chessboard;
+    auto boardState = chessboard.getBoardState();
     std::vector<Types::Coord> moves;
     char enemy = (player == 'w') ? 'b' : 'w';
 
@@ -445,160 +445,107 @@ std::vector<Types::Coord> Logic::getCamelMoves(Types::Coord coord, char player)
     return moves;
 }
 
-std::vector<Types::Coord> calcGiraffePath(Types::Coord coord, std::vector<int> modifer, char player, char enemy)
-{
-    Chessboard chessboard;
-    std::vector<Types::Coord> moves;
-    for (int i = 0; i < 2; i++)
-    {
-        if (i == 0)
-        { // y  coords
-            if (modifer[i] > 0)
-            { // up
-                int spaceUp = coord.y;
-                for (int j = 0; j < spaceUp; j++)
-                {
-                    Types::Coord newCoord = {coord.x, coord.y + j};
-                    std::string target = chessboard.getPiece(newCoord);
-                    if (j < 2 && target != "---")
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        if (target[0] == player)
-                        {
-                            break;
-                        }
-                        moves.push_back(newCoord);
-                        if (target[0] == enemy)
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-            else
-            { // down
-                int spaceDown = Chessboard::rows - coord.y - 1;
-                for (int j = 0; j < spaceDown; j++)
-                {
-                    Types::Coord newCoord = {coord.x, coord.y - j};
-                    std::string target = chessboard.getPiece(newCoord);
-                    if (j < 2 && target != "---")
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        if (target[0] == player)
-                        {
-                            break;
-                        }
-                        moves.push_back(newCoord);
-                        if (target[0] == enemy)
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        else
-        { // x coords
-            if (modifer[i] > 0)
-            { // right
-                int spaceRight = Chessboard::rows - coord.x;
-                for (int j = 0; j < spaceRight; j++)
-                {
-                    Types::Coord newCoord = {coord.x + j, coord.y};
-                    std::string target = chessboard.getPiece(newCoord);
-                    if (j < 2 && target != "---")
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        if (target[0] == player)
-                        {
-                            break;
-                        }
-                        moves.push_back(newCoord);
-                        if (target[0] == enemy)
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-            else
-            { // left
-                int spaceLeft = coord.x;
-                for (int j = 0; j < spaceLeft; j++)
-                {
-                    Types::Coord newCoord = {coord.x - j, coord.y};
-                    std::string target = chessboard.getPiece(newCoord);
-                    if (j < 2 && target != "---")
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        if (target[0] == player)
-                        {
-                            break;
-                        }
-                        moves.push_back(newCoord);
-                        if (target[0] == enemy)
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return moves;
-}
-
 std::vector<Types::Coord> Logic::getGiraffeMoves(Types::Coord coord, char player)
 {
-    Chessboard chessboard;
+    auto boardState = chessboard.getBoardState();
     std::vector<Types::Coord> moves;
+    int directions[4][2] = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
     char enemy = (player == 'w') ? 'b' : 'w';
 
-    // giraffes can be blocked so their paths need to be tracked very carefully
-    // each giraffe begins by moving one space diagonally
-    std::vector<Types::Coord> possibleMoves = {
-        {coord.x + 1, coord.y + 1},
-        {coord.x + 1, coord.y - 1},
-        {coord.x - 1, coord.y + 1},
-        {coord.x - 1, coord.y - 1}};
-    // from this place, each peice can move at minimum 3 spaces in the relevant x/y
-    // axis for that place. for example, if the diagonal spot is up and to the left,
-    // the giraffe can move a minimum of 3 spaces from the relecant diagonal place
-    // either up or to the left
-    std::vector<std::vector<int>> modifers = {
-        {1, 1},
-        {1, -1},
-        {-1, +1},
-        {-1, -1}};
-
-    for (int i = 0; i < 4; i++)
+    for (auto &dir : directions)
     {
-        // std::vector<Types::Coord> newMoves = calcGiraffePath(possibleMoves[i], modifers[i], player, enemy);
-        //  moves.insert(moves.end(), newMoves.begin(), newMoves.end());
-        std::cout << i << ": " << std::endl; /// newMoves[0].x << "," << newMoves[0].y << std::endl;
-    }
+        int dx = dir[0], dy = dir[1];
+        Types::Coord diagonalMove = {coord.x + dx, coord.y + dy};
 
-    for (const auto &move : possibleMoves)
-    {
-        if (move.x >= 0 && move.x <= Chessboard::rows &&
-            move.y >= 0 && move.y < Chessboard::cols - 1 &&
-            chessboard.getPiece(move)[0] != player)
+        // Check if the one square diagonal move is valid and empty
+        if (!chessboard.isValidCoord(diagonalMove) || chessboard.getPiece(diagonalMove) != "---")
+            continue;
+
+        // Check if the immediate horizontal and vertical moves are blocked
+        bool blockedHorizontal = false, blockedVertical = false;
+
+        for (int i = 1; i < 2; ++i)
         {
-            moves.push_back(move);
+            Types::Coord immediateH = {diagonalMove.x + i * dx, diagonalMove.y};
+            Types::Coord immediateV = {diagonalMove.x, diagonalMove.y + i * dy};
+
+            if (chessboard.isValidCoord(immediateH) && chessboard.getPiece(immediateH) != "---")
+            {
+                blockedHorizontal = true;
+            }
+            if (chessboard.isValidCoord(immediateV) && chessboard.getPiece(immediateV) != "---")
+            {
+                blockedVertical = true;
+            }
+        }
+
+        // Function to add possible moves if path is not blocked
+        auto addMoves = [&](Types::Coord move, bool blocked)
+        {
+            if (!blocked && chessboard.isValidCoord(move))
+            {
+                std::string target = chessboard.getPiece(move);
+                if (target == "---")
+                {
+                    moves.push_back(move);
+                }
+                else if (target[0] == enemy)
+                {
+                    moves.push_back(move);
+                }
+            }
+        };
+
+        // Explore horizontal moves after the diagonalMove
+        if (!blockedHorizontal)
+        {
+            for (int i = 2; i < Chessboard::rows; ++i)
+            {
+                Types::Coord straightMoveH = {diagonalMove.x + i * dx, diagonalMove.y};
+                if (chessboard.isValidCoord(straightMoveH))
+                {
+                    std::string targetH = chessboard.getPiece(straightMoveH);
+                    if (targetH == "---")
+                    {
+                        moves.push_back(straightMoveH);
+                    }
+                    else if (targetH[0] == enemy)
+                    {
+                        moves.push_back(straightMoveH);
+                        break;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Explore vertical moves after the diagonalMove
+        if (!blockedVertical)
+        {
+            for (int i = 2; i < Chessboard::rows; ++i)
+            {
+                Types::Coord straightMoveV = {diagonalMove.x, diagonalMove.y + i * dy};
+                if (chessboard.isValidCoord(straightMoveV))
+                {
+                    std::string targetV = chessboard.getPiece(straightMoveV);
+                    if (targetV == "---")
+                    {
+                        moves.push_back(straightMoveV);
+                    }
+                    else if (targetV[0] == enemy)
+                    {
+                        moves.push_back(straightMoveV);
+                        break;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
         }
     }
 

@@ -151,7 +151,7 @@ void clickLogic(int x, int y)
             }
         }
     }
-    if ((selectedSquare.x == coord.x + 1 && selectedSquare.y == coord.y) || selected == "---")
+    if ((selectedSquare == coord) || selected == "---")
     {
         isPieceSelected = false;
         moveList = {};
