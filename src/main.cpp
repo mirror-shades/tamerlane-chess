@@ -338,6 +338,37 @@ void clickLogic(int x, int y)
     }
 }
 
+void undoLastMove()
+{
+    if (!turnHistory.empty())
+    {
+        // Get the last turn
+        Types::Turn lastTurn = turnHistory.back();
+        turnHistory.pop_back();
+
+        // Revert the move
+        chessboard.setCell(lastTurn.finalSquare, lastTurn.pieceCaptured);
+        chessboard.setCell(lastTurn.initialSquare, lastTurn.pieceMoved);
+
+        // Decrease the turn count
+        turns--;
+
+        // Optionally, update other game states such as the active player or any game status
+        isPieceSelected = false;
+        moveList = {};
+        selectedSquare = {-1, -1};
+
+        std::cout << "Undo move: " << lastTurn.pieceMoved << " from (" << lastTurn.finalSquare.x << ", " << lastTurn.finalSquare.y << ") to (" << lastTurn.initialSquare.x << ", " << lastTurn.initialSquare.y << ")" << std::endl;
+
+        // Stop animation if it's still active
+        animation.isActive = false;
+    }
+    else
+    {
+        std::cout << "No moves to undo" << std::endl;
+    }
+}
+
 int main()
 {
     // Create the main window
@@ -375,6 +406,15 @@ int main()
                     {
                         clickLogic(event.mouseButton.x, event.mouseButton.y);
                     }
+                }
+            }
+
+            // Handle Ctrl+Z for undo
+            if (event.type == sf::Event::KeyPressed)
+            {
+                if (event.key.control && event.key.code == sf::Keyboard::Z)
+                {
+                    undoLastMove();
                 }
             }
         }
