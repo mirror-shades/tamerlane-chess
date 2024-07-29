@@ -29,12 +29,12 @@ implement moves:
 [x] War Engine moves
 
 implement game logic:  
-[x] checks
-[ ] checkmates
-[ ] stalemates
-[ ] promotions
-[ ] draws
+[x] checks  
+[ ] checkmates  
+[ ] stalemates  
+[ ] promotions  
+[ ] draws  
 
 [x] turn history  
 [ ] implement menus  
-[ ] implement AI
+[ ] implement AI  
