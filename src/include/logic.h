@@ -19,6 +19,7 @@ public:
     std::vector<Types::Coord> getCamelMoves(Types::Coord coord, char player);
     std::vector<Types::Coord> getGiraffeMoves(Types::Coord coord, char player);
 
+    std::vector<std::pair<std::string, std::vector<Types::Coord>>> getAllMoves(char player);
     std::vector<Types::Coord> getMoves(Types::Coord coord, std::string piece, char player);
     bool isKingInCheck(const char &player);
 };

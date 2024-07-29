@@ -602,6 +602,30 @@ std::vector<Types::Coord> Logic::getMoves(Types::Coord coord, std::string piece,
     return _moveList;
 }
 
+std::vector<std::pair<std::string, std::vector<Types::Coord>>> Logic::getAllMoves(char player)
+{
+    std::vector<std::pair<std::string, std::vector<Types::Coord>>> allMoves;
+    auto boardState = chessboard.getBoardState();
+
+    for (int row = 0; row < Chessboard::rows; ++row)
+    {
+        for (int col = 0; col < Chessboard::cols; ++col)
+        {
+            std::string piece = boardState[row][col];
+            if (piece != "---" && piece[0] == player)
+            {
+                Types::Coord coord = {col, row};
+                std::vector<Types::Coord> moves = getMoves(coord, piece, player);
+                if (!moves.empty())
+                {
+                    allMoves.push_back({piece, moves});
+                }
+            }
+        }
+    }
+    return allMoves;
+}
+
 bool Logic::isKingInCheck(const char &player)
 {
     // Find the king's position

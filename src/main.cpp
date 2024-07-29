@@ -39,8 +39,7 @@ sf::Color colourMove = sf::Color(0xFBFF1255);
 std::map<std::string, sf::Texture> textures;
 std::map<std::string, sf::Sprite> images;
 
-std::map<std::string, sf::Sprite>
-loadImages()
+std::map<std::string, sf::Sprite> loadImages()
 {
     std::vector<std::string> pieces = {"bKa", "wKa", "bK0", "wK0", "bK1", "wK1", "bAd", "wAd",
                                        "bVi", "wVi", "bGi", "wGi", "bTa", "wTa", "bMo", "wMo",
@@ -236,13 +235,94 @@ sf::Sprite renderBackground(sf::RenderWindow &window, sf::Texture &backgroundTex
     return backgroundSprite;
 }
 
+std::vector<Types::Coord> filterLegalMoves(const std::vector<Types::Coord> &possibleMoves, const Types::Coord &fromCoord, const std::string &piece, char player)
+{
+    std::vector<Types::Coord> legalMoves;
+    for (const auto &toCoord : possibleMoves)
+    {
+        std::string targetPiece = chessboard.getPiece(toCoord);
+        chessboard.setCell(fromCoord, "---");
+        chessboard.setCell(toCoord, piece);
+
+        if (!logic.isKingInCheck(player))
+        {
+            legalMoves.push_back(toCoord);
+        }
+
+        chessboard.setCell(toCoord, targetPiece);
+        chessboard.setCell(fromCoord, piece);
+    }
+    return legalMoves;
+}
+
+void handlePieceSelection(const Types::Coord &coord, const char &player)
+{
+    selectedSquare = coord;
+    selectedPiece = chessboard.getPiece(selectedSquare);
+    std::vector<Types::Coord> possibleMoves = logic.getMoves(selectedSquare, selectedPiece, player);
+    moveList = filterLegalMoves(possibleMoves, selectedSquare, selectedPiece, player);
+    isPieceSelected = true;
+}
+
+void updateGameState(const Types::Coord &move, const std::string &target, const char &player)
+{
+    isWhiteKingInCheck = logic.isKingInCheck('w');
+    isBlackKingInCheck = logic.isKingInCheck('b');
+
+    Types::Turn newTurn = {
+        turns,
+        player,
+        selectedSquare,
+        move,
+        selectedPiece,
+        target};
+
+    turnHistory.push_back(newTurn);
+    turns++;
+    isPieceSelected = false;
+    moveList.clear();
+    selectedSquare = {-1, -1};
+}
+
+void handlePieceMovement(const Types::Coord &move, const char &player)
+{
+    startAnimation(selectedPiece, selectedSquare, move, 0.5f);
+    std::string target = chessboard.getPiece(move);
+    chessboard.setCell(selectedSquare, "---");
+    chessboard.setCell(move, selectedPiece);
+
+    auto newBoardState = chessboard.getBoardState();
+    updateGameState(move, target, player);
+}
+
+bool checkVictoryCondition(const char &player, const char &enemy)
+{
+    if (turns % 2 != 0)
+    {
+        auto enemyMoves = logic.getAllMoves(enemy);
+        if (enemyMoves.empty())
+        {
+            std::cout << "Victory! Player " << player << " wins!" << std::endl;
+            return true;
+        }
+    }
+    return false;
+}
+
+void toggleSelection(const Types::Coord &coord)
+{
+    isPieceSelected = false;
+    moveList.clear();
+    selectedSquare = {-1, -1};
+}
+
 void clickLogic(int x, int y)
 {
     Types::Coord coord = calculateSquare(x, y);
     std::cout << coord.x << ", " << coord.y << " | " << chessboard.getPiece(coord) << std::endl;
-    auto boardState = chessboard.getBoardState();
-    std::string const selected = chessboard.getPiece(coord);
-    char player = (turns % 2 == 0) ? 'b' : 'w';
+    const char player = (turns % 2 == 0) ? 'b' : 'w';
+    const char enemy = (player == 'w') ? 'b' : 'w';
+    std::string selected = chessboard.getPiece(coord);
 
     if (isPieceSelected)
     {
@@ -250,50 +330,52 @@ void clickLogic(int x, int y)
         {
             if (coord == move)
             {
-                startAnimation(selectedPiece, selectedSquare, move, 0.5f);
-                std::string target = chessboard.getPiece(move);
-                chessboard.setCell(selectedSquare, "---");
-                chessboard.setCell(move, selectedPiece);
-
-                // Update board state after the move
-                auto newBoardState = chessboard.getBoardState();
-                char enemy = (player == 'w') ? 'b' : 'w';
-
-                // Update king in check status
-                isWhiteKingInCheck = logic.isKingInCheck('w');
-                isBlackKingInCheck = logic.isKingInCheck('b');
-
-                Types::Turn newTurn = {
-                    turns,
-                    player,
-                    selectedSquare,
-                    move,
-                    selectedPiece,
-                    target};
-
-                turnHistory.push_back(newTurn);
-                turns++;
-                isPieceSelected = false;
-                moveList = {};
-                selectedSquare = {-1, -1};
+                handlePieceMovement(move, player);
                 break;
             }
         }
     }
 
-    if ((selectedSquare == coord) || selected == "---")
+    if (selectedSquare == coord || selected == "---")
     {
-        isPieceSelected = false;
-        moveList = {};
-        selectedSquare = {-1, -1};
+        toggleSelection(coord);
     }
     else if (selected[0] == player)
     {
-        isPieceSelected = true;
-        selectedSquare = {coord.x, coord.y};
-        selectedPiece = chessboard.getPiece(selectedSquare);
-        moveList = logic.getMoves(selectedSquare, selectedPiece, player);
+        handlePieceSelection(coord, player);
     }
+
+    checkVictoryCondition(player, enemy);
+}
+
+std::vector<std::pair<std::string, Types::Coord>> getLegalMoves(char player)
+{
+    std::vector<std::pair<std::string, Types::Coord>> legalMoves;
+    auto allMoves = logic.getAllMoves(player);
+
+    for (const auto &movePair : allMoves)
+    {
+        std::string piece = movePair.first;
+        Types::Coord fromCoord; // Determine from the piece name, or include it in the logic above.
+        for (const auto &toCoord : movePair.second)
+        {
+            // Make a temporary move
+            std::string targetPiece = chessboard.getPiece(toCoord);
+            chessboard.setCell(fromCoord, "---");
+            chessboard.setCell(toCoord, piece);
+
+            // Check if this move leaves the king in check
+            if (!logic.isKingInCheck(player))
+            {
+                legalMoves.push_back({piece, toCoord});
+            }
+
+            // Undo the move
+            chessboard.setCell(toCoord, targetPiece);
+            chessboard.setCell(fromCoord, piece);
+        }
+    }
+    return legalMoves;
 }
 
 void undoLastMove()
