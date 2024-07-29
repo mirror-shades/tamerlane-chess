@@ -28,6 +28,7 @@ implement moves:
 [x] Giraffe moves  
 [x] War Engine moves
 
+[x] turn history
 [ ] implement game rules  
 [ ] implement menus  
 [ ] implement AI
