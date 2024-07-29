@@ -1,3 +1,4 @@
+#include <iostream>
 #include "include/logic.h"
 #include "include/globals.h"
 
@@ -606,8 +607,9 @@ bool Logic::isKingInCheck(const char &player)
     // Find the king's position
     Types::Coord kingPosition;
     auto boardState = chessboard.getBoardState();
-    std::string king = player == 'w' ? "wKa" : "bKa"; // Corrected king name
+    std::string king = player == 'w' ? "wKa" : "bKa";
     bool kingFound = false;
+
     for (int row = 0; row < Chessboard::rows; ++row)
     {
         for (int col = 0; col < Chessboard::cols; ++col)

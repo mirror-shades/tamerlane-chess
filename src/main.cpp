@@ -242,7 +242,7 @@ void clickLogic(int x, int y)
     std::cout << coord.x << ", " << coord.y << " | " << chessboard.getPiece(coord) << std::endl;
     auto boardState = chessboard.getBoardState();
     std::string const selected = chessboard.getPiece(coord);
-    char player = (turns % 2 == 0) ? 'b' : 'w'; // player turn is decided by even/odd
+    char player = (turns % 2 == 0) ? 'b' : 'w';
 
     if (isPieceSelected)
     {
@@ -255,6 +255,7 @@ void clickLogic(int x, int y)
                 chessboard.setCell(selectedSquare, "---");
                 chessboard.setCell(move, selectedPiece);
 
+                // Update board state after the move
                 auto newBoardState = chessboard.getBoardState();
                 char enemy = (player == 'w') ? 'b' : 'w';
 
@@ -279,6 +280,7 @@ void clickLogic(int x, int y)
             }
         }
     }
+
     if ((selectedSquare == coord) || selected == "---")
     {
         isPieceSelected = false;
@@ -290,7 +292,7 @@ void clickLogic(int x, int y)
         isPieceSelected = true;
         selectedSquare = {coord.x, coord.y};
         selectedPiece = chessboard.getPiece(selectedSquare);
-        moveList = logic.getMoves(coord, selected, player);
+        moveList = logic.getMoves(selectedSquare, selectedPiece, player);
     }
 }
 
