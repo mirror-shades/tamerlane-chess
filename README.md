@@ -20,12 +20,12 @@ implement moves:
 [x] rook moves  
 [x] Taliah moves  
 [x] Elephant moves  
-[ ] Camel moves  
-[ ] Mongol moves  
+[x] Camel moves  
+[x] Mongol moves  
 [x] Khan moves  
-[ ] Adminstrator moves  
+[x] Adminstrator moves  
 [x] Vizir moves  
-[ ] Giraffe moves  
+[x] Giraffe moves  
 [x] War Engine moves
 
 [ ] implement game rules  

@@ -14,4 +14,7 @@ public:
     std::vector<Types::Coord> getVizierMoves(Types::Coord coord, char player);
     std::vector<Types::Coord> getAdminMoves(Types::Coord coord, char player);
     std::vector<Types::Coord> getWarEngineMoves(Types::Coord coord, char player);
+    std::vector<Types::Coord> getMongolMoves(Types::Coord coord, char player);
+    std::vector<Types::Coord> getCamelMoves(Types::Coord coord, char player);
+    std::vector<Types::Coord> getGiraffeMoves(Types::Coord coord, char player);
 };

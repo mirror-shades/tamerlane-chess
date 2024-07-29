@@ -130,8 +130,8 @@ std::vector<Types::Coord> Logic::getTaliaMoves(Types::Coord coord, char player)
     std::vector<Types::Coord> moves;
     char enemy = (player == 'w') ? 'b' : 'w';
 
-    // Diagonal Top-Right
-    for (int i = 1; coord.x + i < Chessboard::rows && coord.y - i >= 0; ++i)
+    // up right
+    for (int i = 1; coord.x + i <= Chessboard::rows && coord.y - i >= 0; ++i)
     {
         int newX = coord.x + i;
         int newY = coord.y - i;
@@ -160,7 +160,7 @@ std::vector<Types::Coord> Logic::getTaliaMoves(Types::Coord coord, char player)
         }
     }
 
-    // Diagonal Top-Left
+    // up left
     for (int i = 1; coord.x - i >= 0 && coord.y - i >= 0; ++i)
     {
         int newX = coord.x - i;
@@ -190,8 +190,8 @@ std::vector<Types::Coord> Logic::getTaliaMoves(Types::Coord coord, char player)
         }
     }
 
-    // Diagonal Bottom-Right
-    for (int i = 1; coord.x + i < Chessboard::rows && coord.y + i < Chessboard::rows; ++i)
+    // down right
+    for (int i = 1; coord.x + i <= Chessboard::rows && coord.y + i < Chessboard::rows; ++i)
     {
         int newX = coord.x + i;
         int newY = coord.y + i;
@@ -220,7 +220,7 @@ std::vector<Types::Coord> Logic::getTaliaMoves(Types::Coord coord, char player)
         }
     }
 
-    // Diagonal Bottom-Left
+    // down left
     for (int i = 1; coord.x - i >= 0 && coord.y + i < Chessboard::rows; ++i)
     {
         int newX = coord.x - i;
@@ -387,7 +387,7 @@ std::vector<Types::Coord> Logic::getAdminMoves(Types::Coord coord, char player)
     return moves;
 }
 
-std::vector<Types::Coord> getKnightMoves(Types::Coord coord, char player)
+std::vector<Types::Coord> Logic::getMongolMoves(Types::Coord coord, char player)
 {
     Chessboard chessboard;
     std::vector<Types::Coord> moves;
@@ -415,7 +415,192 @@ std::vector<Types::Coord> getKnightMoves(Types::Coord coord, char player)
 
     return moves;
 }
-// Camel
-// Mongol
-// Adminstrator
-// Giraffe
+
+std::vector<Types::Coord> Logic::getCamelMoves(Types::Coord coord, char player)
+{
+    Chessboard chessboard;
+    std::vector<Types::Coord> moves;
+    char enemy = (player == 'w') ? 'b' : 'w';
+
+    std::vector<Types::Coord> possibleMoves = {
+        {coord.x + 1, coord.y + 3},
+        {coord.x + 1, coord.y - 3},
+        {coord.x - 1, coord.y + 3},
+        {coord.x - 1, coord.y - 3},
+        {coord.x + 3, coord.y + 1},
+        {coord.x + 3, coord.y - 1},
+        {coord.x - 3, coord.y + 1},
+        {coord.x - 3, coord.y - 1}};
+
+    for (const auto &move : possibleMoves)
+    {
+        if (move.x >= 0 && move.x <= Chessboard::rows &&
+            move.y >= 0 && move.y < Chessboard::cols - 1 &&
+            chessboard.getPiece(move)[0] != player)
+        {
+            moves.push_back(move);
+        }
+    }
+
+    return moves;
+}
+
+std::vector<Types::Coord> calcGiraffePath(Types::Coord coord, std::vector<int> modifer, char player, char enemy)
+{
+    Chessboard chessboard;
+    std::vector<Types::Coord> moves;
+    for (int i = 0; i < 2; i++)
+    {
+        if (i == 0)
+        { // y  coords
+            if (modifer[i] > 0)
+            { // up
+                int spaceUp = coord.y;
+                for (int j = 0; j < spaceUp; j++)
+                {
+                    Types::Coord newCoord = {coord.x, coord.y + j};
+                    std::string target = chessboard.getPiece(newCoord);
+                    if (j < 2 && target != "---")
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        if (target[0] == player)
+                        {
+                            break;
+                        }
+                        moves.push_back(newCoord);
+                        if (target[0] == enemy)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            { // down
+                int spaceDown = Chessboard::rows - coord.y - 1;
+                for (int j = 0; j < spaceDown; j++)
+                {
+                    Types::Coord newCoord = {coord.x, coord.y - j};
+                    std::string target = chessboard.getPiece(newCoord);
+                    if (j < 2 && target != "---")
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        if (target[0] == player)
+                        {
+                            break;
+                        }
+                        moves.push_back(newCoord);
+                        if (target[0] == enemy)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        else
+        { // x coords
+            if (modifer[i] > 0)
+            { // right
+                int spaceRight = Chessboard::rows - coord.x;
+                for (int j = 0; j < spaceRight; j++)
+                {
+                    Types::Coord newCoord = {coord.x + j, coord.y};
+                    std::string target = chessboard.getPiece(newCoord);
+                    if (j < 2 && target != "---")
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        if (target[0] == player)
+                        {
+                            break;
+                        }
+                        moves.push_back(newCoord);
+                        if (target[0] == enemy)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            { // left
+                int spaceLeft = coord.x;
+                for (int j = 0; j < spaceLeft; j++)
+                {
+                    Types::Coord newCoord = {coord.x - j, coord.y};
+                    std::string target = chessboard.getPiece(newCoord);
+                    if (j < 2 && target != "---")
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        if (target[0] == player)
+                        {
+                            break;
+                        }
+                        moves.push_back(newCoord);
+                        if (target[0] == enemy)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return moves;
+}
+
+std::vector<Types::Coord> Logic::getGiraffeMoves(Types::Coord coord, char player)
+{
+    Chessboard chessboard;
+    std::vector<Types::Coord> moves;
+    char enemy = (player == 'w') ? 'b' : 'w';
+
+    // giraffes can be blocked so their paths need to be tracked very carefully
+    // each giraffe begins by moving one space diagonally
+    std::vector<Types::Coord> possibleMoves = {
+        {coord.x + 1, coord.y + 1},
+        {coord.x + 1, coord.y - 1},
+        {coord.x - 1, coord.y + 1},
+        {coord.x - 1, coord.y - 1}};
+    // from this place, each peice can move at minimum 3 spaces in the relevant x/y
+    // axis for that place. for example, if the diagonal spot is up and to the left,
+    // the giraffe can move a minimum of 3 spaces from the relecant diagonal place
+    // either up or to the left
+    std::vector<std::vector<int>> modifers = {
+        {1, 1},
+        {1, -1},
+        {-1, +1},
+        {-1, -1}};
+
+    for (int i = 0; i < 4; i++)
+    {
+        // std::vector<Types::Coord> newMoves = calcGiraffePath(possibleMoves[i], modifers[i], player, enemy);
+        //  moves.insert(moves.end(), newMoves.begin(), newMoves.end());
+        std::cout << i << ": " << std::endl; /// newMoves[0].x << "," << newMoves[0].y << std::endl;
+    }
+
+    for (const auto &move : possibleMoves)
+    {
+        if (move.x >= 0 && move.x <= Chessboard::rows &&
+            move.y >= 0 && move.y < Chessboard::cols - 1 &&
+            chessboard.getPiece(move)[0] != player)
+        {
+            moves.push_back(move);
+        }
+    }
+
+    return moves;
+}

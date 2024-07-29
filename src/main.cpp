@@ -112,6 +112,18 @@ std::vector<Types::Coord> getMoves(Types::Coord coord, std::string piece, char p
     {
         _moveList = logic.getAdminMoves(coord, player);
     }
+    if (piece[1] == 'M')
+    {
+        _moveList = logic.getMongolMoves(coord, player);
+    }
+    if (piece[1] == 'C')
+    {
+        _moveList = logic.getCamelMoves(coord, player);
+    }
+    if (piece[1] == 'G')
+    {
+        _moveList = logic.getGiraffeMoves(coord, player);
+    }
     return _moveList;
 }
 
