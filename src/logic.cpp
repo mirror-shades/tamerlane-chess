@@ -606,7 +606,8 @@ bool Logic::isKingInCheck(const char &player)
     // Find the king's position
     Types::Coord kingPosition;
     auto boardState = chessboard.getBoardState();
-    std::string king = player == 'w' ? "wK" : "bK";
+    std::string king = player == 'w' ? "wKa" : "bKa"; // Corrected king name
+    bool kingFound = false;
     for (int row = 0; row < Chessboard::rows; ++row)
     {
         for (int col = 0; col < Chessboard::cols; ++col)
@@ -614,12 +615,20 @@ bool Logic::isKingInCheck(const char &player)
             if (boardState[row][col] == king)
             {
                 kingPosition = {col, row};
+                kingFound = true;
                 break;
             }
         }
+        if (kingFound)
+            break;
     }
 
-    // Check if any opposing piece can move to the king's position
+    if (!kingFound)
+    {
+        std::cout << "Error: King not found!\n";
+        return false;
+    }
+
     char enemyPlayer = (player == 'w') ? 'b' : 'w';
     for (int row = 0; row < Chessboard::rows; ++row)
     {
@@ -633,7 +642,7 @@ bool Logic::isKingInCheck(const char &player)
                 {
                     if (move == kingPosition)
                     {
-                        std::cout << player << " king in check" << std::endl;
+                        std::cout << player << " king in check by " << piece << " at (" << row << ", " << col << ")\n";
                         return true;
                     }
                 }
