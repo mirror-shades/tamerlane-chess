@@ -1,36 +1,31 @@
 #include "include/logic.h"
 #include "include/types.h"
 #include "include/globals.h"
+#include "include/utility.h"
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <vector>
 #include <iostream>
 #include <map>
 
-Logic logic;
-
-struct Animation
-{
-    bool isActive = false;
-    std::string piece;
-    Types::Coord start;
-    Types::Coord end;
-    sf::Clock clock;
-    float duration = 0.25f; // Animation duration in seconds
-} animation;
-
-int turns = 1;
+// Constants
 const int rows = 10;
 const int cols = 11;
 const int squareSize = 75;
+
+// Global Variables
+Logic logic;
+Utility utility;
+int turns = 1;
+char winner = '-';
 bool isPieceSelected = false;
-std::vector<Types::Coord> moveList;
-std::vector<Types::Turn> turnHistory;
+bool ended = false;
 Types::Coord selectedSquare = {-1, -1};
 std::string selectedPiece;
 bool isWhiteKingInCheck = false;
 bool isBlackKingInCheck = false;
-
+std::vector<Types::Coord> moveList;
+std::vector<Types::Turn> turnHistory;
 sf::Color colour1 = sf::Color(0xE5E5E5ff);
 sf::Color colour2 = sf::Color(0x26403Cff);
 sf::Color colourSelected = sf::Color(0x6290c8ff);
@@ -39,53 +34,40 @@ sf::Color colourMove = sf::Color(0xFBFF1255);
 std::map<std::string, sf::Texture> textures;
 std::map<std::string, sf::Sprite> images;
 
-std::map<std::string, sf::Sprite> loadImages()
+struct Animation
 {
-    std::vector<std::string> pieces = {"bKa", "wKa", "bK0", "wK0", "bK1", "wK1", "bAd", "wAd",
-                                       "bVi", "wVi", "bGi", "wGi", "bTa", "wTa", "bMo", "wMo",
-                                       "bRk", "wRk", "bEl", "wEl", "bCa", "wCa", "bWe", "wWe",
-                                       "wp0", "wp1", "wpx", "wpK", "wpA", "wpV", "wpG", "wpT",
-                                       "wpM", "wpR", "wpE", "wpC", "wpW", "bp0", "bp1", "bpx",
-                                       "bpK", "bpA", "bpV", "bpG", "bpT", "bpM", "bpR", "bpE",
-                                       "bpC", "bpW"};
+    bool isActive = false;
+    std::string piece;
+    Types::Coord start;
+    Types::Coord end;
+    sf::Clock clock;
+    float duration = 0.25f;
+} animation;
 
-    for (const auto &piece : pieces)
+// Utility Functions
+bool checkVictoryCondition(const char &player, const char &enemy)
+{
+    bool wHasLegalMoves = logic.hasLegalMoves('w');
+    bool bHasLegalMoves = logic.hasLegalMoves('b');
+    bool wKingInCheck = logic.isKingInCheck('w');
+    bool bKingInCheck = logic.isKingInCheck('b');
+
+    std::cout << "White legal moves: " << wHasLegalMoves << ", in check: " << wKingInCheck << std::endl;
+    std::cout << "Black legal moves: " << bHasLegalMoves << ", in check: " << bKingInCheck << std::endl;
+
+    if (!wHasLegalMoves && wKingInCheck)
     {
-        sf::Texture texture;
-        if (!texture.loadFromFile("assets/pieces/" + piece + ".png"))
-        {
-            std::cerr << "Error loading image: " << piece << ".png" << std::endl;
-            continue;
-        }
-
-        textures[piece] = texture;
-
-        sf::Sprite sprite;
-        sprite.setTexture(textures[piece]);
-        sf::Vector2u textureSize = texture.getSize();
-        sprite.setScale(
-            static_cast<float>(squareSize) / textureSize.x,
-            static_cast<float>(squareSize) / textureSize.y);
-
-        images[piece] = sprite;
+        winner = 'b';
+        std::cout << "Black has won" << std::endl;
+    }
+    if (!bHasLegalMoves && bKingInCheck)
+    {
+        winner = 'w';
+        std::cout << "White has won" << std::endl;
     }
 
-    return images;
-}
-
-Types::Coord calculateSquare(int x, int y)
-{
-    int _x = x / squareSize - 1;
-    int _y = y / squareSize;
-    return {_x, _y};
-}
-
-bool clickInBoard(const int x, const int y)
-{
-    const int boardOffset = 75;
-    const int boardWidth = 900;
-    const int boardHeight = 750;
-    return !(x < boardOffset || x > boardWidth || y > boardHeight);
+    std::cout << "wLost: " << !wHasLegalMoves << ", bLost: " << !bHasLegalMoves << ", winner: " << winner << std::endl;
+    return (!wHasLegalMoves && wKingInCheck) || (!bHasLegalMoves && bKingInCheck);
 }
 
 void startAnimation(std::string piece, Types::Coord start, Types::Coord end, float duration)
@@ -115,6 +97,7 @@ void updateAnimations(float deltaTime)
     }
 }
 
+// Highlighting Functions
 void highlightSquare(sf::RenderWindow &window)
 {
     sf::RectangleShape square(sf::Vector2f(squareSize, squareSize));
@@ -141,24 +124,7 @@ void highlightKing(sf::RenderWindow &window, Types::Coord kingPosition, bool isI
     }
 }
 
-void findAndSetKingPosition(Types::Coord &kingPosition, const char &player)
-{
-    auto boardState = chessboard.getBoardState();
-    std::string king = (player == 'w') ? "wKa" : "bKa";
-
-    for (int row = 0; row < Chessboard::rows; ++row)
-    {
-        for (int col = 0; col < Chessboard::cols; ++col)
-        {
-            if (boardState[row][col] == king)
-            {
-                kingPosition = {col, row};
-                return;
-            }
-        }
-    }
-}
-
+// Drawing Functions
 void drawBoard(sf::RenderWindow &window)
 {
     sf::RectangleShape square(sf::Vector2f(squareSize, squareSize));
@@ -173,9 +139,8 @@ void drawBoard(sf::RenderWindow &window)
         }
     }
 
-    square.setSize(sf::Vector2f(squareSize, squareSize));
-
     // Left Fortress
+    square.setSize(sf::Vector2f(squareSize, squareSize));
     square.setPosition(0, squareSize);
     square.setFillColor(colour2);
     window.draw(square);
@@ -217,6 +182,40 @@ void drawPieces(sf::RenderWindow &window, const std::map<std::string, sf::Sprite
     }
 }
 
+void winScreen(sf::RenderWindow &window)
+{
+    if (winner != '-')
+    {
+        sf::Texture texture;
+        std::string assetPath;
+        if (winner == 'w')
+        {
+            assetPath = "assets/whiteWin.png";
+        }
+        else if (winner == 'b')
+        {
+            assetPath = "assets/blackWin.png";
+        }
+
+        if (!ended) // debugging
+        {
+            std::cout << "Winner: " << winner << ", Loading asset: " << assetPath << std::endl;
+        }
+
+        if (!texture.loadFromFile(assetPath))
+        {
+            std::cerr << "Error loading win screen: " << assetPath << std::endl;
+            return;
+        }
+
+        sf::Sprite sprite;
+        sprite.setTexture(texture);
+        sprite.setPosition(0, 0);
+        window.draw(sprite);
+        ended = true;
+    }
+}
+
 sf::Sprite renderBackground(sf::RenderWindow &window, sf::Texture &backgroundTexture)
 {
     if (!backgroundTexture.loadFromFile("assets/wood.png"))
@@ -235,32 +234,50 @@ sf::Sprite renderBackground(sf::RenderWindow &window, sf::Texture &backgroundTex
     return backgroundSprite;
 }
 
-std::vector<Types::Coord> filterLegalMoves(const std::vector<Types::Coord> &possibleMoves, const Types::Coord &fromCoord, const std::string &piece, char player)
+// Loading Functions
+std::map<std::string, sf::Sprite> loadImages()
 {
-    std::vector<Types::Coord> legalMoves;
-    for (const auto &toCoord : possibleMoves)
-    {
-        std::string targetPiece = chessboard.getPiece(toCoord);
-        chessboard.setCell(fromCoord, "---");
-        chessboard.setCell(toCoord, piece);
+    std::vector<std::string> pieces = {
+        "bKa", "wKa", "bK0", "wK0", "bK1", "wK1", "bAd", "wAd",
+        "bVi", "wVi", "bGi", "wGi", "bTa", "wTa", "bMo", "wMo",
+        "bRk", "wRk", "bEl", "wEl", "bCa", "wCa", "bWe", "wWe",
+        "wp0", "wp1", "wpx", "wpK", "wpA", "wpV", "wpG", "wpT",
+        "wpM", "wpR", "wpE", "wpC", "wpW", "bp0", "bp1", "bpx",
+        "bpK", "bpA", "bpV", "bpG", "bpT", "bpM", "bpR", "bpE",
+        "bpC", "bpW"};
 
-        if (!logic.isKingInCheck(player))
+    for (const auto &piece : pieces)
+    {
+        sf::Texture texture;
+        if (!texture.loadFromFile("assets/pieces/" + piece + ".png"))
         {
-            legalMoves.push_back(toCoord);
+            std::cerr << "Error loading image: " << piece << ".png" << std::endl;
+            continue;
         }
 
-        chessboard.setCell(toCoord, targetPiece);
-        chessboard.setCell(fromCoord, piece);
+        textures[piece] = texture;
+
+        sf::Sprite sprite;
+        sprite.setTexture(textures[piece]);
+        sf::Vector2u textureSize = texture.getSize();
+        sprite.setScale(
+            static_cast<float>(squareSize) / textureSize.x,
+            static_cast<float>(squareSize) / textureSize.y);
+
+        images[piece] = sprite;
     }
-    return legalMoves;
+
+    return images;
 }
+
+// Game Control Functions
 
 void handlePieceSelection(const Types::Coord &coord, const char &player)
 {
     selectedSquare = coord;
     selectedPiece = chessboard.getPiece(selectedSquare);
     std::vector<Types::Coord> possibleMoves = logic.getMoves(selectedSquare, selectedPiece, player);
-    moveList = filterLegalMoves(possibleMoves, selectedSquare, selectedPiece, player);
+    moveList = logic.filterLegalMoves(possibleMoves, selectedSquare, selectedPiece, player);
     isPieceSelected = true;
 }
 
@@ -291,22 +308,13 @@ void handlePieceMovement(const Types::Coord &move, const char &player)
     chessboard.setCell(selectedSquare, "---");
     chessboard.setCell(move, selectedPiece);
 
-    auto newBoardState = chessboard.getBoardState();
     updateGameState(move, target, player);
-}
 
-bool checkVictoryCondition(const char &player, const char &enemy)
-{
-    if (turns % 2 != 0)
+    bool game_over = checkVictoryCondition(player, (player == 'w') ? 'b' : 'w');
+    if (game_over)
     {
-        auto enemyMoves = logic.getAllMoves(enemy);
-        if (enemyMoves.empty())
-        {
-            std::cout << "Victory! Player " << player << " wins!" << std::endl;
-            return true;
-        }
+        std::cout << "Game over. Winner: " << winner << std::endl;
     }
-    return false;
 }
 
 void toggleSelection(const Types::Coord &coord)
@@ -318,7 +326,7 @@ void toggleSelection(const Types::Coord &coord)
 
 void clickLogic(int x, int y)
 {
-    Types::Coord coord = calculateSquare(x, y);
+    Types::Coord coord = utility.calculateSquare(x, y);
     std::cout << coord.x << ", " << coord.y << " | " << chessboard.getPiece(coord) << std::endl;
     const char player = (turns % 2 == 0) ? 'b' : 'w';
     const char enemy = (player == 'w') ? 'b' : 'w';
@@ -331,6 +339,10 @@ void clickLogic(int x, int y)
             if (coord == move)
             {
                 handlePieceMovement(move, player);
+                if (checkVictoryCondition(player, (player == 'w') ? 'b' : 'w'))
+                {
+                    std::cout << "Game over. Winner: " << winner << std::endl;
+                }
                 break;
             }
         }
@@ -344,8 +356,6 @@ void clickLogic(int x, int y)
     {
         handlePieceSelection(coord, player);
     }
-
-    checkVictoryCondition(player, enemy);
 }
 
 std::vector<std::pair<std::string, Types::Coord>> getLegalMoves(char player)
@@ -359,22 +369,20 @@ std::vector<std::pair<std::string, Types::Coord>> getLegalMoves(char player)
         Types::Coord fromCoord; // Determine from the piece name, or include it in the logic above.
         for (const auto &toCoord : movePair.second)
         {
-            // Make a temporary move
             std::string targetPiece = chessboard.getPiece(toCoord);
             chessboard.setCell(fromCoord, "---");
             chessboard.setCell(toCoord, piece);
 
-            // Check if this move leaves the king in check
             if (!logic.isKingInCheck(player))
             {
                 legalMoves.push_back({piece, toCoord});
             }
 
-            // Undo the move
             chessboard.setCell(toCoord, targetPiece);
             chessboard.setCell(fromCoord, piece);
         }
     }
+
     return legalMoves;
 }
 
@@ -388,16 +396,14 @@ void undoLastMove()
         chessboard.setCell(lastTurn.initialSquare, lastTurn.pieceMoved);
         turns--;
 
-        // Update king in check status after undo
         isWhiteKingInCheck = logic.isKingInCheck('w');
         isBlackKingInCheck = logic.isKingInCheck('b');
 
         isPieceSelected = false;
-        moveList = {};
+        moveList.clear();
         selectedSquare = {-1, -1};
 
         std::cout << "Undo move: " << lastTurn.pieceMoved << " from (" << lastTurn.finalSquare.x << ", " << lastTurn.finalSquare.y << ") to (" << lastTurn.initialSquare.x << ", " << lastTurn.initialSquare.y << ")" << std::endl;
-
         animation.isActive = false;
     }
     else
@@ -406,6 +412,7 @@ void undoLastMove()
     }
 }
 
+// Main Function
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(975, 900), "Chessboard");
@@ -426,7 +433,7 @@ int main()
             {
                 if (event.mouseButton.button == sf::Mouse::Left)
                 {
-                    if (clickInBoard(event.mouseButton.x, event.mouseButton.y))
+                    if (utility.clickInBoard(event.mouseButton.x, event.mouseButton.y))
                     {
                         clickLogic(event.mouseButton.x, event.mouseButton.y);
                     }
@@ -449,12 +456,14 @@ int main()
         highlightSquare(window);
 
         Types::Coord whiteKingPosition, blackKingPosition;
-        findAndSetKingPosition(whiteKingPosition, 'w');
-        findAndSetKingPosition(blackKingPosition, 'b');
+        logic.findAndSetKingPosition(whiteKingPosition, 'w');
+        logic.findAndSetKingPosition(blackKingPosition, 'b');
         highlightKing(window, whiteKingPosition, isWhiteKingInCheck);
         highlightKing(window, blackKingPosition, isBlackKingInCheck);
 
         drawPieces(window, pieceImages);
+        winScreen(window); // This line ensures the win screen is drawn if there's a winner.
+
         window.display();
     }
 

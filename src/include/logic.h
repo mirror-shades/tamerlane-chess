@@ -21,5 +21,9 @@ public:
 
     std::vector<std::pair<std::string, std::vector<Types::Coord>>> getAllMoves(char player);
     std::vector<Types::Coord> getMoves(Types::Coord coord, std::string piece, char player);
+    std::vector<Types::Coord> filterLegalMoves(const std::vector<Types::Coord> &possibleMoves, const Types::Coord &fromCoord, const std::string &piece, char player);
+    void findAndSetKingPosition(Types::Coord &kingPosition, const char &player);
+    Types::Coord findKingPosition(char player);
     bool isKingInCheck(const char &player);
+    bool hasLegalMoves(char player);
 };
