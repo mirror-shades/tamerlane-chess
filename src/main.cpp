@@ -20,6 +20,7 @@ int turns = 1;
 char winner = '-';
 bool isPieceSelected = false;
 bool ended = false;
+bool gameOver = false;
 Types::Coord selectedSquare = {-1, -1};
 std::string selectedPiece;
 bool isWhiteKingInCheck = false;
@@ -47,27 +48,20 @@ struct Animation
 // Utility Functions
 bool checkVictoryCondition(const char &player, const char &enemy)
 {
-    bool wHasLegalMoves = logic.hasLegalMoves('w');
-    bool bHasLegalMoves = logic.hasLegalMoves('b');
-    bool wKingInCheck = logic.isKingInCheck('w');
-    bool bKingInCheck = logic.isKingInCheck('b');
+    auto boardState = chessboard.getBoardState();
+    bool hasLegalMoves = logic.hasLegalMoves(player);
+    bool kingInCheck = logic.isKingInCheck(player, boardState);
 
-    std::cout << "White legal moves: " << wHasLegalMoves << ", in check: " << wKingInCheck << std::endl;
-    std::cout << "Black legal moves: " << bHasLegalMoves << ", in check: " << bKingInCheck << std::endl;
+    std::cout << player << " legal moves: " << hasLegalMoves
+              << ", in check: " << kingInCheck << std::endl;
 
-    if (!wHasLegalMoves && wKingInCheck)
+    if (!hasLegalMoves)
     {
-        winner = 'b';
-        std::cout << "Black has won" << std::endl;
-    }
-    if (!bHasLegalMoves && bKingInCheck)
-    {
-        winner = 'w';
-        std::cout << "White has won" << std::endl;
+        winner = enemy;
+        std::cout << enemy << " has won" << std::endl;
     }
 
-    std::cout << "wLost: " << !wHasLegalMoves << ", bLost: " << !bHasLegalMoves << ", winner: " << winner << std::endl;
-    return (!wHasLegalMoves && wKingInCheck) || (!bHasLegalMoves && bKingInCheck);
+    return (!hasLegalMoves);
 }
 
 void startAnimation(std::string piece, Types::Coord start, Types::Coord end, float duration)
@@ -283,8 +277,10 @@ void handlePieceSelection(const Types::Coord &coord, const char &player)
 
 void updateGameState(const Types::Coord &move, const std::string &target, const char &player)
 {
-    isWhiteKingInCheck = logic.isKingInCheck('w');
-    isBlackKingInCheck = logic.isKingInCheck('b');
+    auto boardState = chessboard.getBoardState();
+
+    isWhiteKingInCheck = logic.isKingInCheck('w', boardState);
+    isBlackKingInCheck = logic.isKingInCheck('b', boardState);
 
     Types::Turn newTurn = {
         turns,
@@ -339,10 +335,6 @@ void clickLogic(int x, int y)
             if (coord == move)
             {
                 handlePieceMovement(move, player);
-                if (checkVictoryCondition(player, (player == 'w') ? 'b' : 'w'))
-                {
-                    std::cout << "Game over. Winner: " << winner << std::endl;
-                }
                 break;
             }
         }
@@ -358,34 +350,6 @@ void clickLogic(int x, int y)
     }
 }
 
-std::vector<std::pair<std::string, Types::Coord>> getLegalMoves(char player)
-{
-    std::vector<std::pair<std::string, Types::Coord>> legalMoves;
-    auto allMoves = logic.getAllMoves(player);
-
-    for (const auto &movePair : allMoves)
-    {
-        std::string piece = movePair.first;
-        Types::Coord fromCoord; // Determine from the piece name, or include it in the logic above.
-        for (const auto &toCoord : movePair.second)
-        {
-            std::string targetPiece = chessboard.getPiece(toCoord);
-            chessboard.setCell(fromCoord, "---");
-            chessboard.setCell(toCoord, piece);
-
-            if (!logic.isKingInCheck(player))
-            {
-                legalMoves.push_back({piece, toCoord});
-            }
-
-            chessboard.setCell(toCoord, targetPiece);
-            chessboard.setCell(fromCoord, piece);
-        }
-    }
-
-    return legalMoves;
-}
-
 void undoLastMove()
 {
     if (!turnHistory.empty())
@@ -395,9 +359,10 @@ void undoLastMove()
         chessboard.setCell(lastTurn.finalSquare, lastTurn.pieceCaptured);
         chessboard.setCell(lastTurn.initialSquare, lastTurn.pieceMoved);
         turns--;
+        auto boardState = chessboard.getBoardState();
 
-        isWhiteKingInCheck = logic.isKingInCheck('w');
-        isBlackKingInCheck = logic.isKingInCheck('b');
+        isWhiteKingInCheck = logic.isKingInCheck('w', boardState);
+        isBlackKingInCheck = logic.isKingInCheck('b', boardState);
 
         isPieceSelected = false;
         moveList.clear();
@@ -431,11 +396,20 @@ int main()
                 window.close();
             if (event.type == sf::Event::MouseButtonPressed)
             {
-                if (event.mouseButton.button == sf::Mouse::Left)
+                if (!gameOver && event.mouseButton.button == sf::Mouse::Left)
                 {
                     if (utility.clickInBoard(event.mouseButton.x, event.mouseButton.y))
                     {
                         clickLogic(event.mouseButton.x, event.mouseButton.y);
+
+                        // Check game status after a move
+                        const char player = (turns % 2 == 0) ? 'b' : 'w';
+                        const char enemy = (player == 'w') ? 'b' : 'w';
+                        gameOver = checkVictoryCondition(player, enemy);
+                        if (gameOver)
+                        {
+                            std::cout << "Game over. Winner: " << winner << std::endl;
+                        }
                     }
                 }
             }
@@ -462,6 +436,7 @@ int main()
         highlightKing(window, blackKingPosition, isBlackKingInCheck);
 
         drawPieces(window, pieceImages);
+
         winScreen(window); // This line ensures the win screen is drawn if there's a winner.
 
         window.display();

@@ -639,16 +639,15 @@ std::vector<Types::Coord> Logic::filterLegalMoves(const std::vector<Types::Coord
         // Move the piece
         chessboard.setCell(fromCoord, "---");
         chessboard.setCell(toCoord, piece);
-
+        auto newBoard = chessboard.getBoardState();
         // Check if the move results in the king being in check
-        if (!isKingInCheck(player))
+        if (!isKingInCheck(player, newBoard))
         {
             legalMoves.push_back(toCoord);
         }
 
         // Revert the move
-        chessboard.setCell(toCoord, targetPiece);
-        chessboard.setCell(fromCoord, piece);
+        chessboard.setBoard(originalBoard);
     }
 
     // Restore the original board state just to be absolutely sure
@@ -675,11 +674,10 @@ void Logic::findAndSetKingPosition(Types::Coord &kingPosition, const char &playe
     }
 }
 
-bool Logic::isKingInCheck(const char &player)
+bool Logic::isKingInCheck(const char &player, auto boardState)
 {
     // Find the king's position
     Types::Coord kingPosition;
-    auto boardState = chessboard.getBoardState();
     std::string king = player == 'w' ? "wKa" : "bKa";
     bool kingFound = false;
 
@@ -731,6 +729,7 @@ bool Logic::hasLegalMoves(char player)
 {
     // Get all possible moves for the player
     std::vector<std::pair<std::string, std::vector<Types::Coord>>> allMoves = getAllMoves(player);
+    chessboard.printBoard();
 
     // Iterate through all the possible moves
     for (const auto &pieceMoves : allMoves)
@@ -754,6 +753,11 @@ bool Logic::hasLegalMoves(char player)
 
         // Filter the possible moves to include only legal moves
         std::vector<Types::Coord> legalMoves = filterLegalMoves(possibleMoves, fromCoord, piece, player);
+
+        for (const auto &move : legalMoves)
+        {
+            std::cout << player << " legal move " << move.x << ", " << move.y << std::endl; // Excess debug statement
+        }
 
         // If there are any legal moves, return true
         if (!legalMoves.empty())

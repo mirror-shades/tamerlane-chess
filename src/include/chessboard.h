@@ -21,6 +21,7 @@ public:
     const std::string getPiece(Types::Coord coord) const;
     void setCell(Types::Coord coord, const std::string &value);
     bool isValidCoord(Types::Coord coord) const;
+    void printBoard() const;
 
 private:
     std::array<std::array<std::string, 11>, 10> chessboard;
