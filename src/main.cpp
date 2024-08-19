@@ -49,19 +49,29 @@ struct Animation
 bool checkVictoryCondition(const char &player, const char &enemy)
 {
     auto boardState = chessboard.getBoardState();
-    bool hasLegalMoves = logic.hasLegalMoves(player);
-    bool kingInCheck = logic.isKingInCheck(player, boardState);
+    bool hasLegalMoves = logic.hasLegalMoves(enemy);
+    bool kingInCheck = logic.isKingInCheck(enemy, boardState);
 
-    std::cout << player << " legal moves: " << hasLegalMoves
+    std::cout << enemy << " legal moves: " << hasLegalMoves
               << ", in check: " << kingInCheck << std::endl;
 
     if (!hasLegalMoves)
     {
-        winner = enemy;
-        std::cout << enemy << " has won" << std::endl;
+        if (kingInCheck)
+        {
+            winner = player;
+            std::cout << player << " has won by checkmate" << std::endl;
+        }
+        else
+        {
+            winner = 's';
+            std::cout << "The game is a draw by stalemate" << std::endl;
+        }
+        gameOver = true; // Add this line to set the gameOver flag
+        return true;
     }
 
-    return (!hasLegalMoves);
+    return false;
 }
 
 void startAnimation(std::string piece, Types::Coord start, Types::Coord end, float duration)
@@ -297,6 +307,13 @@ void updateGameState(const Types::Coord &move, const std::string &target, const 
     selectedSquare = {-1, -1};
 }
 
+void toggleSelection(const Types::Coord &coord)
+{
+    isPieceSelected = false;
+    moveList.clear();
+    selectedSquare = {-1, -1};
+}
+
 void handlePieceMovement(const Types::Coord &move, const char &player)
 {
     startAnimation(selectedPiece, selectedSquare, move, 0.5f);
@@ -306,18 +323,13 @@ void handlePieceMovement(const Types::Coord &move, const char &player)
 
     updateGameState(move, target, player);
 
-    bool game_over = checkVictoryCondition(player, (player == 'w') ? 'b' : 'w');
+    char enemy = (player == 'w') ? 'b' : 'w';
+    bool game_over = checkVictoryCondition(player, enemy);
     if (game_over)
     {
+        gameOver = true;
         std::cout << "Game over. Winner: " << winner << std::endl;
     }
-}
-
-void toggleSelection(const Types::Coord &coord)
-{
-    isPieceSelected = false;
-    moveList.clear();
-    selectedSquare = {-1, -1};
 }
 
 void clickLogic(int x, int y)
@@ -335,7 +347,7 @@ void clickLogic(int x, int y)
             if (coord == move)
             {
                 handlePieceMovement(move, player);
-                break;
+                return; // Add this line to exit the function after handling the move
             }
         }
     }
@@ -401,15 +413,6 @@ int main()
                     if (utility.clickInBoard(event.mouseButton.x, event.mouseButton.y))
                     {
                         clickLogic(event.mouseButton.x, event.mouseButton.y);
-
-                        // Check game status after a move
-                        const char player = (turns % 2 == 0) ? 'b' : 'w';
-                        const char enemy = (player == 'w') ? 'b' : 'w';
-                        gameOver = checkVictoryCondition(player, enemy);
-                        if (gameOver)
-                        {
-                            std::cout << "Game over. Winner: " << winner << std::endl;
-                        }
                     }
                 }
             }

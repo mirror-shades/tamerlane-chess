@@ -554,50 +554,45 @@ std::vector<Types::Coord> Logic::getGiraffeMoves(Types::Coord coord, char player
 
 std::vector<Types::Coord> Logic::getMoves(Types::Coord coord, std::string piece, char player)
 {
-    std::vector<Types::Coord> _moveList = {};
-    if (piece[1] == 'p')
+    std::vector<Types::Coord> _moveList;
+    switch (piece[1])
     {
+    case 'p':
         _moveList = getPawnMoves(coord, player);
-    }
-    if (piece[1] == 'R')
-    {
+        break;
+    case 'R':
         _moveList = getRookMoves(coord, player);
-    }
-    if (piece[1] == 'T')
-    {
+        break;
+    case 'T':
         _moveList = getTaliaMoves(coord, player);
-    }
-    if (piece[1] == 'K')
-    {
+        break;
+    case 'K':
         _moveList = getKhanMoves(coord, player);
-    }
-    if (piece[1] == 'E')
-    {
+        break;
+    case 'E':
         _moveList = getElephantMoves(coord, player);
-    }
-    if (piece[1] == 'V')
-    {
+        break;
+    case 'V':
         _moveList = getVizierMoves(coord, player);
-    }
-    if (piece[1] == 'W')
-    {
+        break;
+    case 'W':
         _moveList = getWarEngineMoves(coord, player);
-    }
-    if (piece[1] == 'A')
-    {
+        break;
+    case 'A':
         _moveList = getAdminMoves(coord, player);
-    }
-    if (piece[1] == 'M')
-    {
+        break;
+    case 'M':
         _moveList = getMongolMoves(coord, player);
-    }
-    if (piece[1] == 'C')
-    {
+        break;
+    case 'C':
         _moveList = getCamelMoves(coord, player);
-    }
-    if (piece[1] == 'G')
-    {
+        break;
+    case 'G':
         _moveList = getGiraffeMoves(coord, player);
+        break;
+    default:
+        std::cerr << "Unknown piece type: " << piece << std::endl;
+        break;
     }
     return _moveList;
 }
@@ -727,45 +722,38 @@ bool Logic::isKingInCheck(const char &player, auto boardState)
 
 bool Logic::hasLegalMoves(char player)
 {
-    // Get all possible moves for the player
     std::vector<std::pair<std::string, std::vector<Types::Coord>>> allMoves = getAllMoves(player);
-    chessboard.printBoard();
 
-    // Iterate through all the possible moves
     for (const auto &pieceMoves : allMoves)
     {
         const std::string &piece = pieceMoves.first;
         const std::vector<Types::Coord> &possibleMoves = pieceMoves.second;
 
-        // Extract and sanitize the starting position of the current piece
         Types::Coord fromCoord;
-        for (int row = 0; row < Chessboard::rows; ++row)
+        bool pieceFound = false;
+        for (int row = 0; row < Chessboard::rows && !pieceFound; ++row)
         {
             for (int col = 0; col < Chessboard::cols; ++col)
             {
-                if (chessboard.getPiece({row, col}) == piece)
+                if (chessboard.getPiece({col, row}) == piece)
                 {
                     fromCoord = {col, row};
+                    pieceFound = true;
                     break;
                 }
             }
         }
 
-        // Filter the possible moves to include only legal moves
+        if (!pieceFound)
+            continue;
+
         std::vector<Types::Coord> legalMoves = filterLegalMoves(possibleMoves, fromCoord, piece, player);
 
-        for (const auto &move : legalMoves)
-        {
-            std::cout << player << " legal move " << move.x << ", " << move.y << std::endl; // Excess debug statement
-        }
-
-        // If there are any legal moves, return true
         if (!legalMoves.empty())
         {
             return true;
         }
     }
 
-    // If no legal moves were found, return false
     return false;
 }
