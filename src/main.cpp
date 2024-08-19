@@ -243,8 +243,8 @@ std::map<std::string, sf::Sprite> loadImages()
         "bKa", "wKa", "bK0", "wK0", "bK1", "wK1", "bAd", "wAd",
         "bVi", "wVi", "bGi", "wGi", "bTa", "wTa", "bMo", "wMo",
         "bRk", "wRk", "bEl", "wEl", "bCa", "wCa", "bWe", "wWe",
-        "wp0", "wp1", "wpx", "wpK", "wpA", "wpV", "wpG", "wpT",
-        "wpM", "wpR", "wpE", "wpC", "wpW", "bp0", "bp1", "bpx",
+        "wp0", "wp1", "wp2", "wpx", "wpK", "wpA", "wpV", "wpG", "wpT",
+        "wpM", "wpR", "wpE", "wpC", "wpW", "bp0", "bp1", "bp2", "bpx",
         "bpK", "bpA", "bpV", "bpG", "bpT", "bpM", "bpR", "bpE",
         "bpC", "bpW"};
 
@@ -322,6 +322,8 @@ void handlePieceMovement(const Types::Coord &move, const char &player)
 
     char enemy = (player == 'w') ? 'b' : 'w';
     logic.promotePawns(player);
+    // if _px exists, check for pawn forks
+    logic.checkPawnForks(player);
     bool game_over = checkVictoryCondition(player, enemy);
     if (game_over)
     {

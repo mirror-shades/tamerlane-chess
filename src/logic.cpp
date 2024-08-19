@@ -839,6 +839,7 @@ std::vector<Types::Coord> Logic::filterLegalMoves(const std::vector<Types::Coord
 void Logic::promotePawns(char player)
 {
     int row = (player == 'w') ? 0 : 9;
+    char enemy = (player == 'w') ? 'b' : 'w';
 
     for (int col = 0; col < Chessboard::cols; col++)
     {
@@ -906,6 +907,9 @@ void Logic::promotePawns(char player)
             case '2':
                 promotedPiece += "K1";
                 break;
+            case 'x':
+                checkPawnForks(enemy);
+                return;
             default:
                 continue; // Skip if not a valid pawn
             }
@@ -914,6 +918,84 @@ void Logic::promotePawns(char player)
         }
     }
 }
+
+void Logic::checkPawnForks(char player)
+{
+    char enemy = (player == 'w') ? 'b' : 'w';
+    int direction = (player == 'w') ? 1 : -1;
+    Types::Coord pawnXPos = findPawnX(player);
+
+    if (pawnXPos.x == -1 || pawnXPos.y == -1)
+    {
+        std::cout << "No pawnX found for player " << player << std::endl;
+        return;
+    }
+
+    for (int col = 0; col < Chessboard::cols - 1; ++col)
+    {
+        for (int row = 1; row < Chessboard::rows - 1; ++row)
+        {
+            std::string piece1 = chessboard.getPiece({col, row});
+            std::string piece2 = chessboard.getPiece({col + 1, row});
+
+            if (piece1[0] == player && piece2[0] == player)
+            {
+                int forkCol = col + direction;
+                int forkRow = row;
+
+                if (forkCol >= 0 && forkCol < Chessboard::cols)
+                {
+                    std::string targetPiece = chessboard.getPiece({forkCol, forkRow});
+                    if (targetPiece == "---" || (targetPiece[0] == enemy && targetPiece[1] != 'K'))
+                    {
+                        chessboard.setCell(pawnXPos, "---");
+                        chessboard.setCell({forkCol, forkRow}, std::string(1, player) + "p1");
+                        std::cout << "Pawn fork placed at " << forkCol << ", " << forkRow << std::endl;
+                        return;
+                    }
+                }
+            }
+        }
+    }
+    std::cout << "No valid pawn fork found for player " << player << std::endl;
+}
+
+Types::Coord Logic::findPawnX(char player)
+{
+    auto boardState = chessboard.getBoardState();
+    for (int row = 0; row < Chessboard::rows; ++row)
+    {
+        for (int col = 0; col < Chessboard::cols; ++col)
+        {
+            std::string piece = boardState[row][col];
+            if (piece[0] == player && piece[2] == 'x')
+            {
+                return {col, row};
+            }
+        }
+    }
+    return {-1, -1};
+}
+
+// def checkPawnForks():
+//     global whiteToMove, pawnXW, pawnXB
+//     running = True
+//     if whiteToMove:
+//         for c in range(len(board)) :
+//             for r in range((len(board[c]))):
+//                 if r+2 <= 10 and board[c][r][0] == "b" and board[c][r+2][0] == "b" and board[0][0] == "wpx" and running:
+//                     if(c+1 <= 9 and board[c+1][r+1][1] != "K"):
+//                         board[0][0] = "---"
+//                         board[c+1][r+1] = "wp1"
+//                         running = False
+//     else:
+//         for c in range(len(board)):
+//             for r in range((len(board[c]))):
+//                 if r+2 <= 10 and board[c][r][0] == "w" and board[c][r+2][0] == "w" and board[9][10] == "bpx" and running:
+//                     if(c-1 > 0 and board[c-1][r+1][1] != "K"):
+//                         board[9][10] = "---"
+//                         board[c-1][r+1] = "bp1"
+//                         running = False
 
 void Logic::findAndSetKingPosition(Types::Coord &kingPosition, const char &player)
 {
