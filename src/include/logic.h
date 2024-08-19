@@ -23,7 +23,7 @@ public:
     std::vector<Types::Coord> getMoves(Types::Coord coord, std::string piece, char player);
     std::vector<Types::Coord> filterLegalMoves(const std::vector<Types::Coord> &possibleMoves, const Types::Coord &fromCoord, const std::string &piece, char player);
     void findAndSetKingPosition(Types::Coord &kingPosition, const char &player);
-    Types::Coord findKingPosition(char player);
+    void promotePawns(char player);
     bool isKingInCheck(const char &player, auto boardState);
     bool hasLegalMoves(char player);
 };

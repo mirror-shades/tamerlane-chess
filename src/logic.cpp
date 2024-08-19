@@ -630,7 +630,11 @@ std::vector<Types::Coord> Logic::filterLegalMoves(const std::vector<Types::Coord
     for (const auto &toCoord : possibleMoves)
     {
         std::string targetPiece = chessboard.getPiece(toCoord);
-
+        // Check if the target piece is untargetable (wpx or bpx)
+        if (targetPiece[2] == 'x')
+        {
+            continue; // Skip this move
+        }
         // Move the piece
         chessboard.setCell(fromCoord, "---");
         chessboard.setCell(toCoord, piece);
@@ -649,6 +653,85 @@ std::vector<Types::Coord> Logic::filterLegalMoves(const std::vector<Types::Coord
     chessboard.setBoard(originalBoard);
 
     return legalMoves;
+}
+
+void Logic::promotePawns(char player)
+{
+    int row = (player == 'w') ? 0 : 9;
+
+    for (int col = 0; col < Chessboard::cols; col++)
+    {
+        std::string piece = chessboard.getPiece({col, row});
+        if (piece[1] == 'p')
+        {
+            std::string promotedPiece = std::string(1, player);
+            switch (piece[2])
+            {
+            case 'R':
+                promotedPiece += "Rk";
+                break;
+            case 'M':
+                promotedPiece += "Mo";
+                break;
+            case 'T':
+                promotedPiece += "Ta";
+                break;
+            case 'G':
+                promotedPiece += "Gi";
+                break;
+            case 'V':
+                promotedPiece += "Vi";
+                break;
+            case 'K':
+                promotedPiece += "K0";
+                break;
+            case 'A':
+                promotedPiece += "Ad";
+                break;
+            case 'E':
+                promotedPiece += "El";
+                break;
+            case 'C':
+                promotedPiece += "Ca";
+                break;
+            case 'W':
+                promotedPiece += "We";
+                break;
+            case '0':
+                promotedPiece += "px";
+                break;
+            case '1':
+                promotedPiece += "p2";
+                Types::Coord pos;
+                if (player == 'w')
+                {
+                    pos = {5, 7};
+                }
+                else
+                {
+                    pos = {5, 2};
+                }
+                // figure out what happens if it's landing on a king!!!
+                if (chessboard.getPiece(pos)[1] == 'K')
+                {
+                    chessboard.setCell({col, row}, "---");
+                    std::cout << "Space occupied by king, executed!" << std::endl;
+                    return;
+                }
+                chessboard.setCell({col, row}, "---");
+                chessboard.setCell(pos, promotedPiece);
+                std::cout << "Promoted " << piece << " to " << promotedPiece << std::endl;
+                return;
+            case '2':
+                promotedPiece += "K1";
+                break;
+            default:
+                continue; // Skip if not a valid pawn
+            }
+            chessboard.setCell({col, row}, promotedPiece);
+            std::cout << "Promoted " << piece << " to " << promotedPiece << std::endl;
+        }
+    }
 }
 
 void Logic::findAndSetKingPosition(Types::Coord &kingPosition, const char &player)
@@ -673,14 +756,14 @@ bool Logic::isKingInCheck(const char &player, auto boardState)
 {
     // Find the king's position
     Types::Coord kingPosition;
-    std::string king = player == 'w' ? "wKa" : "bKa";
     bool kingFound = false;
 
     for (int row = 0; row < Chessboard::rows; ++row)
     {
         for (int col = 0; col < Chessboard::cols; ++col)
         {
-            if (boardState[row][col] == king)
+            std::string piece = boardState[row][col];
+            if (piece[0] == player && piece[1] == 'K')
             {
                 kingPosition = {col, row};
                 kingFound = true;

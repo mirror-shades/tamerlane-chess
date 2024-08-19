@@ -52,9 +52,6 @@ bool checkVictoryCondition(const char &player, const char &enemy)
     bool hasLegalMoves = logic.hasLegalMoves(enemy);
     bool kingInCheck = logic.isKingInCheck(enemy, boardState);
 
-    std::cout << enemy << " legal moves: " << hasLegalMoves
-              << ", in check: " << kingInCheck << std::endl;
-
     if (!hasLegalMoves)
     {
         if (kingInCheck)
@@ -67,7 +64,7 @@ bool checkVictoryCondition(const char &player, const char &enemy)
             winner = 's';
             std::cout << "The game is a draw by stalemate" << std::endl;
         }
-        gameOver = true; // Add this line to set the gameOver flag
+        gameOver = true;
         return true;
     }
 
@@ -275,7 +272,6 @@ std::map<std::string, sf::Sprite> loadImages()
 }
 
 // Game Control Functions
-
 void handlePieceSelection(const Types::Coord &coord, const char &player)
 {
     selectedSquare = coord;
@@ -324,6 +320,7 @@ void handlePieceMovement(const Types::Coord &move, const char &player)
     updateGameState(move, target, player);
 
     char enemy = (player == 'w') ? 'b' : 'w';
+    logic.promotePawns(player);
     bool game_over = checkVictoryCondition(player, enemy);
     if (game_over)
     {
