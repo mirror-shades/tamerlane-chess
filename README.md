@@ -30,11 +30,10 @@ implement moves:
 
 implement game logic:  
 [x] checks  
-[ ] checkmates  
-[ ] stalemates  
-[ ] promotions  
+[x] checkmates  
 [ ] draws  
+[ ] promotions
 
 [x] turn history  
 [ ] implement menus  
-[ ] implement AI  
+[ ] implement AI
