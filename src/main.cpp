@@ -21,6 +21,7 @@ char winner = '-';
 bool isPieceSelected = false;
 bool ended = false;
 bool gameOver = false;
+bool alt = false; // alternate moves for blitz
 Types::Coord selectedSquare = {-1, -1};
 std::string selectedPiece;
 bool isWhiteKingInCheck = false;
@@ -49,8 +50,8 @@ struct Animation
 bool checkVictoryCondition(const char &player, const char &enemy)
 {
     auto boardState = chessboard.getBoardState();
-    bool hasLegalMoves = logic.hasLegalMoves(enemy);
-    bool kingInCheck = logic.isKingInCheck(enemy, boardState);
+    bool hasLegalMoves = logic.hasLegalMoves(enemy, alt);
+    bool kingInCheck = logic.isKingInCheck(enemy, boardState, alt);
 
     if (!hasLegalMoves)
     {
@@ -276,8 +277,8 @@ void handlePieceSelection(const Types::Coord &coord, const char &player)
 {
     selectedSquare = coord;
     selectedPiece = chessboard.getPiece(selectedSquare);
-    std::vector<Types::Coord> possibleMoves = logic.getMoves(selectedSquare, selectedPiece, player);
-    moveList = logic.filterLegalMoves(possibleMoves, selectedSquare, selectedPiece, player);
+    std::vector<Types::Coord> possibleMoves = logic.getMoves(selectedSquare, selectedPiece, player, alt);
+    moveList = logic.filterLegalMoves(possibleMoves, selectedSquare, selectedPiece, player, alt);
     isPieceSelected = true;
 }
 
@@ -285,8 +286,8 @@ void updateGameState(const Types::Coord &move, const std::string &target, const 
 {
     auto boardState = chessboard.getBoardState();
 
-    isWhiteKingInCheck = logic.isKingInCheck('w', boardState);
-    isBlackKingInCheck = logic.isKingInCheck('b', boardState);
+    isWhiteKingInCheck = logic.isKingInCheck('w', boardState, alt);
+    isBlackKingInCheck = logic.isKingInCheck('b', boardState, alt);
 
     Types::Turn newTurn = {
         turns,
@@ -370,8 +371,8 @@ void undoLastMove()
         turns--;
         auto boardState = chessboard.getBoardState();
 
-        isWhiteKingInCheck = logic.isKingInCheck('w', boardState);
-        isBlackKingInCheck = logic.isKingInCheck('b', boardState);
+        isWhiteKingInCheck = logic.isKingInCheck('w', boardState, alt);
+        isBlackKingInCheck = logic.isKingInCheck('b', boardState, alt);
 
         isPieceSelected = false;
         moveList.clear();

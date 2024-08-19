@@ -2,6 +2,7 @@
 #include "include/logic.h"
 #include "include/globals.h"
 
+// move logic
 std::vector<Types::Coord> Logic::getPawnMoves(Types::Coord coord, char player)
 {
     auto boardState = chessboard.getBoardState();
@@ -552,52 +553,232 @@ std::vector<Types::Coord> Logic::getGiraffeMoves(Types::Coord coord, char player
     return moves;
 }
 
-std::vector<Types::Coord> Logic::getMoves(Types::Coord coord, std::string piece, char player)
+// alternative move logic
+std::vector<Types::Coord> Logic::getAltPawnMoves(Types::Coord coord, char player)
+{
+    auto boardState = chessboard.getBoardState();
+    std::vector<Types::Coord> moves;
+    int direction = (player == 'w') ? -1 : 1;
+    char enemy = (player == 'w') ? 'b' : 'w';
+
+    // Check if it's the pawn's first move
+    bool isFirstMove = (player == 'w' && coord.y == 7) || (player == 'b' && coord.y == 2);
+
+    // Single move forward
+    Types::Coord forwardMove = {coord.x, coord.y + direction};
+    if (forwardMove.y >= 0 && forwardMove.y < Chessboard::cols && chessboard.getPiece(forwardMove) == "---")
+    {
+        moves.push_back(forwardMove);
+
+        // Double move on first move
+        if (isFirstMove)
+        {
+            Types::Coord doubleMove = {coord.x, coord.y + 2 * direction};
+            if (doubleMove.y >= 0 && doubleMove.y < Chessboard::cols && chessboard.getPiece(doubleMove) == "---")
+            {
+                moves.push_back(doubleMove);
+            }
+        }
+    }
+
+    // Captures
+    Types::Coord leftCapture = {coord.x - 1, coord.y + direction};
+    if (leftCapture.x >= 0 && leftCapture.x < Chessboard::rows &&
+        leftCapture.y >= 0 && leftCapture.y < Chessboard::cols &&
+        chessboard.getPiece(leftCapture)[0] == enemy)
+    {
+        moves.push_back(leftCapture);
+    }
+
+    Types::Coord rightCapture = {coord.x + 1, coord.y + direction};
+    if (rightCapture.x >= 0 && rightCapture.x < Chessboard::rows &&
+        rightCapture.y >= 0 && rightCapture.y < Chessboard::cols &&
+        chessboard.getPiece(rightCapture)[0] == enemy)
+    {
+        moves.push_back(rightCapture);
+    }
+
+    return moves;
+}
+
+std::vector<Types::Coord> Logic::getAltWarEngineMoves(Types::Coord coord, char player)
+{
+    auto boardState = chessboard.getBoardState();
+    std::vector<Types::Coord> moves;
+    char enemy = (player == 'w') ? 'b' : 'w';
+
+    std::vector<Types::Coord> possibleMoves = {
+        {coord.x, coord.y - 2},     // up
+        {coord.x, coord.y + 2},     // down
+        {coord.x - 2, coord.y},     // left
+        {coord.x + 2, coord.y},     // right
+        {coord.x + 2, coord.y - 2}, // right up
+        {coord.x - 2, coord.y + 2}, // left down
+        {coord.x - 2, coord.y - 2}, // left up
+        {coord.x + 2, coord.y + 2}, // right down
+    };
+
+    for (const auto &move : possibleMoves)
+    {
+        if (move.x >= 0 && move.x <= Chessboard::rows &&
+            move.y >= 0 && move.y < Chessboard::cols - 1 &&
+            chessboard.getPiece(move)[0] != player)
+        {
+            moves.push_back(move);
+        }
+    }
+
+    return moves;
+}
+
+std::vector<Types::Coord> Logic::getAltElephantMoves(Types::Coord coord, char player)
+{
+    auto boardState = chessboard.getBoardState();
+    std::vector<Types::Coord> moves;
+    char enemy = (player == 'w') ? 'b' : 'w';
+
+    std::vector<Types::Coord> possibleMoves = {
+        {coord.x, coord.y - 1},     // up
+        {coord.x, coord.y + 1},     // down
+        {coord.x - 1, coord.y},     // left
+        {coord.x + 1, coord.y},     // right
+        {coord.x - 2, coord.y + 2}, // down left
+        {coord.x + 2, coord.y + 2}, // down right
+        {coord.x - 2, coord.y - 2}, // up left
+        {coord.x + 2, coord.y - 2}  // up right
+    };
+
+    for (const auto &move : possibleMoves)
+    {
+        if (move.x >= 0 && move.x <= Chessboard::rows &&
+            move.y >= 0 && move.y < Chessboard::cols - 1 &&
+            chessboard.getPiece(move)[0] != player)
+        {
+            moves.push_back(move);
+        }
+    }
+
+    return moves;
+}
+
+std::vector<Types::Coord> Logic::getAltVizierMoves(Types::Coord coord, char player)
+{
+    auto boardState = chessboard.getBoardState();
+    std::vector<Types::Coord> moves;
+    char enemy = (player == 'w') ? 'b' : 'w';
+
+    std::vector<Types::Coord> possibleMoves = {
+        {coord.x - 1, coord.y + 1}, // left down
+        {coord.x + 1, coord.y + 1}, // right down
+        {coord.x - 1, coord.y - 1}, // left up
+        {coord.x + 1, coord.y - 1}, // right up
+        {coord.x - 2, coord.y + 2}, // left down
+        {coord.x + 2, coord.y + 2}, // right down
+        {coord.x - 2, coord.y - 2}, // left up
+        {coord.x + 2, coord.y - 2}  // right up
+    };
+
+    for (const auto &move : possibleMoves)
+    {
+        if (move.x >= 0 && move.x <= Chessboard::rows &&
+            move.y >= 0 && move.y < Chessboard::cols - 1 &&
+            chessboard.getPiece(move)[0] != player)
+        {
+            moves.push_back(move);
+        }
+    }
+
+    return moves;
+}
+
+std::vector<Types::Coord> Logic::getAltAdminMoves(Types::Coord coord, char player)
+{
+    auto boardState = chessboard.getBoardState();
+    std::vector<Types::Coord> moves;
+    char enemy = (player == 'w') ? 'b' : 'w';
+
+    std::vector<Types::Coord> possibleMoves = {
+        {coord.x, coord.y - 1}, // up
+        {coord.x, coord.y + 1}, // down
+        {coord.x - 1, coord.y}, // left
+        {coord.x + 1, coord.y}, // right
+        {coord.x, coord.y - 2}, // up
+        {coord.x, coord.y + 2}, // down
+        {coord.x - 2, coord.y}, // left
+        {coord.x + 2, coord.y}, // right
+    };
+
+    for (const auto &move : possibleMoves)
+    {
+        if (move.x >= 0 && move.x <= Chessboard::rows &&
+            move.y >= 0 && move.y < Chessboard::cols - 1 &&
+            chessboard.getPiece(move)[0] != player)
+        {
+            moves.push_back(move);
+        }
+    }
+
+    return moves;
+}
+
+// functionality
+std::vector<Types::Coord> Logic::getMoves(Types::Coord coord, std::string piece, char player, bool alt)
 {
     std::vector<Types::Coord> _moveList;
-    switch (piece[1])
+
+    if (piece[1] == 'R')
     {
-    case 'p':
-        _moveList = getPawnMoves(coord, player);
-        break;
-    case 'R':
         _moveList = getRookMoves(coord, player);
-        break;
-    case 'T':
-        _moveList = getTaliaMoves(coord, player);
-        break;
-    case 'K':
-        _moveList = getKhanMoves(coord, player);
-        break;
-    case 'E':
-        _moveList = getElephantMoves(coord, player);
-        break;
-    case 'V':
-        _moveList = getVizierMoves(coord, player);
-        break;
-    case 'W':
-        _moveList = getWarEngineMoves(coord, player);
-        break;
-    case 'A':
-        _moveList = getAdminMoves(coord, player);
-        break;
-    case 'M':
-        _moveList = getMongolMoves(coord, player);
-        break;
-    case 'C':
-        _moveList = getCamelMoves(coord, player);
-        break;
-    case 'G':
-        _moveList = getGiraffeMoves(coord, player);
-        break;
-    default:
-        std::cerr << "Unknown piece type: " << piece << std::endl;
-        break;
     }
+    else if (piece[1] == 'T')
+    {
+        _moveList = getTaliaMoves(coord, player);
+    }
+    else if (piece[1] == 'K')
+    {
+        _moveList = getKhanMoves(coord, player);
+    }
+    else if (piece[1] == 'M')
+    {
+        _moveList = getMongolMoves(coord, player);
+    }
+    else if (piece[1] == 'C')
+    {
+        _moveList = getCamelMoves(coord, player);
+    }
+    else if (piece[1] == 'G')
+    {
+        _moveList = getGiraffeMoves(coord, player);
+    }
+    else if (piece[1] == 'p')
+    {
+        _moveList = alt ? getAltPawnMoves(coord, player) : getPawnMoves(coord, player);
+    }
+    else if (piece[1] == 'E')
+    {
+        _moveList = alt ? getAltElephantMoves(coord, player) : getElephantMoves(coord, player);
+    }
+    else if (piece[1] == 'W')
+    {
+        _moveList = alt ? getAltWarEngineMoves(coord, player) : getWarEngineMoves(coord, player);
+    }
+    else if (piece[1] == 'V')
+    {
+        _moveList = alt ? getAltVizierMoves(coord, player) : getVizierMoves(coord, player);
+    }
+    else if (piece[1] == 'A')
+    {
+        _moveList = alt ? getAltAdminMoves(coord, player) : getAdminMoves(coord, player);
+    }
+    else
+    {
+        std::cerr << "Unknown piece type: " << piece << std::endl;
+    }
+
     return _moveList;
 }
 
-std::vector<std::pair<std::string, std::vector<Types::Coord>>> Logic::getAllMoves(char player)
+std::vector<std::pair<std::string, std::vector<Types::Coord>>> Logic::getAllMoves(char player, bool alt)
 {
     std::vector<std::pair<std::string, std::vector<Types::Coord>>> allMoves;
     auto boardState = chessboard.getBoardState();
@@ -610,7 +791,7 @@ std::vector<std::pair<std::string, std::vector<Types::Coord>>> Logic::getAllMove
             if (piece != "---" && piece[0] == player)
             {
                 Types::Coord coord = {col, row};
-                std::vector<Types::Coord> moves = getMoves(coord, piece, player);
+                std::vector<Types::Coord> moves = getMoves(coord, piece, player, alt);
                 if (!moves.empty())
                 {
                     allMoves.push_back({piece, moves});
@@ -621,7 +802,7 @@ std::vector<std::pair<std::string, std::vector<Types::Coord>>> Logic::getAllMove
     return allMoves;
 }
 
-std::vector<Types::Coord> Logic::filterLegalMoves(const std::vector<Types::Coord> &possibleMoves, const Types::Coord &fromCoord, const std::string &piece, char player)
+std::vector<Types::Coord> Logic::filterLegalMoves(const std::vector<Types::Coord> &possibleMoves, const Types::Coord &fromCoord, const std::string &piece, char player, bool alt)
 {
     std::vector<Types::Coord> legalMoves;
 
@@ -640,7 +821,7 @@ std::vector<Types::Coord> Logic::filterLegalMoves(const std::vector<Types::Coord
         chessboard.setCell(toCoord, piece);
         auto newBoard = chessboard.getBoardState();
         // Check if the move results in the king being in check
-        if (!isKingInCheck(player, newBoard))
+        if (!isKingInCheck(player, newBoard, alt))
         {
             legalMoves.push_back(toCoord);
         }
@@ -752,7 +933,7 @@ void Logic::findAndSetKingPosition(Types::Coord &kingPosition, const char &playe
     }
 }
 
-bool Logic::isKingInCheck(const char &player, auto boardState)
+bool Logic::isKingInCheck(const char &player, auto boardState, bool alt)
 {
     // Find the king's position
     Types::Coord kingPosition;
@@ -788,7 +969,7 @@ bool Logic::isKingInCheck(const char &player, auto boardState)
             std::string piece = boardState[row][col];
             if (piece[0] == enemyPlayer)
             {
-                std::vector<Types::Coord> moves = getMoves({col, row}, piece, enemyPlayer);
+                std::vector<Types::Coord> moves = getMoves({col, row}, piece, enemyPlayer, alt);
                 for (const auto &move : moves)
                 {
                     if (move == kingPosition)
@@ -803,9 +984,9 @@ bool Logic::isKingInCheck(const char &player, auto boardState)
     return false;
 }
 
-bool Logic::hasLegalMoves(char player)
+bool Logic::hasLegalMoves(char player, bool alt)
 {
-    std::vector<std::pair<std::string, std::vector<Types::Coord>>> allMoves = getAllMoves(player);
+    std::vector<std::pair<std::string, std::vector<Types::Coord>>> allMoves = getAllMoves(player, alt);
 
     for (const auto &pieceMoves : allMoves)
     {
@@ -830,7 +1011,7 @@ bool Logic::hasLegalMoves(char player)
         if (!pieceFound)
             continue;
 
-        std::vector<Types::Coord> legalMoves = filterLegalMoves(possibleMoves, fromCoord, piece, player);
+        std::vector<Types::Coord> legalMoves = filterLegalMoves(possibleMoves, fromCoord, piece, player, alt);
 
         if (!legalMoves.empty())
         {
