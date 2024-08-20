@@ -844,78 +844,79 @@ void Logic::promotePawns(char player)
     for (int col = 0; col < Chessboard::cols; col++)
     {
         std::string piece = chessboard.getPiece({col, row});
-        if (piece[1] == 'p')
+        if (piece[1] != 'p')
+            continue;
+
+        std::string promotedPiece = std::string(1, player);
+        std::string promotionType;
+
+        switch (piece[2])
         {
-            std::string promotedPiece = std::string(1, player);
-            switch (piece[2])
+        case 'R':
+            promotionType = "Rk";
+            break;
+        case 'M':
+            promotionType = "Mo";
+            break;
+        case 'T':
+            promotionType = "Ta";
+            break;
+        case 'G':
+            promotionType = "Gi";
+            break;
+        case 'V':
+            promotionType = "Vi";
+            break;
+        case 'K':
+            promotionType = "K0";
+            break;
+        case 'A':
+            promotionType = "Ad";
+            break;
+        case 'E':
+            promotionType = "El";
+            break;
+        case 'C':
+            promotionType = "Ca";
+            break;
+        case 'W':
+            promotionType = "We";
+            break;
+        case '0':
+            promotionType = "px";
+            break;
+        case '1':
+        {
+            promotionType = "p2";
+            Types::Coord pos = {5, player == 'w' ? 7 : 2};
+            std::string targetPiece = chessboard.getPiece(pos);
+            if (targetPiece[1] == 'K')
             {
-            case 'R':
-                promotedPiece += "Rk";
-                break;
-            case 'M':
-                promotedPiece += "Mo";
-                break;
-            case 'T':
-                promotedPiece += "Ta";
-                break;
-            case 'G':
-                promotedPiece += "Gi";
-                break;
-            case 'V':
-                promotedPiece += "Vi";
-                break;
-            case 'K':
-                promotedPiece += "K0";
-                break;
-            case 'A':
-                promotedPiece += "Ad";
-                break;
-            case 'E':
-                promotedPiece += "El";
-                break;
-            case 'C':
-                promotedPiece += "Ca";
-                break;
-            case 'W':
-                promotedPiece += "We";
-                break;
-            case '0':
-                promotedPiece += "px";
-                break;
-            case '1':
-                promotedPiece += "p2";
-                Types::Coord pos;
-                if (player == 'w')
-                {
-                    pos = {5, 7};
-                }
-                else
-                {
-                    pos = {5, 2};
-                }
-                // figure out what happens if it's landing on a king!!!
-                if (chessboard.getPiece(pos)[1] == 'K')
-                {
-                    chessboard.setCell({col, row}, "---");
-                    std::cout << "Space occupied by king, executed!" << std::endl;
-                    return;
-                }
                 chessboard.setCell({col, row}, "---");
-                chessboard.setCell(pos, promotedPiece);
-                std::cout << "Promoted " << piece << " to " << promotedPiece << std::endl;
-                return;
-            case '2':
-                promotedPiece += "K1";
-                break;
-            case 'x':
-                checkPawnForks(enemy);
-                return;
-            default:
-                continue; // Skip if not a valid pawn
+                std::cout << "Space occupied by king, pawn executed!" << std::endl;
             }
-            chessboard.setCell({col, row}, promotedPiece);
-            std::cout << "Promoted " << piece << " to " << promotedPiece << std::endl;
+            else
+            {
+                chessboard.setCell({col, row}, "---");
+                chessboard.setCell(pos, player + promotionType);
+                std::cout << "Promoted " << piece << " to " << player + promotionType << " at " << pos.x << "," << pos.y << std::endl;
+            }
+            continue;
         }
+        case '2':
+            promotionType = "K1";
+            break;
+        case 'x':
+            checkPawnForks(enemy);
+            continue;
+        default:
+            std::cout << "Invalid pawn type: " << piece << " at " << col << "," << row << std::endl;
+            continue;
+        }
+
+        promotedPiece += promotionType;
+        chessboard.setCell({col, row}, promotedPiece);
+        std::cout << "Promoted " << piece << " to " << promotedPiece << " at " << col << "," << row << std::endl;
     }
 }
 
@@ -968,7 +969,7 @@ Types::Coord Logic::findPawnX(char player)
         for (int col = 0; col < Chessboard::cols; ++col)
         {
             std::string piece = boardState[row][col];
-            if (piece[0] == player && piece[2] == 'x')
+            if (piece[0] == player && piece[1] == 'p' && piece[2] == 'x')
             {
                 return {col, row};
             }
