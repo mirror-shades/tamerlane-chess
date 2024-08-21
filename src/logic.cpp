@@ -923,7 +923,6 @@ void Logic::promotePawns(char player)
 void Logic::checkPawnForks(char player)
 {
     char enemy = (player == 'w') ? 'b' : 'w';
-    int direction = (player == 'w') ? 1 : -1;
     Types::Coord pawnXPos = findPawnX(player);
 
     if (pawnXPos.x == -1 || pawnXPos.y == -1)
@@ -932,28 +931,36 @@ void Logic::checkPawnForks(char player)
         return;
     }
 
-    for (int col = 0; col < Chessboard::cols - 1; ++col)
+    for (int row = 0; row < Chessboard::rows; ++row)
     {
-        for (int row = 1; row < Chessboard::rows - 1; ++row)
+        for (int col = 0; col < Chessboard::cols; ++col)
         {
             std::string piece1 = chessboard.getPiece({col, row});
-            std::string piece2 = chessboard.getPiece({col + 1, row});
+            std::string piece2 = chessboard.getPiece({col + 2, row});
 
-            if (piece1[0] == player && piece2[0] == player)
+            if (piece1[0] == enemy && piece2[0] == enemy)
             {
-                int forkCol = col + direction;
-                int forkRow = row;
+                int forkCol = col;
+                int forkRow = row + 1;
 
-                if (forkCol >= 0 && forkCol < Chessboard::cols)
+                // Check if the fork position is valid
+                if (player == 'w' && forkCol < Chessboard::cols - 1)
                 {
-                    std::string targetPiece = chessboard.getPiece({forkCol, forkRow});
-                    if (targetPiece == "---" || (targetPiece[0] == enemy && targetPiece[1] != 'K'))
-                    {
-                        chessboard.setCell(pawnXPos, "---");
-                        chessboard.setCell({forkCol, forkRow}, std::string(1, player) + "p1");
-                        std::cout << "Pawn fork placed at " << forkCol << ", " << forkRow << std::endl;
-                        return;
-                    }
+                    forkCol++;
+                }
+                else if (player == 'b' && forkCol > 0)
+                {
+                    forkCol--;
+                }
+
+                std::string targetPiece = chessboard.getPiece({forkCol, forkRow});
+                if (targetPiece == "---" || (targetPiece[0] == enemy && targetPiece[1] != 'K'))
+                {
+                    // Move the pawnX to the fork position
+                    chessboard.setCell(pawnXPos, "---");
+                    chessboard.setCell({forkCol, forkRow}, std::string(1, player) + "p1");
+                    std::cout << "Pawn fork placed at " << forkCol << ", " << forkRow << std::endl;
+                    return;
                 }
             }
         }
