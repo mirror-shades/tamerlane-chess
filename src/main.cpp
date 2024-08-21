@@ -1,4 +1,5 @@
-#include "include/logic.h"
+// Include necessary headers
+#include "include/gameLogic.h"
 #include "include/types.h"
 #include "include/globals.h"
 #include "include/utility.h"
@@ -8,34 +9,38 @@
 #include <iostream>
 #include <map>
 
-// Constants
+// Constants for the Tamerlane Chess board
 const int rows = 10;
 const int cols = 11;
 const int squareSize = 75;
 
-// Global Variables
-Logic logic;
+// Global variables for game state
+GameLogic gameLogic;
 Utility utility;
 int turns = 1;
 char winner = '-';
 bool isPieceSelected = false;
 bool ended = false;
 bool gameOver = false;
-bool alt = false; // alternate moves for blitz
+bool alt = false; // Alternate moves for blitz variant
 Types::Coord selectedSquare = {-1, -1};
 std::string selectedPiece;
 bool isWhiteKingInCheck = false;
 bool isBlackKingInCheck = false;
 std::vector<Types::Coord> moveList;
 std::vector<Types::Turn> turnHistory;
+
+// Colors for the chess board and piece highlighting
 sf::Color colour1 = sf::Color(0xE5E5E5ff);
 sf::Color colour2 = sf::Color(0x26403Cff);
 sf::Color colourSelected = sf::Color(0x6290c8ff);
 sf::Color colourMove = sf::Color(0xFBFF1255);
 
+// Textures and sprites for chess pieces
 std::map<std::string, sf::Texture> textures;
 std::map<std::string, sf::Sprite> images;
 
+// Structure for piece movement animation
 struct Animation
 {
     bool isActive = false;
@@ -46,12 +51,12 @@ struct Animation
     float duration = 0.25f;
 } animation;
 
-// Utility Functions
+// Check if the game has ended (checkmate or stalemate)
 bool checkVictoryCondition(const char &player, const char &enemy)
 {
     auto boardState = chessboard.getBoardState();
-    bool hasLegalMoves = logic.hasLegalMoves(enemy, alt);
-    bool kingInCheck = logic.isKingInCheck(enemy, boardState, alt);
+    bool hasLegalMoves = gameLogic.hasLegalMoves(enemy, alt);
+    bool kingInCheck = gameLogic.isKingInCheck(enemy, boardState, alt);
 
     if (!hasLegalMoves)
     {
@@ -72,6 +77,7 @@ bool checkVictoryCondition(const char &player, const char &enemy)
     return false;
 }
 
+// Initialize piece movement animation
 void startAnimation(std::string piece, Types::Coord start, Types::Coord end, float duration)
 {
     animation.isActive = true;
@@ -82,11 +88,13 @@ void startAnimation(std::string piece, Types::Coord start, Types::Coord end, flo
     animation.clock.restart();
 }
 
+// Calculate intermediate position for smooth animation
 sf::Vector2f interpolate(sf::Vector2f startPos, sf::Vector2f endPos, float t)
 {
     return startPos + t * (endPos - startPos);
 }
 
+// Update animation state
 void updateAnimations(float deltaTime)
 {
     if (animation.isActive)
@@ -99,7 +107,7 @@ void updateAnimations(float deltaTime)
     }
 }
 
-// Highlighting Functions
+// Highlight selected square and possible moves
 void highlightSquare(sf::RenderWindow &window)
 {
     sf::RectangleShape square(sf::Vector2f(squareSize, squareSize));
@@ -115,6 +123,7 @@ void highlightSquare(sf::RenderWindow &window)
     }
 }
 
+// Highlight king if in check
 void highlightKing(sf::RenderWindow &window, Types::Coord kingPosition, bool isInCheck)
 {
     if (isInCheck)
@@ -126,11 +135,12 @@ void highlightKing(sf::RenderWindow &window, Types::Coord kingPosition, bool isI
     }
 }
 
-// Drawing Functions
+// Draw the Tamerlane Chess board
 void drawBoard(sf::RenderWindow &window)
 {
     sf::RectangleShape square(sf::Vector2f(squareSize, squareSize));
 
+    // Draw main 10x11 board
     for (int row = 0; row < 10; ++row)
     {
         for (int col = 0; col < 11; ++col)
@@ -141,18 +151,19 @@ void drawBoard(sf::RenderWindow &window)
         }
     }
 
-    // Left Fortress
+    // Draw Left Fortress (unique to Tamerlane Chess)
     square.setSize(sf::Vector2f(squareSize, squareSize));
     square.setPosition(0, squareSize);
     square.setFillColor(colour2);
     window.draw(square);
 
-    // Right Fortress
+    // Draw Right Fortress (unique to Tamerlane Chess)
     square.setPosition(squareSize * 12, squareSize * 8);
     square.setFillColor(colour1);
     window.draw(square);
 }
 
+// Draw chess pieces on the board
 void drawPieces(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages)
 {
     auto boardState = chessboard.getBoardState();
@@ -184,6 +195,7 @@ void drawPieces(sf::RenderWindow &window, const std::map<std::string, sf::Sprite
     }
 }
 
+// Display win screen
 void winScreen(sf::RenderWindow &window)
 {
     if (winner != '-')
@@ -218,6 +230,7 @@ void winScreen(sf::RenderWindow &window)
     }
 }
 
+// Render background
 sf::Sprite renderBackground(sf::RenderWindow &window, sf::Texture &backgroundTexture)
 {
     if (!backgroundTexture.loadFromFile("assets/wood.png"))
@@ -236,9 +249,10 @@ sf::Sprite renderBackground(sf::RenderWindow &window, sf::Texture &backgroundTex
     return backgroundSprite;
 }
 
-// Loading Functions
+// Load chess piece images
 std::map<std::string, sf::Sprite> loadImages()
 {
+    // List of all piece types in Tamerlane Chess
     std::vector<std::string> pieces = {
         "bKa", "wKa", "bK0", "wK0", "bK1", "wK1", "bAd", "wAd",
         "bVi", "wVi", "bGi", "wGi", "bTa", "wTa", "bMo", "wMo",
@@ -272,22 +286,23 @@ std::map<std::string, sf::Sprite> loadImages()
     return images;
 }
 
-// Game Control Functions
+// Handle piece selection
 void handlePieceSelection(const Types::Coord &coord, const char &player)
 {
     selectedSquare = coord;
     selectedPiece = chessboard.getPiece(selectedSquare);
-    std::vector<Types::Coord> possibleMoves = logic.getMoves(selectedSquare, selectedPiece, player, alt);
-    moveList = logic.filterLegalMoves(possibleMoves, selectedSquare, selectedPiece, player, alt);
+    std::vector<Types::Coord> possibleMoves = gameLogic.getMoves(selectedSquare, selectedPiece, player, alt);
+    moveList = gameLogic.filterLegalMoves(possibleMoves, selectedSquare, selectedPiece, player, alt);
     isPieceSelected = true;
 }
 
+// Update game state after a move
 void updateGameState(const Types::Coord &move, const std::string &target, const char &player)
 {
     auto boardState = chessboard.getBoardState();
 
-    isWhiteKingInCheck = logic.isKingInCheck('w', boardState, alt);
-    isBlackKingInCheck = logic.isKingInCheck('b', boardState, alt);
+    isWhiteKingInCheck = gameLogic.isKingInCheck('w', boardState, alt);
+    isBlackKingInCheck = gameLogic.isKingInCheck('b', boardState, alt);
 
     Types::Turn newTurn = {
         turns,
@@ -304,6 +319,7 @@ void updateGameState(const Types::Coord &move, const std::string &target, const 
     selectedSquare = {-1, -1};
 }
 
+// Toggle piece selection
 void toggleSelection(const Types::Coord &coord)
 {
     isPieceSelected = false;
@@ -311,6 +327,7 @@ void toggleSelection(const Types::Coord &coord)
     selectedSquare = {-1, -1};
 }
 
+// Handle piece movement
 void handlePieceMovement(const Types::Coord &move, const char &player)
 {
     startAnimation(selectedPiece, selectedSquare, move, 0.5f);
@@ -321,9 +338,9 @@ void handlePieceMovement(const Types::Coord &move, const char &player)
     updateGameState(move, target, player);
 
     char enemy = (player == 'w') ? 'b' : 'w';
-    logic.promotePawns(player);
-    // if _px exists, check for pawn forks
-    logic.checkPawnForks(player);
+    gameLogic.promotePawns(player);
+    // Check for pawn forks (unique to Tamerlane Chess)
+    gameLogic.checkPawnForks(enemy);
     bool game_over = checkVictoryCondition(player, enemy);
     if (game_over)
     {
@@ -332,6 +349,7 @@ void handlePieceMovement(const Types::Coord &move, const char &player)
     }
 }
 
+// Handle click logic
 void clickLogic(int x, int y)
 {
     Types::Coord coord = utility.calculateSquare(x, y);
@@ -347,7 +365,7 @@ void clickLogic(int x, int y)
             if (coord == move)
             {
                 handlePieceMovement(move, player);
-                return; // Add this line to exit the function after handling the move
+                return; // Exit the function after handling the move
             }
         }
     }
@@ -362,6 +380,7 @@ void clickLogic(int x, int y)
     }
 }
 
+// Undo the last move
 void undoLastMove()
 {
     if (!turnHistory.empty())
@@ -373,8 +392,8 @@ void undoLastMove()
         turns--;
         auto boardState = chessboard.getBoardState();
 
-        isWhiteKingInCheck = logic.isKingInCheck('w', boardState, alt);
-        isBlackKingInCheck = logic.isKingInCheck('b', boardState, alt);
+        isWhiteKingInCheck = gameLogic.isKingInCheck('w', boardState, alt);
+        isBlackKingInCheck = gameLogic.isKingInCheck('b', boardState, alt);
 
         isPieceSelected = false;
         moveList.clear();
@@ -389,10 +408,10 @@ void undoLastMove()
     }
 }
 
-// Main Function
+// Main function
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(975, 900), "Chessboard");
+    sf::RenderWindow window(sf::VideoMode(975, 900), "Tamerlane Chess");
     sf::Texture backgroundTexture;
     sf::Sprite backgroundSprite = renderBackground(window, backgroundTexture);
     auto pieceImages = loadImages();
@@ -433,8 +452,8 @@ int main()
         highlightSquare(window);
 
         Types::Coord whiteKingPosition, blackKingPosition;
-        logic.findAndSetKingPosition(whiteKingPosition, 'w');
-        logic.findAndSetKingPosition(blackKingPosition, 'b');
+        gameLogic.findAndSetKingPosition(whiteKingPosition, 'w');
+        gameLogic.findAndSetKingPosition(blackKingPosition, 'b');
         highlightKing(window, whiteKingPosition, isWhiteKingInCheck);
         highlightKing(window, blackKingPosition, isBlackKingInCheck);
 
