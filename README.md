@@ -32,7 +32,7 @@ implement game logic:
 [x] checks  
 [x] checkmates  
 [ ] draws  
-[ ] promotions
+[x] promotions
 
 [x] turn history  
 [ ] implement menus  
