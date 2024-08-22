@@ -16,4 +16,5 @@ public:
     void checkPawnForks(char player);
     bool isKingInCheck(const char &player, auto boardState, bool alt);
     bool hasLegalMoves(char player, bool alt);
+    bool canDraw(char player);
 };

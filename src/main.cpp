@@ -21,6 +21,7 @@ int turns = 1;
 char winner = '-';
 bool isPieceSelected = false;
 bool ended = false;
+bool drawPossible = false;
 bool gameOver = false;
 bool alt = false; // Alternate moves for blitz variant
 Types::Coord selectedSquare = {-1, -1};
@@ -39,6 +40,11 @@ sf::Color colourMove = sf::Color(0xFBFF1255);
 // Textures and sprites for chess pieces
 std::map<std::string, sf::Texture> textures;
 std::map<std::string, sf::Sprite> images;
+
+// Draw button
+sf::RectangleShape drawButton(sf::Vector2f(squareSize, squareSize));
+sf::Text drawButtonText;
+sf::Font font;
 
 // Structure for piece movement animation
 struct Animation
@@ -135,6 +141,21 @@ void highlightKing(sf::RenderWindow &window, Types::Coord kingPosition, bool isI
     }
 }
 
+void drawDrawButton(sf::RenderWindow &window)
+{
+    drawButton.setPosition(0, 0);
+    drawButton.setFillColor(sf::Color::Green);
+    window.draw(drawButton);
+    drawButtonText.setFont(font);
+    drawButtonText.setString("Draw");
+    drawButtonText.setCharacterSize(24);
+    drawButtonText.setFillColor(sf::Color::Black);
+    sf::FloatRect textRect = drawButtonText.getLocalBounds();
+    drawButtonText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
+    drawButtonText.setPosition(squareSize * 12.5, squareSize * 9.75);
+    window.draw(drawButtonText);
+}
+
 // Draw the Tamerlane Chess board
 void drawBoard(sf::RenderWindow &window)
 {
@@ -161,6 +182,12 @@ void drawBoard(sf::RenderWindow &window)
     square.setPosition(squareSize * 12, squareSize * 8);
     square.setFillColor(colour1);
     window.draw(square);
+
+    // Draw the draw button if drawPossible is true
+    if (drawPossible)
+    {
+        drawDrawButton(window);
+    }
 }
 
 // Draw chess pieces on the board
@@ -209,6 +236,10 @@ void winScreen(sf::RenderWindow &window)
         else if (winner == 'b')
         {
             assetPath = "assets/blackWin.png";
+        }
+        else if (winner == 'd')
+        {
+            assetPath = "assets/draw.png";
         }
 
         if (!ended) // debugging
@@ -341,6 +372,8 @@ void handlePieceMovement(const Types::Coord &move, const char &player)
     gameLogic.promotePawns(player);
     // Check for pawn forks (unique to Tamerlane Chess)
     gameLogic.checkPawnForks(enemy);
+    // determine if a draw is possible next turn
+    drawPossible = gameLogic.canDraw(enemy);
     bool game_over = checkVictoryCondition(player, enemy);
     if (game_over)
     {

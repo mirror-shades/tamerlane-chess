@@ -375,3 +375,31 @@ bool GameLogic::hasLegalMoves(char player, bool alt)
 
     return false;
 }
+
+bool GameLogic::canDraw(char player)
+{
+    auto boardState = chessboard.getBoardState();
+    std::cout << "Checking for draw" << std::endl;
+    std::cout << "Player: " << player << std::endl;
+    std::cout << "Board state: " << boardState[0][0] << std::endl;
+    std::cout << "Board state: " << boardState[1][0] << std::endl;
+    std::cout << "Board state: " << boardState[2][0] << std::endl;
+    std::cout << "Board state: " << boardState[7][10] << std::endl;
+    std::cout << "Board state: " << boardState[8][10] << std::endl;
+    std::cout << "Board state: " << boardState[9][10] << std::endl;
+    if (player == 'w')
+    {
+        if (boardState[0][0] == "wKa" || boardState[1][0] == "wKa" || boardState[2][0] == "wKa")
+        {
+            return true;
+        }
+    }
+    else
+    {
+        if (boardState[8][9] == "bKa" || boardState[9][9] == "bKa" || boardState[10][9] == "bKa")
+        {
+            return true;
+        }
+    }
+    return false;
+}
