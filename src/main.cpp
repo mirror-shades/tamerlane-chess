@@ -141,6 +141,7 @@ void highlightKing(sf::RenderWindow &window, Types::Coord kingPosition, bool isI
     }
 }
 
+// Draw the draw button if possible
 void drawDrawButton(sf::RenderWindow &window)
 {
     drawButton.setPosition(0, 0);
@@ -391,25 +392,39 @@ void clickLogic(int x, int y)
     const char enemy = (player == 'w') ? 'b' : 'w';
     std::string selected = chessboard.getPiece(coord);
 
-    if (isPieceSelected)
+    // initial click position is checked outside of the
+    // board to allow for additional functionality
+    if (coord.x == -1 && coord.y == 0 && drawPossible)
     {
-        for (const auto &move : moveList)
-        {
-            if (coord == move)
-            {
-                handlePieceMovement(move, player);
-                return; // Exit the function after handling the move
-            }
-        }
+        winner = 'd';
+        gameOver = true;
+        std::cout << "Game ended in a draw" << std::endl;
+        return;
     }
 
-    if (selectedSquare == coord || selected == "---")
+    // if click is within the board it is handled here
+    if (utility.clickInBoard(x, y))
     {
-        toggleSelection(coord);
-    }
-    else if (selected[0] == player)
-    {
-        handlePieceSelection(coord, player);
+        if (isPieceSelected)
+        {
+            for (const auto &move : moveList)
+            {
+                if (coord == move)
+                {
+                    handlePieceMovement(move, player);
+                    return; // Exit the function after handling the move
+                }
+            }
+        }
+
+        if (selectedSquare == coord || selected == "---")
+        {
+            toggleSelection(coord);
+        }
+        else if (selected[0] == player)
+        {
+            handlePieceSelection(coord, player);
+        }
     }
 }
 
@@ -462,10 +477,7 @@ int main()
             {
                 if (!gameOver && event.mouseButton.button == sf::Mouse::Left)
                 {
-                    if (utility.clickInBoard(event.mouseButton.x, event.mouseButton.y))
-                    {
-                        clickLogic(event.mouseButton.x, event.mouseButton.y);
-                    }
+                    clickLogic(event.mouseButton.x, event.mouseButton.y);
                 }
             }
             if (event.type == sf::Event::KeyPressed)
