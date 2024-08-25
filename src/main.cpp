@@ -19,7 +19,8 @@ GameLogic gameLogic;
 Utility utility;
 int turns = 1;
 char winner = '-';
-bool ai = true;
+bool ai = false;
+bool menu = true;
 bool isPieceSelected = false;
 bool ended = false;
 bool drawPossible = false;
@@ -449,6 +450,95 @@ void undoLastMove()
     }
 }
 
+void menuScreen(sf::RenderWindow &window)
+{
+    sf::RectangleShape square(sf::Vector2f(squareSize * 13, squareSize * 13));
+    square.setPosition(0, 0);
+    square.setFillColor(sf::Color(0x00000088));
+    window.draw(square);
+
+    sf::Texture titleTexture;
+    if (titleTexture.loadFromFile("assets/title.png"))
+    {
+        sf::Sprite titleSprite(titleTexture);
+
+        // Disable smoothing to prevent tearing
+        titleTexture.setSmooth(false);
+
+        // Calculate the scale to fit the window width
+        float scale = window.getSize().x / static_cast<float>(titleTexture.getSize().x);
+        titleSprite.setScale(scale, scale);
+
+        // Center the sprite horizontally and position it at 1/4 of the window height
+        float xPos = 0; // No need to calculate, as we're scaling to fit the width
+        float yPos = (window.getSize().y - titleTexture.getSize().y * scale) / 4.0f;
+
+        titleSprite.setPosition(xPos, yPos);
+
+        // Use integer rounding for position to avoid subpixel rendering
+        sf::Vector2f position = titleSprite.getPosition();
+        titleSprite.setPosition(static_cast<int>(position.x + 0.5f), static_cast<int>(position.y + 0.5f));
+
+        window.draw(titleSprite);
+    }
+    else
+    {
+        std::cerr << "Failed to load title.png" << std::endl;
+    }
+
+    // Create buttons
+    sf::RectangleShape pvpButton(sf::Vector2f(200, 50));
+    sf::RectangleShape pveButton(sf::Vector2f(200, 50));
+
+    // Position buttons
+    pvpButton.setPosition((window.getSize().x - 200) / 2, window.getSize().y / 2);
+    pveButton.setPosition((window.getSize().x - 200) / 2, window.getSize().y / 2 + 70);
+
+    // Set button colors
+    pvpButton.setFillColor(sf::Color::White);
+    pveButton.setFillColor(sf::Color::White);
+
+    // Create button texts
+    sf::Font font;
+    if (!font.loadFromFile("assets/arial.ttf")) // Make sure you have this font file
+    {
+        std::cerr << "Failed to load font" << std::endl;
+    }
+
+    sf::Text pvpText("Player vs Player", font, 20);
+    sf::Text pveText("Player vs AI", font, 20);
+
+    // Position texts
+    pvpText.setPosition(pvpButton.getPosition().x + 20, pvpButton.getPosition().y + 10);
+    pveText.setPosition(pveButton.getPosition().x + 40, pveButton.getPosition().y + 10);
+
+    // Set text colors
+    pvpText.setFillColor(sf::Color::Black);
+    pveText.setFillColor(sf::Color::Black);
+
+    // Draw buttons and texts
+    window.draw(pvpButton);
+    window.draw(pveButton);
+    window.draw(pvpText);
+    window.draw(pveText);
+
+    // Handle button clicks
+    sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+    {
+        if (pvpButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
+        {
+            menu = false;
+            ai = false;
+        }
+        else if (pveButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
+        {
+            menu = false;
+            ai = true;
+        }
+    }
+}
+
 // Main function
 int main()
 {
@@ -460,6 +550,7 @@ int main()
 
     while (window.isOpen())
     {
+
         float deltaTime = deltaClock.restart().asSeconds();
         sf::Event event;
         while (window.pollEvent(event))
@@ -487,18 +578,24 @@ int main()
         window.clear(sf::Color::White);
         window.draw(backgroundSprite);
         drawBoard(window);
-        highlightSquare(window);
+        if (menu)
+        {
+            menuScreen(window);
+        }
+        else
+        {
+            highlightSquare(window);
 
-        Types::Coord whiteKingPosition, blackKingPosition;
-        gameLogic.findAndSetKingPosition(whiteKingPosition, 'w');
-        gameLogic.findAndSetKingPosition(blackKingPosition, 'b');
-        highlightKing(window, whiteKingPosition, isWhiteKingInCheck);
-        highlightKing(window, blackKingPosition, isBlackKingInCheck);
+            Types::Coord whiteKingPosition, blackKingPosition;
+            gameLogic.findAndSetKingPosition(whiteKingPosition, 'w');
+            gameLogic.findAndSetKingPosition(blackKingPosition, 'b');
+            highlightKing(window, whiteKingPosition, isWhiteKingInCheck);
+            highlightKing(window, blackKingPosition, isBlackKingInCheck);
 
-        drawPieces(window, pieceImages);
+            drawPieces(window, pieceImages);
 
-        winScreen(window); // This line ensures the win screen is drawn if there's a winner.
-
+            winScreen(window); // This line ensures the win screen is drawn if there's a winner.
+        }
         window.display();
     }
 

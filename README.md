@@ -35,5 +35,6 @@ implement game logic:
 [x] promotions
 
 [x] turn history  
-[ ] implement menus  
+[x] implement menus  
+[ ] implement more menu features  
 [ ] implement AI

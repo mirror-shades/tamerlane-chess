@@ -12,9 +12,8 @@ public:
     static const int rows = 10;
     static const int cols = 11;
 
-    Chessboard(); // Constructor
+    Chessboard();
 
-    // New method to load a specific board
     void setBoard(const std::array<std::array<std::string, 11>, 10> &newBoard);
 
     const std::array<std::array<std::string, 11>, 10> &getBoardState() const;
