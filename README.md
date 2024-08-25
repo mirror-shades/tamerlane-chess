@@ -31,7 +31,7 @@ implement moves:
 implement game logic:  
 [x] checks  
 [x] checkmates  
-[ ] draws  
+[x] draws  
 [x] promotions
 
 [x] turn history  

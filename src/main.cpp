@@ -19,6 +19,7 @@ GameLogic gameLogic;
 Utility utility;
 int turns = 1;
 char winner = '-';
+bool ai = true;
 bool isPieceSelected = false;
 bool ended = false;
 bool drawPossible = false;
@@ -44,7 +45,6 @@ std::map<std::string, sf::Sprite> images;
 // Draw button
 sf::RectangleShape drawButton(sf::Vector2f(squareSize, squareSize));
 sf::Text drawButtonText;
-sf::Font font;
 
 // Structure for piece movement animation
 struct Animation
@@ -147,14 +147,6 @@ void drawDrawButton(sf::RenderWindow &window)
     drawButton.setPosition(0, 0);
     drawButton.setFillColor(sf::Color::Green);
     window.draw(drawButton);
-    drawButtonText.setFont(font);
-    drawButtonText.setString("Draw");
-    drawButtonText.setCharacterSize(24);
-    drawButtonText.setFillColor(sf::Color::Black);
-    sf::FloatRect textRect = drawButtonText.getLocalBounds();
-    drawButtonText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
-    drawButtonText.setPosition(squareSize * 12.5, squareSize * 9.75);
-    window.draw(drawButtonText);
 }
 
 // Draw the Tamerlane Chess board
@@ -384,7 +376,7 @@ void handlePieceMovement(const Types::Coord &move, const char &player)
 }
 
 // Handle click logic
-void clickLogic(int x, int y)
+bool clickLogic(int x, int y)
 {
     Types::Coord coord = utility.calculateSquare(x, y);
     std::cout << coord.x << ", " << coord.y << " | " << chessboard.getPiece(coord) << std::endl;
@@ -399,7 +391,7 @@ void clickLogic(int x, int y)
         winner = 'd';
         gameOver = true;
         std::cout << "Game ended in a draw" << std::endl;
-        return;
+        return false;
     }
 
     // if click is within the board it is handled here
@@ -412,7 +404,7 @@ void clickLogic(int x, int y)
                 if (coord == move)
                 {
                     handlePieceMovement(move, player);
-                    return; // Exit the function after handling the move
+                    return true; // Exit the function after handling the move
                 }
             }
         }
@@ -426,6 +418,7 @@ void clickLogic(int x, int y)
             handlePieceSelection(coord, player);
         }
     }
+    return false;
 }
 
 // Undo the last move
