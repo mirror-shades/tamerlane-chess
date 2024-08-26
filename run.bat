@@ -16,7 +16,11 @@ mingw32-make -f Makefile BUILD_TYPE=%BUILD_TYPE%
 
 :: Check if the build was successful
 if %ERRORLEVEL% EQU 0 (
-    .\build\main.exe
+    if not "%BUILD_TYPE%"=="release" (
+        .\build\main.exe
+    ) else (
+        echo Build successful. Executable not run in release mode.
+    )
 ) else (
     echo Build failed.
 )
