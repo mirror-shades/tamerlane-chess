@@ -1,11 +1,18 @@
 @echo off
 
+:: Store the current directory
+set CUR_DIR=%CD%
+
+:: Navigate to the project root directory
+cd /d C:\dev\c++\tamerlane-cpp
+
 :: Run the build script with release flag
-call run.bat release
+call scripts\run.bat release
 
 :: Check if the build was successful
 if %ERRORLEVEL% NEQ 0 (
     echo Build failed. Exiting...
+    cd /d "%CUR_DIR%"
     exit /b %ERRORLEVEL%
 )
 
@@ -22,3 +29,6 @@ copy /Y build\main.exe "%RELEASE_DIR%\"
 xcopy /E /I /Y assets "%RELEASE_DIR%\assets"
 
 echo Release files have been copied to %RELEASE_DIR%
+
+:: Return to the scripts directory
+cd /d "%CUR_DIR%"
