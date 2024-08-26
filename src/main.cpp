@@ -3,6 +3,7 @@
 #include "include/types.h"
 #include "include/globals.h"
 #include "include/utility.h"
+#include "include/ai.h"
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <vector>
@@ -19,7 +20,7 @@ GameLogic gameLogic;
 Utility utility;
 int turns = 1;
 char winner = '-';
-bool ai = false;
+bool aiActive = false;
 bool menu = true;
 bool isPieceSelected = false;
 bool ended = false;
@@ -46,6 +47,8 @@ std::map<std::string, sf::Sprite> images;
 // Draw button
 sf::RectangleShape drawButton(sf::Vector2f(squareSize, squareSize));
 sf::Text drawButtonText;
+
+AI ai;
 
 // Structure for piece movement animation
 struct Animation
@@ -529,12 +532,12 @@ void menuScreen(sf::RenderWindow &window)
         if (pvpButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
         {
             menu = false;
-            ai = false;
+            aiActive = false;
         }
         else if (pveButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
         {
             menu = false;
-            ai = true;
+            aiActive = true;
         }
     }
 }
@@ -561,7 +564,11 @@ int main()
             {
                 if (!gameOver && event.mouseButton.button == sf::Mouse::Left)
                 {
-                    clickLogic(event.mouseButton.x, event.mouseButton.y);
+                    if (clickLogic(event.mouseButton.x, event.mouseButton.y) && aiActive)
+                    {
+                        Types::Turn aiMove = ai.getAIMove('b', turns, alt);
+                        handlePieceMovement(aiMove.finalSquare, 'b');
+                    }
                 }
             }
             if (event.type == sf::Event::KeyPressed)
