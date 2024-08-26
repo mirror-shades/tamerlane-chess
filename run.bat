@@ -1,5 +1,5 @@
+@echo off
 :: run with flag "release" for release build
-
 if "%1"=="" (
     set BUILD_TYPE=debug
 ) else (

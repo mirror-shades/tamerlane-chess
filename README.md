@@ -21,6 +21,7 @@ or run in terminal:
 [ ] proper highlighting for fortress squares  
 [ ] previous move highlighting  
 [ ] capture piece list
+[ ] AI menu, select which side to play as and difficulty
 
 analysis mode:  
 [ ] move by move history  

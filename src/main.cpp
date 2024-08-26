@@ -714,8 +714,7 @@ void menuScreen(sf::RenderWindow &window)
             isMascHighlighted = false;
             isFemHighlighted = false;
             isThirdHighlighted = true;
-            chessboard.setThirdBoard();
-        }
+                }
         else if (Utility::isButtonClicked(blitz, mousePosition))
         {
             alt = !alt;
