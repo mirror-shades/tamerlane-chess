@@ -37,4 +37,4 @@ implement game logic:
 [x] turn history  
 [x] implement menus  
 [ ] implement more menu features  
-[ ] implement AI
+[x] implement AI
