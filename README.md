@@ -36,5 +36,16 @@ implement game logic:
 
 [x] turn history  
 [x] implement menus  
-[ ] implement more menu features  
+[x] implement more menu features  
 [x] implement AI
+
+TODO:
+[ ] qol and bug fixes
+[ ] proper highlighting for fortress squares
+[ ] previous move highlighting
+[ ] capture piece list
+
+analysis mode:
+[ ] move by move history
+[ ] best move analysis
+[ ] move accuracy evaluation
