@@ -566,7 +566,7 @@ int main()
                 {
                     if (clickLogic(event.mouseButton.x, event.mouseButton.y) && aiActive)
                     {
-                        Types::Turn aiMove = ai.getMinMaxAIMove('b', turns, alt, 4);
+                        Types::Turn aiMove = ai.minMax(gameLogic, 'b', turns, alt, 4, -std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity());
                         handlePieceMovement(aiMove.pieceMoved, aiMove.initialSquare, aiMove.finalSquare, 'b');
                     }
                 }

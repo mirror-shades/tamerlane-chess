@@ -27,5 +27,6 @@ namespace Types
         Coord finalSquare;
         std::string pieceMoved;
         std::string pieceCaptured;
+        float score;
     };
 }
