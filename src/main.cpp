@@ -566,7 +566,7 @@ int main()
                 {
                     if (clickLogic(event.mouseButton.x, event.mouseButton.y) && aiActive)
                     {
-                        Types::Turn aiMove = ai.getMinMaxAIMove('b', turns, alt, 3);
+                        Types::Turn aiMove = ai.getMinMaxAIMove('b', turns, alt, 4);
                         handlePieceMovement(aiMove.pieceMoved, aiMove.initialSquare, aiMove.finalSquare, 'b');
                     }
                 }
