@@ -7,7 +7,7 @@ LIB_DIR := src/lib
 # Define compiler and linker
 CXX := g++
 CXXFLAGS := -I$(INCLUDE_DIR) -c #-O2 -DNDEBUG
-LDFLAGS := -L$(LIB_DIR) -lsfml-graphics -lsfml-window -lsfml-system -lopengl32 -lsfml-audio -mwindows
+LDFLAGS := -L$(LIB_DIR) -lsfml-graphics -lsfml-window -lsfml-system -lopengl32 -lsfml-audio #-mwindows
 
 # Find all .cpp files in the source directory
 SRCS := $(wildcard $(SRC_DIR)/*.cpp)

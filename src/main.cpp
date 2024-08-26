@@ -18,6 +18,7 @@ const int squareSize = 75;
 // Global variables for game state
 GameLogic gameLogic;
 Utility utility;
+AI ai(chessboard);
 int turns = 1;
 char winner = '-';
 bool aiActive = false;
@@ -53,8 +54,6 @@ const sf::Color exitXColor = sf::Color::Black;
 // Draw button
 sf::RectangleShape drawButton(sf::Vector2f(squareSize, squareSize));
 sf::Text drawButtonText;
-
-AI ai;
 
 // Structure for piece movement animation
 struct Animation
@@ -156,11 +155,37 @@ void highlightKing(sf::RenderWindow &window, Types::Coord kingPosition, bool isI
 // Draw the draw button if possible
 void drawDrawButton(sf::RenderWindow &window)
 {
-    drawButton.setPosition(0, 0);
-    drawButton.setFillColor(sf::Color::Green);
+    sf::RectangleShape drawButton(sf::Vector2f(squareSize - 12, squareSize / 2));
+    drawButton.setPosition(6, 20);
+    drawButton.setFillColor(sf::Color::White);
+    drawButton.setOutlineThickness(2);
+    drawButton.setOutlineColor(sf::Color::Black);
+
+    sf::Text drawText;
+    drawText.setString("Draw");
+    drawText.setCharacterSize(24);
+    drawText.setFillColor(sf::Color::Black);
+
+    sf::Font font;
+    if (font.loadFromFile("assets/arial.ttf"))
+    {
+        drawText.setFont(font);
+    }
+    else
+    {
+        std::cerr << "Failed to load font" << std::endl;
+    }
+
+    sf::FloatRect textBounds = drawText.getLocalBounds();
+    drawText.setPosition(
+        (squareSize - textBounds.width) / 2,
+        (squareSize - textBounds.height) / 2 - 5);
+
     window.draw(drawButton);
+    window.draw(drawText);
 }
 
+// Draw the exit button
 void drawExitButton(sf::RenderWindow &window)
 {
     sf::RectangleShape exitButton(sf::Vector2f(exitButtonSize, exitButtonSize));
