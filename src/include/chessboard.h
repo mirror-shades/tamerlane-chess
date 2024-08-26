@@ -12,10 +12,17 @@ public:
     static const int rows = 10;
     static const int cols = 11;
 
+    static const std::array<std::array<std::string, 11>, 10> masculineArray;
+    static const std::array<std::array<std::string, 11>, 10> feminineArray;
+    static const std::array<std::array<std::string, 11>, 10> thirdArray;
+
     Chessboard();
 
     void resetBoard();
     void setBoard(const std::array<std::array<std::string, 11>, 10> &newBoard);
+    void setMasculineBoard();
+    void setFeminineBoard();
+    void setThirdBoard();
 
     const std::array<std::array<std::string, 11>, 10> &getBoardState() const;
     const std::string getPiece(Types::Coord coord) const;

@@ -4,6 +4,7 @@
 #include "include/globals.h"
 #include "include/utility.h"
 #include "include/ai.h"
+#include "include/chessboard.h"
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <vector>
@@ -356,47 +357,42 @@ void winScreen(sf::RenderWindow &window)
             (window.getSize().y - textureSize.y) / 2 - 75);
         window.draw(sprite);
 
-        // Create menu button
-        sf::RectangleShape menuButton(sf::Vector2f(150, 50));
-        menuButton.setPosition((window.getSize().x / 2) - 160, (window.getSize().y / 2) + 100);
-        menuButton.setFillColor(sf::Color::White);
-        menuButton.setOutlineThickness(2);
-        menuButton.setOutlineColor(sf::Color::Black);
-        window.draw(menuButton);
-
-        // Create analysis button
-        sf::RectangleShape analysisButton(sf::Vector2f(150, 50));
-        analysisButton.setPosition((window.getSize().x / 2) + 10, (window.getSize().y / 2) + 100);
-        analysisButton.setFillColor(sf::Color::White);
-        analysisButton.setOutlineThickness(2);
-        analysisButton.setOutlineColor(sf::Color::Black);
-        window.draw(analysisButton);
-
-        // Add text to buttons
         sf::Font font;
-        if (!font.loadFromFile("assets/arial.ttf")) // Make sure you have this font file
+        if (!font.loadFromFile("assets/arial.ttf"))
         {
             std::cerr << "Error loading font" << std::endl;
             return;
         }
 
-        sf::Text menuText("Menu", font, 24);
-        menuText.setFillColor(sf::Color::Black);
-        menuText.setPosition(menuButton.getPosition().x + 45, menuButton.getPosition().y + 10);
-        window.draw(menuText);
+        // Create menu button
+        sf::RectangleShape menuButton = Utility::createButton(
+            sf::Vector2f(150, 50),
+            sf::Vector2f((window.getSize().x / 2) - 160, (window.getSize().y / 2) + 100),
+            sf::Color::White);
+
+        // Create analysis button
+        sf::RectangleShape analysisButton = Utility::createButton(
+            sf::Vector2f(150, 50),
+            sf::Vector2f((window.getSize().x / 2) + 10, (window.getSize().y / 2) + 100),
+            sf::Color::White);
+
+        // Draw buttons
+        Utility::drawButton(window, menuButton, "Menu", font, 24);
+        Utility::drawButton(window, analysisButton, "Analysis", font, 24);
 
         // Check for menu button click
         sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Left) &&
-            menuButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
-            exitToMenu();
+            if (Utility::isButtonClicked(menuButton, mousePosition))
+            {
+                exitToMenu();
+            }
+            else if (Utility::isButtonClicked(analysisButton, mousePosition))
+            {
+                // Handle analysis button click
+            }
         }
-
-        sf::Text analysisText("Analysis", font, 24);
-        analysisText.setFillColor(sf::Color::Black);
-        analysisText.setPosition(analysisButton.getPosition().x + 30, analysisButton.getPosition().y + 10);
-        window.draw(analysisText);
 
         ended = true;
     }
@@ -602,6 +598,7 @@ void menuScreen(sf::RenderWindow &window)
 {
     tintScreen(window);
     sf::Texture titleTexture;
+
     if (titleTexture.loadFromFile("assets/title.png"))
     {
         sf::Sprite titleSprite(titleTexture);
@@ -630,17 +627,42 @@ void menuScreen(sf::RenderWindow &window)
         std::cerr << "Failed to load title.png" << std::endl;
     }
 
+    // Variables to track button states
+    static bool isMascHighlighted = true;
+    static bool isFemHighlighted = false;
+    static bool isThirdHighlighted = false;
+    static bool wasMousePressed = false; // Track previous mouse button state
+
     // Create buttons
-    sf::RectangleShape pvpButton(sf::Vector2f(200, 50));
-    sf::RectangleShape pveButton(sf::Vector2f(200, 50));
+    sf::RectangleShape pveButton = Utility::createButton(
+        sf::Vector2f(200, 50),
+        sf::Vector2f((window.getSize().x - 500) / 2, window.getSize().y / 2 - 100),
+        sf::Color::White);
 
-    // Position buttons
-    pvpButton.setPosition((window.getSize().x - 200) / 2, window.getSize().y / 2);
-    pveButton.setPosition((window.getSize().x - 200) / 2, window.getSize().y / 2 + 70);
+    sf::RectangleShape pvpButton = Utility::createButton(
+        sf::Vector2f(200, 50),
+        sf::Vector2f((window.getSize().x) / 2 + 50, window.getSize().y / 2 - 100),
+        sf::Color::White);
 
-    // Set button colors
-    pvpButton.setFillColor(sf::Color::White);
-    pveButton.setFillColor(sf::Color::White);
+    sf::RectangleShape masc = Utility::createButton(
+        sf::Vector2f(200, 50),
+        sf::Vector2f((window.getSize().x - 500) / 2 - 50, window.getSize().y / 2 - 25),
+        isMascHighlighted ? colourSelected : sf::Color::White);
+
+    sf::RectangleShape fem = Utility::createButton(
+        sf::Vector2f(200, 50),
+        sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 - 25),
+        isFemHighlighted ? colourSelected : sf::Color::White);
+
+    sf::RectangleShape third = Utility::createButton(
+        sf::Vector2f(200, 50),
+        sf::Vector2f((window.getSize().x + 200) / 2, window.getSize().y / 2 - 25),
+        isThirdHighlighted ? colourSelected : sf::Color::White);
+
+    sf::RectangleShape blitz = Utility::createButton(
+        sf::Vector2f(200, 50),
+        sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 + 50),
+        alt ? colourSelected : sf::Color::White);
 
     // Create button texts
     sf::Font font;
@@ -649,38 +671,58 @@ void menuScreen(sf::RenderWindow &window)
         std::cerr << "Failed to load font" << std::endl;
     }
 
-    sf::Text pvpText("Player vs Player", font, 20);
-    sf::Text pveText("Player vs AI", font, 20);
-
-    // Position texts
-    pvpText.setPosition(pvpButton.getPosition().x + 20, pvpButton.getPosition().y + 10);
-    pveText.setPosition(pveButton.getPosition().x + 40, pveButton.getPosition().y + 10);
-
-    // Set text colors
-    pvpText.setFillColor(sf::Color::Black);
-    pveText.setFillColor(sf::Color::Black);
-
     // Draw buttons and texts
-    window.draw(pvpButton);
-    window.draw(pveButton);
-    window.draw(pvpText);
-    window.draw(pveText);
+    Utility::drawButton(window, pvpButton, "Player vs Player", font, 20);
+    Utility::drawButton(window, pveButton, "Player vs AI", font, 20);
+    Utility::drawButton(window, masc, "Masc", font, 20);
+    Utility::drawButton(window, fem, "Fem", font, 20);
+    Utility::drawButton(window, third, "Third", font, 20);
+    Utility::drawButton(window, blitz, "Blitz", font, 20);
 
     // Handle button clicks
     sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+    bool mousePressed = sf::Mouse::isButtonPressed(sf::Mouse::Left);
+
+    if (mousePressed && !wasMousePressed)
     {
-        if (pvpButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
+        if (Utility::isButtonClicked(pvpButton, mousePosition))
         {
             menu = false;
             aiActive = false;
         }
-        else if (pveButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
+        else if (Utility::isButtonClicked(pveButton, mousePosition))
         {
             menu = false;
             aiActive = true;
         }
+        else if (Utility::isButtonClicked(masc, mousePosition))
+        {
+            isMascHighlighted = true;
+            isFemHighlighted = false;
+            isThirdHighlighted = false;
+            chessboard.setMasculineBoard();
+        }
+        else if (Utility::isButtonClicked(fem, mousePosition))
+        {
+            isMascHighlighted = false;
+            isFemHighlighted = true;
+            isThirdHighlighted = false;
+            chessboard.setFeminineBoard();
+        }
+        else if (Utility::isButtonClicked(third, mousePosition))
+        {
+            isMascHighlighted = false;
+            isFemHighlighted = false;
+            isThirdHighlighted = true;
+            chessboard.setThirdBoard();
+        }
+        else if (Utility::isButtonClicked(blitz, mousePosition))
+        {
+            alt = !alt;
+        }
     }
+
+    wasMousePressed = mousePressed;
 }
 
 // Main function
@@ -740,7 +782,7 @@ int main()
         updateAnimations(deltaTime);
 
         // Process AI move if queued and animation is finished
-        if (aiMoveQueued && !animationInProgress)
+        if (aiMoveQueued && !animationInProgress && winner == '-')
         {
             Types::Turn aiMove = ai.minMax(gameLogic, 'b', turns, alt, 3,
                                            -std::numeric_limits<float>::infinity(),
