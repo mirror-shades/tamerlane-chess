@@ -3,8 +3,10 @@
 :: Store the current directory
 set CUR_DIR=%CD%
 
-:: Navigate to the project root directory
-cd /d C:\dev\c++\tamerlane-cpp
+:: Navigate to the project root directory (tamerlane-cpp)
+cd /d %~dp0
+cd ..
+echo Current directory: %CD%
 
 :: Run the build script with release flag
 call scripts\run.bat release

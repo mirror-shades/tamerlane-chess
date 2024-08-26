@@ -1,7 +1,7 @@
 @echo off
 :: run with flag "release" for release build
 if "%1"=="" (
-    set BUILD_TYPE=debug
+    set BUILD_TYPE=development
 ) else (
     set BUILD_TYPE=%1
 )
@@ -9,10 +9,11 @@ if "%1"=="" (
 echo Building with configuration: %BUILD_TYPE%
 
 :: Store the current directory
-set SCRIPT_DIR=%CD%
+set CUR_DIR=%CD%
 
 :: Navigate to the project root directory (tamerlane-cpp)
-cd /d C:\dev\c++\tamerlane-cpp
+cd /d %~dp0
+cd ..
 echo Current directory: %CD%
 
 :: Check if Makefile exists
@@ -39,9 +40,9 @@ if %ERRORLEVEL% EQU 0 (
 )
 
 :end
-cd /d "%SCRIPT_DIR%"
+cd /d "%CUR_DIR%"
 exit /b 0
 
 :error
-cd /d "%SCRIPT_DIR%"
+cd /d "%CUR_DIR%"
 exit /b 1
