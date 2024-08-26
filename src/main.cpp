@@ -333,7 +333,10 @@ void winScreen(sf::RenderWindow &window)
 
         sf::Sprite sprite;
         sprite.setTexture(texture);
-        sprite.setPosition(0, 0);
+        sf::Vector2u textureSize = texture.getSize();
+        sprite.setPosition(
+            (window.getSize().x - textureSize.x) / 2,
+            (window.getSize().y - textureSize.y) / 2 - 75);
         window.draw(sprite);
         ended = true;
     }
