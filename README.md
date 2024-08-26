@@ -6,8 +6,22 @@ I am building a Tamerlane chess engine in C++. This engine was previously built 
 
 using minGW 6.1.0 > 6.3.0, run in powershell:
 `mingw32-make -f Makefile; if ($?) { ./build/main.exe }`
+or run in terminal:
+`mingw32-make -f Makefile && build\main.exe`
 
 ## todo
+
+[ ] qol and bug fixes
+[ ] proper highlighting for fortress squares
+[ ] previous move highlighting
+[ ] capture piece list
+
+analysis mode:
+[ ] move by move history
+[ ] best move analysis
+[ ] move accuracy evaluation
+
+## done
 
 [x] init SFML  
 [x] draw board  
@@ -38,14 +52,3 @@ implement game logic:
 [x] implement menus  
 [x] implement more menu features  
 [x] implement AI
-
-TODO:
-[ ] qol and bug fixes
-[ ] proper highlighting for fortress squares
-[ ] previous move highlighting
-[ ] capture piece list
-
-analysis mode:
-[ ] move by move history
-[ ] best move analysis
-[ ] move accuracy evaluation
