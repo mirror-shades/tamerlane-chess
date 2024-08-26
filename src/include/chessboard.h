@@ -14,6 +14,7 @@ public:
 
     Chessboard();
 
+    void resetBoard();
     void setBoard(const std::array<std::array<std::string, 11>, 10> &newBoard);
 
     const std::array<std::array<std::string, 11>, 10> &getBoardState() const;

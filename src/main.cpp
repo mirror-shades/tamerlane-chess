@@ -23,6 +23,7 @@ char winner = '-';
 bool aiActive = false;
 bool menu = true;
 bool isPieceSelected = false;
+bool animationInProgress = false;
 bool ended = false;
 bool drawPossible = false;
 bool gameOver = false;
@@ -43,6 +44,11 @@ sf::Color colourMove = sf::Color(0xFBFF1255);
 // Textures and sprites for chess pieces
 std::map<std::string, sf::Texture> textures;
 std::map<std::string, sf::Sprite> images;
+
+// Draw exit button
+const int exitButtonSize = squareSize / 2;
+const sf::Color exitButtonColor = sf::Color::Red;
+const sf::Color exitXColor = sf::Color::Black;
 
 // Draw button
 sf::RectangleShape drawButton(sf::Vector2f(squareSize, squareSize));
@@ -91,6 +97,7 @@ bool checkVictoryCondition(const char &player, const char &enemy)
 void startAnimation(std::string piece, Types::Coord start, Types::Coord end, float duration)
 {
     animation.isActive = true;
+    animationInProgress = true;
     animation.piece = piece;
     animation.start = start;
     animation.end = end;
@@ -113,6 +120,7 @@ void updateAnimations(float deltaTime)
         if (elapsedTime >= animation.duration)
         {
             animation.isActive = false;
+            animationInProgress = false;
         }
     }
 }
@@ -151,6 +159,54 @@ void drawDrawButton(sf::RenderWindow &window)
     drawButton.setPosition(0, 0);
     drawButton.setFillColor(sf::Color::Green);
     window.draw(drawButton);
+}
+
+void drawExitButton(sf::RenderWindow &window)
+{
+    sf::RectangleShape exitButton(sf::Vector2f(exitButtonSize, exitButtonSize));
+    exitButton.setFillColor(exitButtonColor);
+
+    // Position the button in the middle of the top-right square
+    float xPos = window.getSize().x - squareSize + (squareSize - exitButtonSize) / 2.0f;
+    float yPos = (squareSize - exitButtonSize) / 2.0f;
+    exitButton.setPosition(xPos, yPos);
+
+    sf::RectangleShape xLine1(sf::Vector2f(exitButtonSize * 0.7f, 2));
+    sf::RectangleShape xLine2(sf::Vector2f(exitButtonSize * 0.7f, 2));
+    xLine1.setFillColor(exitXColor);
+    xLine2.setFillColor(exitXColor);
+    xLine1.setOrigin(xLine1.getSize() / 2.f);
+    xLine2.setOrigin(xLine2.getSize() / 2.f);
+    xLine1.setPosition(xPos + exitButtonSize / 2, yPos + exitButtonSize / 2);
+    xLine2.setPosition(xPos + exitButtonSize / 2, yPos + exitButtonSize / 2);
+    xLine1.setRotation(45);
+    xLine2.setRotation(-45);
+
+    window.draw(exitButton);
+    window.draw(xLine1);
+    window.draw(xLine2);
+
+    // Check if the exit button is clicked
+    sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+    {
+        if (exitButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
+        {
+            // Reset game state and return to menu
+            menu = true;
+            gameOver = false;
+            isPieceSelected = false;
+            moveList.clear();
+            selectedSquare = {-1, -1};
+            chessboard.resetBoard();
+            turnHistory.clear();
+            turns = 1;
+            drawPossible = false;
+            isWhiteKingInCheck = false;
+            isBlackKingInCheck = false;
+            winner = ' ';
+        }
+    }
 }
 
 // Draw the Tamerlane Chess board
@@ -545,32 +601,47 @@ void menuScreen(sf::RenderWindow &window)
 // Main function
 int main()
 {
+    // Initialize the game window
     sf::RenderWindow window(sf::VideoMode(975, 900), "Tamerlane Chess");
+
+    // Load and set up the background
     sf::Texture backgroundTexture;
     sf::Sprite backgroundSprite = renderBackground(window, backgroundTexture);
+
+    // Load chess piece images
     auto pieceImages = loadImages();
+
+    // Initialize a clock for measuring frame time
     sf::Clock deltaClock;
 
+    bool aiMoveQueued = false;
+
+    // Main game loop
     while (window.isOpen())
     {
-
+        // Calculate time since last frame
         float deltaTime = deltaClock.restart().asSeconds();
+
+        // Event handling
         sf::Event event;
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
                 window.close();
+
             if (event.type == sf::Event::MouseButtonPressed)
             {
-                if (!gameOver && event.mouseButton.button == sf::Mouse::Left)
+                if (!gameOver && !animationInProgress && event.mouseButton.button == sf::Mouse::Left)
                 {
-                    if (clickLogic(event.mouseButton.x, event.mouseButton.y) && aiActive)
+                    bool playerMoved = clickLogic(event.mouseButton.x, event.mouseButton.y);
+
+                    if (playerMoved && aiActive)
                     {
-                        Types::Turn aiMove = ai.minMax(gameLogic, 'b', turns, alt, 4, -std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity());
-                        handlePieceMovement(aiMove.pieceMoved, aiMove.initialSquare, aiMove.finalSquare, 'b');
+                        aiMoveQueued = true;
                     }
                 }
             }
+
             if (event.type == sf::Event::KeyPressed)
             {
                 if (event.key.control && event.key.code == sf::Keyboard::Z)
@@ -580,11 +651,28 @@ int main()
             }
         }
 
+        // Update animations
         updateAnimations(deltaTime);
 
+        // Process AI move if queued and animation is finished
+        if (aiMoveQueued && !animationInProgress)
+        {
+            Types::Turn aiMove = ai.minMax(gameLogic, 'b', turns, alt, 3,
+                                           -std::numeric_limits<float>::infinity(),
+                                           std::numeric_limits<float>::infinity());
+            handlePieceMovement(aiMove.pieceMoved, aiMove.initialSquare, aiMove.finalSquare, 'b');
+            aiMoveQueued = false;
+        }
+
+        // Clear the window
         window.clear(sf::Color::White);
+
+        // Draw the background
         window.draw(backgroundSprite);
+
+        // Draw the chess board
         drawBoard(window);
+
         if (menu)
         {
             menuScreen(window);
@@ -600,9 +688,12 @@ int main()
             highlightKing(window, blackKingPosition, isBlackKingInCheck);
 
             drawPieces(window, pieceImages);
+            drawExitButton(window);
 
-            winScreen(window); // This line ensures the win screen is drawn if there's a winner.
+            winScreen(window);
         }
+
+        // Display everything that was drawn
         window.display();
     }
 
