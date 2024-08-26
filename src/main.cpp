@@ -185,6 +185,25 @@ void drawDrawButton(sf::RenderWindow &window)
     window.draw(drawText);
 }
 
+// Exit to menu
+void exitToMenu()
+{
+    std::cout << "Exiting game" << std::endl;
+    // Reset game state and return to menu
+    menu = true;
+    gameOver = false;
+    isPieceSelected = false;
+    moveList.clear();
+    selectedSquare = {-1, -1};
+    chessboard.resetBoard();
+    turnHistory.clear();
+    turns = 1;
+    drawPossible = false;
+    isWhiteKingInCheck = false;
+    isBlackKingInCheck = false;
+    winner = '-';
+}
+
 // Draw the exit button
 void drawExitButton(sf::RenderWindow &window)
 {
@@ -217,19 +236,7 @@ void drawExitButton(sf::RenderWindow &window)
     {
         if (exitButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
         {
-            // Reset game state and return to menu
-            menu = true;
-            gameOver = false;
-            isPieceSelected = false;
-            moveList.clear();
-            selectedSquare = {-1, -1};
-            chessboard.resetBoard();
-            turnHistory.clear();
-            turns = 1;
-            drawPossible = false;
-            isWhiteKingInCheck = false;
-            isBlackKingInCheck = false;
-            winner = ' ';
+            exitToMenu();
         }
     }
 }
@@ -300,11 +307,21 @@ void drawPieces(sf::RenderWindow &window, const std::map<std::string, sf::Sprite
     }
 }
 
+// Tint screen
+void tintScreen(sf::RenderWindow &window)
+{
+    sf::RectangleShape square(sf::Vector2f(squareSize * 13, squareSize * 13));
+    square.setPosition(0, 0);
+    square.setFillColor(sf::Color(0x00000088));
+    window.draw(square);
+}
+
 // Display win screen
 void winScreen(sf::RenderWindow &window)
 {
     if (winner != '-')
     {
+        tintScreen(window);
         sf::Texture texture;
         std::string assetPath;
         if (winner == 'w')
@@ -338,6 +355,49 @@ void winScreen(sf::RenderWindow &window)
             (window.getSize().x - textureSize.x) / 2,
             (window.getSize().y - textureSize.y) / 2 - 75);
         window.draw(sprite);
+
+        // Create menu button
+        sf::RectangleShape menuButton(sf::Vector2f(150, 50));
+        menuButton.setPosition((window.getSize().x / 2) - 160, (window.getSize().y / 2) + 100);
+        menuButton.setFillColor(sf::Color::White);
+        menuButton.setOutlineThickness(2);
+        menuButton.setOutlineColor(sf::Color::Black);
+        window.draw(menuButton);
+
+        // Create analysis button
+        sf::RectangleShape analysisButton(sf::Vector2f(150, 50));
+        analysisButton.setPosition((window.getSize().x / 2) + 10, (window.getSize().y / 2) + 100);
+        analysisButton.setFillColor(sf::Color::White);
+        analysisButton.setOutlineThickness(2);
+        analysisButton.setOutlineColor(sf::Color::Black);
+        window.draw(analysisButton);
+
+        // Add text to buttons
+        sf::Font font;
+        if (!font.loadFromFile("assets/arial.ttf")) // Make sure you have this font file
+        {
+            std::cerr << "Error loading font" << std::endl;
+            return;
+        }
+
+        sf::Text menuText("Menu", font, 24);
+        menuText.setFillColor(sf::Color::Black);
+        menuText.setPosition(menuButton.getPosition().x + 45, menuButton.getPosition().y + 10);
+        window.draw(menuText);
+
+        // Check for menu button click
+        sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left) &&
+            menuButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
+        {
+            exitToMenu();
+        }
+
+        sf::Text analysisText("Analysis", font, 24);
+        analysisText.setFillColor(sf::Color::Black);
+        analysisText.setPosition(analysisButton.getPosition().x + 30, analysisButton.getPosition().y + 10);
+        window.draw(analysisText);
+
         ended = true;
     }
 }
@@ -537,13 +597,10 @@ void undoLastMove()
     }
 }
 
+// Menu screen
 void menuScreen(sf::RenderWindow &window)
 {
-    sf::RectangleShape square(sf::Vector2f(squareSize * 13, squareSize * 13));
-    square.setPosition(0, 0);
-    square.setFillColor(sf::Color(0x00000088));
-    window.draw(square);
-
+    tintScreen(window);
     sf::Texture titleTexture;
     if (titleTexture.loadFromFile("assets/title.png"))
     {
