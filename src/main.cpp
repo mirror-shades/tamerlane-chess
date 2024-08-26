@@ -356,12 +356,12 @@ void toggleSelection(const Types::Coord &coord)
 }
 
 // Handle piece movement
-void handlePieceMovement(const Types::Coord &move, const char &player)
+void handlePieceMovement(const std::string &_selectedPiece, const Types::Coord &_selectedSquare, const Types::Coord &move, const char &player)
 {
-    startAnimation(selectedPiece, selectedSquare, move, 0.5f);
+    startAnimation(_selectedPiece, _selectedSquare, move, 0.5f);
     std::string target = chessboard.getPiece(move);
-    chessboard.setCell(selectedSquare, "---");
-    chessboard.setCell(move, selectedPiece);
+    chessboard.setCell(_selectedSquare, "---");
+    chessboard.setCell(move, _selectedPiece);
 
     updateGameState(move, target, player);
 
@@ -407,7 +407,7 @@ bool clickLogic(int x, int y)
             {
                 if (coord == move)
                 {
-                    handlePieceMovement(move, player);
+                    handlePieceMovement(selectedPiece, selectedSquare, move, player);
                     return true; // Exit the function after handling the move
                 }
             }
@@ -566,8 +566,8 @@ int main()
                 {
                     if (clickLogic(event.mouseButton.x, event.mouseButton.y) && aiActive)
                     {
-                        Types::Turn aiMove = ai.getAIMove('b', turns, alt);
-                        handlePieceMovement(aiMove.finalSquare, 'b');
+                        Types::Turn aiMove = ai.getMinMaxAIMove('b', turns, alt, 3);
+                        handlePieceMovement(aiMove.pieceMoved, aiMove.initialSquare, aiMove.finalSquare, 'b');
                     }
                 }
             }
