@@ -19,7 +19,7 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 :: Set the release directory
-set RELEASE_DIR=C:\dev\c++\Tamerlane Chess
+set RELEASE_DIR=..\Tamerlane Chess
 
 :: Create the release directory if it doesn't exist
 if not exist "%RELEASE_DIR%" mkdir "%RELEASE_DIR%"
@@ -29,6 +29,9 @@ copy /Y build\main.exe "%RELEASE_DIR%\"
 
 :: Copy the assets folder
 xcopy /E /I /Y assets "%RELEASE_DIR%\assets"
+
+:: Copy the dependencies
+xcopy /E /I /Y "%~dp0\dependancies\*" "%RELEASE_DIR%\"
 
 echo Release files have been copied to %RELEASE_DIR%
 

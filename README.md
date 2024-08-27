@@ -2,6 +2,8 @@
 
 [![GitHub](https://img.shields.io/badge/GitHub-Download-blue?style=flat-square&logo=github)](https://github.com/mirror-shades/tamerlane-cpp/releases/latest/download/Tamerlane.Chess.zip)
 
+## Download the latest release ^
+
 I am building a Tamerlane chess engine in C++. This engine was previously built in Pygame but the performance made building a proper AI messy. This engine will let us better explore the strategies of this ancient chess varient.
 
 ## Compiling
@@ -14,6 +16,16 @@ Alternatively, run in powershell:
 `mingw32-make -f Makefile; if ($?) { ./build/main.exe }`  
 or run in terminal:
 `mingw32-make -f Makefile && build\main.exe`
+
+## Installing
+
+There is a powershell script to install the game in the scripts directory called `install.ps1`. This script will create a standalone installation in a folder parallel to the source code.
+
+```
+parent
+|-- tamerlane-cpp (source code)
+|-- Tamerlane Chess (Standalone installation)
+```
 
 ## todo
 
@@ -35,6 +47,10 @@ analysis mode:
 [x] implement clicking  
 [x] draw pieces  
 [x] piece highlighting
+[x] implement menus
+[x] implement expanded menu features  
+[x] build and release
+[x] install script
 
 implement moves:  
 [x] pawn moves  
@@ -55,6 +71,4 @@ implement game logic:
 [x] draws  
 [x] promotions
 [x] turn history  
-[x] implement menus  
-[x] implement more menu features  
 [x] implement AI
