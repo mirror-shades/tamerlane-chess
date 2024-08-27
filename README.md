@@ -2,7 +2,7 @@
 
 [![GitHub](https://img.shields.io/badge/GitHub-Download-blue?style=flat-square&logo=github)](https://github.com/mirror-shades/tamerlane-cpp/releases/latest/download/Tamerlane.Chess.zip)
 
-## Download the latest release ^
+## Just download and run ^
 
 I am building a Tamerlane chess engine in C++. This engine was previously built in Pygame but the performance made building a proper AI messy. This engine will let us better explore the strategies of this ancient chess varient.
 
