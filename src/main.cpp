@@ -41,6 +41,7 @@ std::vector<Types::Turn> turnHistory;
 sf::Color colour1 = sf::Color(0xE5E5E5ff);
 sf::Color colour2 = sf::Color(0x26403Cff);
 sf::Color colourSelected = sf::Color(0x6290c8ff);
+sf::Color colourPrevMove = sf::Color(0x6290c855);
 sf::Color colourMove = sf::Color(0xFBFF1255);
 
 // Textures and sprites for chess pieces
@@ -125,19 +126,32 @@ void updateAnimations(float deltaTime)
     }
 }
 
-// Highlight selected square and possible moves
-void highlightSquare(sf::RenderWindow &window)
+// Highlight a single square
+void highlightSquare(sf::RenderWindow &window, const Types::Coord &coord)
 {
     sf::RectangleShape square(sf::Vector2f(squareSize, squareSize));
-    square.setPosition((selectedSquare.x + 1) * squareSize, selectedSquare.y * squareSize);
-    square.setFillColor(colourSelected);
+    square.setPosition((coord.x + 1) * squareSize, coord.y * squareSize);
+    square.setFillColor(colourMove);
     window.draw(square);
+}
+
+// Highlight selected square and possible moves
+void highlightSquares(sf::RenderWindow &window)
+{
+    highlightSquare(window, selectedSquare);
+
+    if (selectedPiece == "wKa" && (selectedSquare == Types::Coord{0, 0} || selectedSquare == Types::Coord{0, 1} || selectedSquare == Types::Coord{0, 2}))
+    {
+        highlightSquare(window, {-1, 1});
+    }
+    if (selectedPiece == "bKa" && (selectedSquare == Types::Coord{10, 9} || selectedSquare == Types::Coord{10, 8} || selectedSquare == Types::Coord{10, 7}))
+    {
+        highlightSquare(window, {11, 8});
+    }
 
     for (const auto &coord : moveList)
     {
-        square.setPosition((coord.x + 1) * squareSize, coord.y * squareSize);
-        square.setFillColor(colourMove);
-        window.draw(square);
+        highlightSquare(window, coord);
     }
 }
 
@@ -151,39 +165,6 @@ void highlightKing(sf::RenderWindow &window, Types::Coord kingPosition, bool isI
         square.setFillColor(sf::Color::Red);
         window.draw(square);
     }
-}
-
-// Draw the draw button if possible
-void drawDrawButton(sf::RenderWindow &window)
-{
-    sf::RectangleShape drawButton(sf::Vector2f(squareSize - 12, squareSize / 2));
-    drawButton.setPosition(6, 20);
-    drawButton.setFillColor(sf::Color::White);
-    drawButton.setOutlineThickness(2);
-    drawButton.setOutlineColor(sf::Color::Black);
-
-    sf::Text drawText;
-    drawText.setString("Draw");
-    drawText.setCharacterSize(24);
-    drawText.setFillColor(sf::Color::Black);
-
-    sf::Font font;
-    if (font.loadFromFile("assets/arial.ttf"))
-    {
-        drawText.setFont(font);
-    }
-    else
-    {
-        std::cerr << "Failed to load font" << std::endl;
-    }
-
-    sf::FloatRect textBounds = drawText.getLocalBounds();
-    drawText.setPosition(
-        (squareSize - textBounds.width) / 2,
-        (squareSize - textBounds.height) / 2 - 5);
-
-    window.draw(drawButton);
-    window.draw(drawText);
 }
 
 // Exit to menu
@@ -268,12 +249,6 @@ void drawBoard(sf::RenderWindow &window)
     square.setPosition(squareSize * 12, squareSize * 8);
     square.setFillColor(colour1);
     window.draw(square);
-
-    // Draw the draw button if drawPossible is true
-    if (drawPossible)
-    {
-        drawDrawButton(window);
-    }
 }
 
 // Draw chess pieces on the board
@@ -528,14 +503,26 @@ bool clickLogic(int x, int y)
     const char enemy = (player == 'w') ? 'b' : 'w';
     std::string selected = chessboard.getPiece(coord);
 
-    // initial click position is checked outside of the
-    // board to allow for additional functionality
-    if (coord.x == -1 && coord.y == 0 && drawPossible)
+    // draw by kings enterning the fortress (click logic takes place outside of the board)
+    if (selectedPiece == "wKa" && (selectedSquare == Types::Coord{0, 0} || selectedSquare == Types::Coord{0, 1} || selectedSquare == Types::Coord{0, 2}))
     {
-        winner = 'd';
-        gameOver = true;
-        std::cout << "Game ended in a draw" << std::endl;
-        return false;
+        if (coord == Types::Coord{-1, 1})
+        {
+            winner = 'd';
+            gameOver = true;
+            std::cout << "Game ended in a draw" << std::endl;
+            return false;
+        }
+    }
+    if (selectedPiece == "bKa" && (selectedSquare == Types::Coord{10, 9} || selectedSquare == Types::Coord{10, 8} || selectedSquare == Types::Coord{10, 7}))
+    {
+        if (coord == Types::Coord{11, 8})
+        {
+            winner = 'd';
+            gameOver = true;
+            std::cout << "Game ended in a draw" << std::endl;
+            return false;
+        }
     }
 
     // if click is within the board it is handled here
@@ -714,7 +701,7 @@ void menuScreen(sf::RenderWindow &window)
             isMascHighlighted = false;
             isFemHighlighted = false;
             isThirdHighlighted = true;
-                }
+        }
         else if (Utility::isButtonClicked(blitz, mousePosition))
         {
             alt = !alt;
@@ -722,6 +709,26 @@ void menuScreen(sf::RenderWindow &window)
     }
 
     wasMousePressed = mousePressed;
+}
+
+// Highlight the previous move
+void highlightPreviousMove(sf::RenderWindow &window)
+{
+    if (!turnHistory.empty())
+    {
+        Types::Turn lastTurn = turnHistory.back();
+        sf::RectangleShape initialSquare(sf::Vector2f(squareSize, squareSize));
+        sf::RectangleShape finalSquare(sf::Vector2f(squareSize, squareSize));
+
+        initialSquare.setPosition((lastTurn.initialSquare.x + 1) * squareSize, lastTurn.initialSquare.y * squareSize);
+        finalSquare.setPosition((lastTurn.finalSquare.x + 1) * squareSize, lastTurn.finalSquare.y * squareSize);
+
+        initialSquare.setFillColor(colourPrevMove);
+        finalSquare.setFillColor(colourPrevMove);
+
+        window.draw(initialSquare);
+        window.draw(finalSquare);
+    }
 }
 
 // Main function
@@ -805,14 +812,13 @@ int main()
         }
         else
         {
-            highlightSquare(window);
-
+            highlightSquares(window);
+            highlightPreviousMove(window);
             Types::Coord whiteKingPosition, blackKingPosition;
             gameLogic.findAndSetKingPosition(whiteKingPosition, 'w');
             gameLogic.findAndSetKingPosition(blackKingPosition, 'b');
             highlightKing(window, whiteKingPosition, isWhiteKingInCheck);
             highlightKing(window, blackKingPosition, isBlackKingInCheck);
-
             drawPieces(window, pieceImages);
             drawExitButton(window);
 

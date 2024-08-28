@@ -30,9 +30,7 @@ parent
 ## todo
 
 [ ] qol and bug fixes  
-[ ] proper highlighting for fortress squares  
-[ ] previous move highlighting  
-[ ] capture piece list
+[ ] capture piece list  
 [ ] AI menu, select which side to play as and difficulty
 
 analysis mode:  
@@ -46,11 +44,13 @@ analysis mode:
 [x] draw board  
 [x] implement clicking  
 [x] draw pieces  
-[x] piece highlighting
-[x] implement menus
+[x] piece highlighting  
+[x] implement menus  
 [x] implement expanded menu features  
-[x] build and release
-[x] install script
+[x] build and release  
+[x] install script  
+[x] proper highlighting for fortress squares regarding draws  
+[x] previous move highlighting
 
 implement moves:  
 [x] pawn moves  
@@ -69,6 +69,6 @@ implement game logic:
 [x] checks  
 [x] checkmates  
 [x] draws  
-[x] promotions
+[x] promotions  
 [x] turn history  
 [x] implement AI
