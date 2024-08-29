@@ -595,13 +595,12 @@ void undoLastMove()
     }
 }
 
-// Add this new function to draw the slider
 void drawSlider(sf::RenderWindow &window, sf::Font &font)
 {
     // Slider background
     slider.setSize(sf::Vector2f(200, 5));
     slider.setFillColor(sf::Color(150, 150, 150));
-    slider.setPosition((window.getSize().x - slider.getSize().x) / 2, window.getSize().y / 2 + 150);
+    slider.setPosition((window.getSize().x - slider.getSize().x) / 2, window.getSize().y / 2 + 25);
     window.draw(slider);
 
     // Slider handle
@@ -609,7 +608,7 @@ void drawSlider(sf::RenderWindow &window, sf::Font &font)
     sliderHandle.setFillColor(sf::Color::White);
     sliderHandle.setOutlineThickness(2);
     sliderHandle.setOutlineColor(sf::Color::Black);
-    float handleX = slider.getPosition().x + (aiDifficulty - 1) * (slider.getSize().x / 4);
+    float handleX = slider.getPosition().x + (aiDifficulty - 1) * (slider.getSize().x / 9);
     sliderHandle.setPosition(handleX - sliderHandle.getRadius(), slider.getPosition().y - sliderHandle.getRadius() + slider.getSize().y / 2);
     window.draw(sliderHandle);
 
@@ -741,6 +740,8 @@ void drawMenuScreen(sf::RenderWindow &window)
         Utility::drawButton(window, pveBlackButton, "Player as black", font, 20);
         Utility::drawButton(window, pvePlayButton, "Play", font, 20);
         Utility::drawButton(window, backButton, "Back", font, 20);
+        // Draw the slider
+        drawSlider(window, font);
     }
     // Handle button clicks
     sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
@@ -806,6 +807,11 @@ void drawMenuScreen(sf::RenderWindow &window)
         else if (Utility::isButtonClicked(backButton, mousePosition))
         {
             state = GameState::Menu;
+        }
+        if (slider.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
+        {
+            float newDifficulty = (mousePosition.x - slider.getPosition().x) / slider.getSize().x * 9 + 1;
+            aiDifficulty = std::max(1, std::min(10, static_cast<int>(newDifficulty)));
         }
     }
 
