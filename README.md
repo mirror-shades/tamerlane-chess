@@ -30,8 +30,9 @@ parent directory
 ## todo
 
 [ ] qol and bug fixes  
-[ ] capture piece list  
-[ ] AI menu, select which side to play as and difficulty
+[ ] ai thinking blocks input for exiting the game
+[ ] ai thinking should happen after ai options menu is closed
+[ ] capture piece list
 
 analysis mode:  
 [ ] move by move history  
@@ -50,7 +51,8 @@ analysis mode:
 [x] build and release  
 [x] install script  
 [x] proper highlighting for fortress squares regarding draws  
-[x] previous move highlighting
+[x] previous move highlighting  
+[x] AI menu, select which side to play as and difficulty
 
 implement moves:  
 [x] pawn moves  
