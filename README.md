@@ -4,7 +4,7 @@
 
 ## ^ Download the latest release and play
 
-I am building a Tamerlane chess engine in C++. This engine was previously built in Pygame but the performance made building a proper AI messy. This engine will let us better explore the strategies of this ancient chess varient.
+I am building a Tamerlane chess engine in C++. Tamerlane chess is a medieval chess variant. Like modern chess, it is derived from shatranj. It was developed in Central Asia during the reign of Emperor Timur, and its invention is also attributed to him.
 
 ## Compiling
 
@@ -12,9 +12,9 @@ The game is compiled using minGW 6.1.0 > 6.3.0.
 
 There is a batch file to compile the game in the root directory called `run.bat`. Use the flag `release` to compile the game in release mode.
 
-Alternatively, run in powershell:
+Alternatively, run in powershell:  
 `mingw32-make -f Makefile; if ($?) { ./build/main.exe }`  
-or run in terminal:
+or run in terminal:  
 `mingw32-make -f Makefile && build\main.exe`
 
 ## Installing
@@ -22,7 +22,7 @@ or run in terminal:
 If you prefer to manually install rather than download a release, you can do that as well. There is a powershell script to install the game in the scripts directory called `install.ps1`. This script will create a standalone installation in a folder parallel to the source code.
 
 ```
-parent
+parent directory
 |-- tamerlane-cpp (source code)
 |-- Tamerlane Chess (Standalone installation)
 ```

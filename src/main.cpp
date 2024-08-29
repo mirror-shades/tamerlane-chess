@@ -10,11 +10,21 @@
 #include <vector>
 #include <iostream>
 #include <map>
+#include <sstream>
+#include <iomanip>
 
 // Constants for the Tamerlane Chess board
 const int rows = 10;
 const int cols = 11;
 const int squareSize = 75;
+
+enum class GameState
+{
+    Menu,
+    AIOptions,
+    Game
+};
+GameState state = GameState::Menu;
 
 // Global variables for game state
 GameLogic gameLogic;
@@ -23,7 +33,7 @@ AI ai(chessboard);
 int turns = 1;
 char winner = '-';
 bool aiActive = false;
-bool menu = true;
+bool aiMoveQueued = false;
 bool isPieceSelected = false;
 bool animationInProgress = false;
 bool ended = false;
@@ -56,6 +66,11 @@ const sf::Color exitXColor = sf::Color::Black;
 // Draw button
 sf::RectangleShape drawButton(sf::Vector2f(squareSize, squareSize));
 sf::Text drawButtonText;
+
+// ai settings
+int aiDifficulty = 3; // Default difficulty
+sf::RectangleShape slider;
+sf::CircleShape sliderHandle;
 
 // Structure for piece movement animation
 struct Animation
@@ -172,7 +187,7 @@ void exitToMenu()
 {
     std::cout << "Exiting game" << std::endl;
     // Reset game state and return to menu
-    menu = true;
+    state = GameState::Menu;
     gameOver = false;
     isPieceSelected = false;
     moveList.clear();
@@ -580,8 +595,38 @@ void undoLastMove()
     }
 }
 
+// Add this new function to draw the slider
+void drawSlider(sf::RenderWindow &window, sf::Font &font)
+{
+    // Slider background
+    slider.setSize(sf::Vector2f(200, 5));
+    slider.setFillColor(sf::Color(150, 150, 150));
+    slider.setPosition((window.getSize().x - slider.getSize().x) / 2, window.getSize().y / 2 + 150);
+    window.draw(slider);
+
+    // Slider handle
+    sliderHandle.setRadius(10);
+    sliderHandle.setFillColor(sf::Color::White);
+    sliderHandle.setOutlineThickness(2);
+    sliderHandle.setOutlineColor(sf::Color::Black);
+    float handleX = slider.getPosition().x + (aiDifficulty - 1) * (slider.getSize().x / 4);
+    sliderHandle.setPosition(handleX - sliderHandle.getRadius(), slider.getPosition().y - sliderHandle.getRadius() + slider.getSize().y / 2);
+    window.draw(sliderHandle);
+
+    // Difficulty text
+    sf::Text difficultyText;
+    difficultyText.setFont(font);
+    difficultyText.setCharacterSize(20);
+    difficultyText.setFillColor(sf::Color::White);
+    std::stringstream ss;
+    ss << "AI Difficulty: " << aiDifficulty;
+    difficultyText.setString(ss.str());
+    difficultyText.setPosition((window.getSize().x - difficultyText.getLocalBounds().width) / 2, slider.getPosition().y - 40);
+    window.draw(difficultyText);
+}
+
 // Menu screen
-void menuScreen(sf::RenderWindow &window)
+void drawMenuScreen(sf::RenderWindow &window)
 {
     tintScreen(window);
     sf::Texture titleTexture;
@@ -615,6 +660,8 @@ void menuScreen(sf::RenderWindow &window)
     }
 
     // Variables to track button states
+    static bool isPlayAsWhiteHighlighted = true;
+    static bool isPlayAsBlackHighlighted = false;
     static bool isMascHighlighted = true;
     static bool isFemHighlighted = false;
     static bool isThirdHighlighted = false;
@@ -651,6 +698,26 @@ void menuScreen(sf::RenderWindow &window)
         sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 + 50),
         alt ? colourSelected : sf::Color::White);
 
+    sf::RectangleShape pveBlackButton = Utility::createButton(
+        sf::Vector2f(200, 50),
+        sf::Vector2f((window.getSize().x) / 2 + 50, window.getSize().y / 2 - 100),
+        isPlayAsBlackHighlighted ? colourSelected : sf::Color::White);
+
+    sf::RectangleShape pveWhiteButton = Utility::createButton(
+        sf::Vector2f(200, 50),
+        sf::Vector2f((window.getSize().x) / 2 - 250, window.getSize().y / 2 - 100),
+        isPlayAsWhiteHighlighted ? colourSelected : sf::Color::White);
+
+    sf::RectangleShape pvePlayButton = Utility::createButton(
+        sf::Vector2f(200, 50),
+        sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 + 75),
+        sf::Color::White);
+
+    sf::RectangleShape backButton = Utility::createButton(
+        sf::Vector2f(200, 50),
+        sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 + 150),
+        sf::Color::White);
+
     // Create button texts
     sf::Font font;
     if (!font.loadFromFile("assets/arial.ttf")) // Make sure you have this font file
@@ -659,28 +726,36 @@ void menuScreen(sf::RenderWindow &window)
     }
 
     // Draw buttons and texts
-    Utility::drawButton(window, pvpButton, "Player vs Player", font, 20);
-    Utility::drawButton(window, pveButton, "Player vs AI", font, 20);
-    Utility::drawButton(window, masc, "Masc", font, 20);
-    Utility::drawButton(window, fem, "Fem", font, 20);
-    Utility::drawButton(window, third, "Third", font, 20);
-    Utility::drawButton(window, blitz, "Blitz", font, 20);
-
+    if (state == GameState::Menu)
+    {
+        Utility::drawButton(window, pvpButton, "Player vs Player", font, 20);
+        Utility::drawButton(window, pveButton, "Player vs AI", font, 20);
+        Utility::drawButton(window, masc, "Masc", font, 20);
+        Utility::drawButton(window, fem, "Fem", font, 20);
+        Utility::drawButton(window, third, "Third", font, 20);
+        Utility::drawButton(window, blitz, "Blitz", font, 20);
+    }
+    if (state == GameState::AIOptions)
+    {
+        Utility::drawButton(window, pveWhiteButton, "Player as white", font, 20);
+        Utility::drawButton(window, pveBlackButton, "Player as black", font, 20);
+        Utility::drawButton(window, pvePlayButton, "Play", font, 20);
+        Utility::drawButton(window, backButton, "Back", font, 20);
+    }
     // Handle button clicks
     sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
     bool mousePressed = sf::Mouse::isButtonPressed(sf::Mouse::Left);
 
-    if (mousePressed && !wasMousePressed)
+    if (mousePressed && !wasMousePressed && state == GameState::Menu)
     {
         if (Utility::isButtonClicked(pvpButton, mousePosition))
         {
-            menu = false;
+            state = GameState::Game;
             aiActive = false;
         }
         else if (Utility::isButtonClicked(pveButton, mousePosition))
         {
-            menu = false;
-            aiActive = true;
+            state = GameState::AIOptions;
         }
         else if (Utility::isButtonClicked(masc, mousePosition))
         {
@@ -705,6 +780,32 @@ void menuScreen(sf::RenderWindow &window)
         else if (Utility::isButtonClicked(blitz, mousePosition))
         {
             alt = !alt;
+        }
+    }
+    if (mousePressed && !wasMousePressed && state == GameState::AIOptions)
+    {
+        if (Utility::isButtonClicked(pveWhiteButton, mousePosition))
+        {
+            isPlayAsWhiteHighlighted = true;
+            isPlayAsBlackHighlighted = false;
+        }
+        else if (Utility::isButtonClicked(pveBlackButton, mousePosition))
+        {
+            isPlayAsWhiteHighlighted = false;
+            isPlayAsBlackHighlighted = true;
+        }
+        else if (Utility::isButtonClicked(pvePlayButton, mousePosition))
+        {
+            state = GameState::Game;
+            aiActive = true;
+            if (isPlayAsBlackHighlighted)
+            {
+                aiMoveQueued = true;
+            }
+        }
+        else if (Utility::isButtonClicked(backButton, mousePosition))
+        {
+            state = GameState::Menu;
         }
     }
 
@@ -747,8 +848,6 @@ int main()
     // Initialize a clock for measuring frame time
     sf::Clock deltaClock;
 
-    bool aiMoveQueued = false;
-
     // Main game loop
     while (window.isOpen())
     {
@@ -790,7 +889,8 @@ int main()
         // Process AI move if queued and animation is finished
         if (aiMoveQueued && !animationInProgress && winner == '-')
         {
-            Types::Turn aiMove = ai.minMax(gameLogic, 'b', turns, alt, 3,
+            char aiPlayer = (turns % 2 == 0) ? 'b' : 'w';
+            Types::Turn aiMove = ai.minMax(gameLogic, aiPlayer, turns, alt, 3,
                                            -std::numeric_limits<float>::infinity(),
                                            std::numeric_limits<float>::infinity());
             handlePieceMovement(aiMove.pieceMoved, aiMove.initialSquare, aiMove.finalSquare, 'b');
@@ -806,10 +906,11 @@ int main()
         // Draw the chess board
         drawBoard(window);
 
-        if (menu)
+        if (state == GameState::Menu || state == GameState::AIOptions)
         {
-            menuScreen(window);
+            drawMenuScreen(window);
         }
+
         else
         {
             highlightSquares(window);
