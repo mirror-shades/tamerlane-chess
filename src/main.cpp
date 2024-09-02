@@ -32,8 +32,6 @@ Utility utility;
 AI ai(chessboard);
 int turns = 1;
 char winner = '-';
-bool aiActive = false;
-bool aiMoveQueued = false;
 bool isPieceSelected = false;
 bool animationInProgress = false;
 bool ended = false;
@@ -46,6 +44,10 @@ bool isWhiteKingInCheck = false;
 bool isBlackKingInCheck = false;
 std::vector<Types::Coord> moveList;
 std::vector<Types::Turn> turnHistory;
+
+// Captured pieces
+std::vector<std::string> whitePiecesCaptured;
+std::vector<std::string> blackPiecesCaptured;
 
 // Colors for the chess board and piece highlighting
 sf::Color colour1 = sf::Color(0xE5E5E5ff);
@@ -68,9 +70,14 @@ sf::RectangleShape drawButton(sf::Vector2f(squareSize, squareSize));
 sf::Text drawButtonText;
 
 // ai settings
-int aiDifficulty = 3; // Default difficulty
+int aiDifficulty = 2; // Default difficulty
 sf::RectangleShape slider;
 sf::CircleShape sliderHandle;
+bool aiActive = false;
+bool aiMoveQueued = false;
+bool aiVsAiMode = false;
+sf::Clock aiVsAiClock;
+float aiVsAiMoveDelay = 0.1f;
 
 // Structure for piece movement animation
 struct Animation
@@ -199,6 +206,8 @@ void exitToMenu()
     isWhiteKingInCheck = false;
     isBlackKingInCheck = false;
     winner = '-';
+    aiVsAiMode = false;
+    aiVsAiClock.restart();
 }
 
 // Draw the exit button
@@ -492,6 +501,17 @@ void handlePieceMovement(const std::string &_selectedPiece, const Types::Coord &
     std::string target = chessboard.getPiece(move);
     chessboard.setCell(_selectedSquare, "---");
     chessboard.setCell(move, _selectedPiece);
+    if (target != "---")
+    {
+        if (player == 'w')
+        {
+            blackPiecesCaptured.push_back(target);
+        }
+        else
+        {
+            whitePiecesCaptured.push_back(target);
+        }
+    }
 
     updateGameState(move, target, player);
 
@@ -624,6 +644,20 @@ void drawSlider(sf::RenderWindow &window, sf::Font &font)
     window.draw(difficultyText);
 }
 
+// Add this function to handle AI vs AI gameplay
+void handleAiVsAi()
+{
+    if (aiVsAiMode && !animationInProgress && winner == '-' && aiVsAiClock.getElapsedTime().asSeconds() >= aiVsAiMoveDelay)
+    {
+        char aiPlayer = (turns % 2 == 0) ? 'b' : 'w';
+        Types::Turn aiMove = ai.minMax(gameLogic, aiPlayer, turns, alt, aiDifficulty,
+                                       -std::numeric_limits<float>::infinity(),
+                                       std::numeric_limits<float>::infinity());
+        handlePieceMovement(aiMove.pieceMoved, aiMove.initialSquare, aiMove.finalSquare, aiPlayer);
+        aiVsAiClock.restart();
+    }
+}
+
 // Menu screen
 void drawMenuScreen(sf::RenderWindow &window)
 {
@@ -667,14 +701,19 @@ void drawMenuScreen(sf::RenderWindow &window)
     static bool wasMousePressed = false; // Track previous mouse button state
 
     // Create buttons
-    sf::RectangleShape pveButton = Utility::createButton(
+    sf::RectangleShape pvpButton = Utility::createButton(
+        sf::Vector2f(200, 50),
+        sf::Vector2f((window.getSize().x) / 2 + 50, window.getSize().y / 2 - 100),
+        sf::Color::White);
+
+    sf::RectangleShape aiButton = Utility::createButton(
         sf::Vector2f(200, 50),
         sf::Vector2f((window.getSize().x - 500) / 2, window.getSize().y / 2 - 100),
         sf::Color::White);
 
-    sf::RectangleShape pvpButton = Utility::createButton(
+    sf::RectangleShape aiVsAiButton = Utility::createButton(
         sf::Vector2f(200, 50),
-        sf::Vector2f((window.getSize().x) / 2 + 50, window.getSize().y / 2 - 100),
+        sf::Vector2f((window.getSize().x) / 2 + 150, window.getSize().y / 2 - 100),
         sf::Color::White);
 
     sf::RectangleShape masc = Utility::createButton(
@@ -697,17 +736,17 @@ void drawMenuScreen(sf::RenderWindow &window)
         sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 + 50),
         alt ? colourSelected : sf::Color::White);
 
-    sf::RectangleShape pveBlackButton = Utility::createButton(
+    sf::RectangleShape aiBlackButton = Utility::createButton(
         sf::Vector2f(200, 50),
         sf::Vector2f((window.getSize().x) / 2 + 50, window.getSize().y / 2 - 100),
         isPlayAsBlackHighlighted ? colourSelected : sf::Color::White);
 
-    sf::RectangleShape pveWhiteButton = Utility::createButton(
+    sf::RectangleShape aiWhiteButton = Utility::createButton(
         sf::Vector2f(200, 50),
         sf::Vector2f((window.getSize().x) / 2 - 250, window.getSize().y / 2 - 100),
         isPlayAsWhiteHighlighted ? colourSelected : sf::Color::White);
 
-    sf::RectangleShape pvePlayButton = Utility::createButton(
+    sf::RectangleShape aiPlayButton = Utility::createButton(
         sf::Vector2f(200, 50),
         sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 + 75),
         sf::Color::White);
@@ -728,7 +767,8 @@ void drawMenuScreen(sf::RenderWindow &window)
     if (state == GameState::Menu)
     {
         Utility::drawButton(window, pvpButton, "Player vs Player", font, 20);
-        Utility::drawButton(window, pveButton, "Player vs AI", font, 20);
+        Utility::drawButton(window, aiButton, "Player vs AI", font, 20);
+        Utility::drawButton(window, aiVsAiButton, "AI vs AI", font, 20);
         Utility::drawButton(window, masc, "Masc", font, 20);
         Utility::drawButton(window, fem, "Fem", font, 20);
         Utility::drawButton(window, third, "Third", font, 20);
@@ -736,9 +776,9 @@ void drawMenuScreen(sf::RenderWindow &window)
     }
     if (state == GameState::AIOptions)
     {
-        Utility::drawButton(window, pveWhiteButton, "Player as white", font, 20);
-        Utility::drawButton(window, pveBlackButton, "Player as black", font, 20);
-        Utility::drawButton(window, pvePlayButton, "Play", font, 20);
+        Utility::drawButton(window, aiWhiteButton, "Player as white", font, 20);
+        Utility::drawButton(window, aiBlackButton, "Player as black", font, 20);
+        Utility::drawButton(window, aiPlayButton, "Play", font, 20);
         Utility::drawButton(window, backButton, "Back", font, 20);
         // Draw the slider
         drawSlider(window, font);
@@ -754,7 +794,7 @@ void drawMenuScreen(sf::RenderWindow &window)
             state = GameState::Game;
             aiActive = false;
         }
-        else if (Utility::isButtonClicked(pveButton, mousePosition))
+        else if (Utility::isButtonClicked(aiButton, mousePosition))
         {
             state = GameState::AIOptions;
         }
@@ -778,6 +818,12 @@ void drawMenuScreen(sf::RenderWindow &window)
             isFemHighlighted = false;
             isThirdHighlighted = true;
         }
+        else if (Utility::isButtonClicked(aiVsAiButton, mousePosition))
+        {
+            state = GameState::Game;
+            aiVsAiMode = true;
+            aiVsAiClock.restart();
+        }
         else if (Utility::isButtonClicked(blitz, mousePosition))
         {
             alt = !alt;
@@ -785,17 +831,17 @@ void drawMenuScreen(sf::RenderWindow &window)
     }
     if (mousePressed && !wasMousePressed && state == GameState::AIOptions)
     {
-        if (Utility::isButtonClicked(pveWhiteButton, mousePosition))
+        if (Utility::isButtonClicked(aiWhiteButton, mousePosition))
         {
             isPlayAsWhiteHighlighted = true;
             isPlayAsBlackHighlighted = false;
         }
-        else if (Utility::isButtonClicked(pveBlackButton, mousePosition))
+        else if (Utility::isButtonClicked(aiBlackButton, mousePosition))
         {
             isPlayAsWhiteHighlighted = false;
             isPlayAsBlackHighlighted = true;
         }
-        else if (Utility::isButtonClicked(pvePlayButton, mousePosition))
+        else if (Utility::isButtonClicked(aiPlayButton, mousePosition))
         {
             state = GameState::Game;
             aiActive = true;
@@ -836,6 +882,110 @@ void highlightPreviousMove(sf::RenderWindow &window)
         window.draw(initialSquare);
         window.draw(finalSquare);
     }
+}
+
+// Add this function to calculate the material score
+int scoreMaterial()
+{
+    std::map<char, int> pieceValues = {{'p', 1}, {'E', 3}, {'W', 3}, {'A', 3}, {'V', 5}, {'C', 5}, {'M', 5}, {'T', 9}, {'G', 9}, {'R', 5}, {'K', 0}};
+    int whiteScore = 0, blackScore = 0;
+
+    for (const auto &piece : whitePiecesCaptured)
+    {
+        blackScore += pieceValues[piece[1]];
+    }
+    for (const auto &piece : blackPiecesCaptured)
+    {
+        whiteScore += pieceValues[piece[1]];
+    }
+
+    return whiteScore - blackScore;
+}
+
+// Add this function
+void drawCapturedPieces(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages)
+{
+    std::vector<int> numListw, numListb;
+    std::vector<std::string> sortedListw, sortedListb;
+    std::map<char, int> pieceToNum = {{'p', 1}, {'E', 2}, {'W', 3}, {'A', 4}, {'V', 5}, {'C', 6}, {'M', 7}, {'T', 8}, {'G', 9}, {'R', 10}, {'K', 11}};
+    std::map<int, std::string> numToPiece = {{1, "px"}, {2, "El"}, {3, "We"}, {4, "Ad"}, {5, "Vi"}, {6, "Ca"}, {7, "Mo"}, {8, "Ta"}, {9, "Gi"}, {10, "Rk"}, {11, "Ka"}};
+
+    // Sort white captured pieces
+    for (const auto &piece : whitePiecesCaptured)
+    {
+        numListw.push_back(pieceToNum[piece[1]]);
+    }
+    std::sort(numListw.begin(), numListw.end());
+    for (int num : numListw)
+    {
+        sortedListw.push_back("w" + numToPiece[num]);
+    }
+
+    // Sort black captured pieces
+    for (const auto &piece : blackPiecesCaptured)
+    {
+        numListb.push_back(pieceToNum[piece[1]]);
+    }
+    std::sort(numListb.begin(), numListb.end());
+    for (int num : numListb)
+    {
+        sortedListb.push_back("b" + numToPiece[num]);
+    }
+
+    // Determine spacing
+    int modw = 50, modb = 50;
+    if (sortedListw.size() > 17)
+        modw = 40;
+    if (sortedListw.size() > 21)
+        modw = 35;
+    if (sortedListw.size() > 24)
+        modw = 31;
+    if (sortedListb.size() > 17)
+        modb = 40;
+    if (sortedListb.size() > 21)
+        modb = 35;
+    if (sortedListb.size() > 24)
+        modb = 31;
+
+    // Draw white captured pieces
+    for (size_t i = 0; i < sortedListw.size(); ++i)
+    {
+        int spacew = i * modw;
+        if (pieceImages.find(sortedListw[i]) != pieceImages.end())
+        {
+            sf::Sprite sprite = pieceImages.at(sortedListw[i]);
+            sprite.setPosition(window.getSize().x - 950 + spacew, window.getSize().y - 80);
+            window.draw(sprite);
+        }
+    }
+
+    // Draw black captured pieces
+    for (size_t i = 0; i < sortedListb.size(); ++i)
+    {
+        int spaceb = i * modb;
+        if (pieceImages.find(sortedListb[i]) != pieceImages.end())
+        {
+            sf::Sprite sprite = pieceImages.at(sortedListb[i]);
+            sprite.setPosition(window.getSize().x - 950 + spaceb, window.getSize().y - 150);
+            window.draw(sprite);
+        }
+    }
+
+    // Draw score
+    int score = scoreMaterial();
+    sf::Font font;
+    if (!font.loadFromFile("assets/arial.ttf"))
+    {
+        std::cerr << "Error loading font" << std::endl;
+        return;
+    }
+    sf::Text text;
+    text.setFont(font);
+    text.setCharacterSize(34);
+    text.setFillColor(sf::Color::White);
+    text.setString(score > 0 ? "+" + std::to_string(score) : std::to_string(score));
+    text.setPosition(window.getSize().x - 1025, window.getSize().y - 95);
+    window.draw(text);
 }
 
 // Main function
@@ -896,12 +1046,15 @@ int main()
         if (aiMoveQueued && !animationInProgress && winner == '-')
         {
             char aiPlayer = (turns % 2 == 0) ? 'b' : 'w';
-            Types::Turn aiMove = ai.minMax(gameLogic, aiPlayer, turns, alt, 3,
+            Types::Turn aiMove = ai.minMax(gameLogic, aiPlayer, turns, alt, aiDifficulty,
                                            -std::numeric_limits<float>::infinity(),
                                            std::numeric_limits<float>::infinity());
-            handlePieceMovement(aiMove.pieceMoved, aiMove.initialSquare, aiMove.finalSquare, 'b');
+            handlePieceMovement(aiMove.pieceMoved, aiMove.initialSquare, aiMove.finalSquare, aiPlayer);
             aiMoveQueued = false;
         }
+
+        // Handle AI vs AI gameplay
+        handleAiVsAi();
 
         // Clear the window
         window.clear(sf::Color::White);
@@ -928,7 +1081,7 @@ int main()
             highlightKing(window, blackKingPosition, isBlackKingInCheck);
             drawPieces(window, pieceImages);
             drawExitButton(window);
-
+            drawCapturedPieces(window, pieceImages);
             winScreen(window);
         }
 
