@@ -23,10 +23,10 @@ if not exist Makefile (
 )
 
 :: Clean the build directory
-mingw32-make -f Makefile BUILD_TYPE=%BUILD_TYPE% clean
+make -f Makefile BUILD_TYPE=%BUILD_TYPE% clean
 
 :: Execute the build
-mingw32-make -f Makefile BUILD_TYPE=%BUILD_TYPE%
+make -f Makefile BUILD_TYPE=%BUILD_TYPE%
 
 :: Check if the build was successful
 if %ERRORLEVEL% EQU 0 (

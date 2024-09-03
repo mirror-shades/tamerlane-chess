@@ -701,24 +701,24 @@ void drawMenuScreen(sf::RenderWindow &window)
     static bool wasMousePressed = false; // Track previous mouse button state
 
     // Create buttons
-    sf::RectangleShape pvpButton = Utility::createButton(
-        sf::Vector2f(200, 50),
-        sf::Vector2f((window.getSize().x) / 2 + 50, window.getSize().y / 2 - 100),
-        sf::Color::White);
-
     sf::RectangleShape aiButton = Utility::createButton(
         sf::Vector2f(200, 50),
-        sf::Vector2f((window.getSize().x - 500) / 2, window.getSize().y / 2 - 100),
+        sf::Vector2f((window.getSize().x - 500) / 2 - 75, window.getSize().y / 2 - 100),
         sf::Color::White);
 
     sf::RectangleShape aiVsAiButton = Utility::createButton(
         sf::Vector2f(200, 50),
-        sf::Vector2f((window.getSize().x) / 2 + 150, window.getSize().y / 2 - 100),
+        sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 - 100),
+        sf::Color::White);
+
+    sf::RectangleShape pvpButton = Utility::createButton(
+        sf::Vector2f(200, 50),
+        sf::Vector2f((window.getSize().x) / 2 + 125, window.getSize().y / 2 - 100),
         sf::Color::White);
 
     sf::RectangleShape masc = Utility::createButton(
         sf::Vector2f(200, 50),
-        sf::Vector2f((window.getSize().x - 500) / 2 - 50, window.getSize().y / 2 - 25),
+        sf::Vector2f((window.getSize().x - 500) / 2 - 75, window.getSize().y / 2 - 25),
         isMascHighlighted ? colourSelected : sf::Color::White);
 
     sf::RectangleShape fem = Utility::createButton(
@@ -728,7 +728,7 @@ void drawMenuScreen(sf::RenderWindow &window)
 
     sf::RectangleShape third = Utility::createButton(
         sf::Vector2f(200, 50),
-        sf::Vector2f((window.getSize().x + 200) / 2, window.getSize().y / 2 - 25),
+        sf::Vector2f((window.getSize().x) / 2 + 125, window.getSize().y / 2 - 25),
         isThirdHighlighted ? colourSelected : sf::Color::White);
 
     sf::RectangleShape blitz = Utility::createButton(

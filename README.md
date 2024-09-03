@@ -4,13 +4,13 @@
 
 ## ^ Download the latest release and play
 
-I am building a Tamerlane chess engine in C++. Tamerlane chess is a medieval chess variant. Like modern chess, it is derived from shatranj. It was developed in Central Asia during the reign of Emperor Timur, and its invention is also attributed to him.
+An engine for Tamerlane chess built in C++. Tamerlane chess is a medieval chess variant from the Timurid Empire. Like modern chess, it is derived from shatranj. It was developed in Central Asia during the reign of Emperor Timur, and its invention is also attributed to him.
 
 ## Compiling
 
-The game is compiled using minGW 6.1.0 > 6.3.0.
+The game is compiled using SFML 2.6.1 built on minGW 13.1.0.
 
-There is a batch file to compile the game in the root directory called `run.bat`. Use the flag `release` to compile the game in release mode.
+There is a batch file to compile the game in the root directory called `run.bat`.
 
 Alternatively, run in powershell:  
 `mingw32-make -f Makefile; if ($?) { ./build/main.exe }`  
@@ -19,7 +19,7 @@ or run in terminal:
 
 ## Installing
 
-If you prefer to manually install rather than download a release, you can do that as well. There is a powershell script to install the game in the scripts directory called `install.ps1`. This script will create a standalone installation in a folder parallel to the source code.
+If you prefer to manually install rather than download a release, you can do that as well. There is a powershell script to install the game in the scripts directory called `install.ps1`. This script will create a standalone installation in a folder parallel to the source code. This standalone can also be downloaded from the releases page.
 
 ```
 parent directory
