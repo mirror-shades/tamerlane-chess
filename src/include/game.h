@@ -56,4 +56,8 @@ public:
     void handlePieceSelection(const Types::Coord &coord, const char &player);
     void updateGameState(const Types::Coord &move, const std::string &target, const char &player);
     void toggleSelection(const Types::Coord &coord);
+    void handleMoves(sf::RenderWindow &window);
+    void gameHandler(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages);
+    bool clickHandler(sf::Event event, sf::RenderWindow &window);
+    void gameFrame(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages, sf::Sprite &backgroundSprite);
 };

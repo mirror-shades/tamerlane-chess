@@ -5,6 +5,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include "include/chessboard.h"
+#include <iostream>
 
 // Main function
 int main()
@@ -23,92 +24,57 @@ int main()
     // Load chess piece images
     auto pieceImages = game.loadImages();
 
-    // Initialize a clock for measuring frame time
-    sf::Clock deltaClock;
+    sf::Clock frameClock;
+    const sf::Time frameTime = sf::seconds(1.0f / 60.0f); // 60 FPS cap
+
+    // FPS tracking (optional, for debugging)
+    static int frameCount = 0;
+    static sf::Clock fpsClock;
+    static float elapsedTime = 0.0f;
 
     // Main game loop
     while (window.isOpen())
     {
-        // Calculate time since last frame
-        float deltaTime = deltaClock.restart().asSeconds();
-
         // Event handling
         sf::Event event;
+        bool needsUpdate = false;
         while (window.pollEvent(event))
         {
+            if (game.clickHandler(event, window))
+            {
+                needsUpdate = true;
+            }
             if (event.type == sf::Event::Closed)
+            {
                 window.close();
-
-            if (event.type == sf::Event::MouseButtonPressed)
-            {
-                if (!game.gameOver && !game.animationInProgress && event.mouseButton.button == sf::Mouse::Left)
-                {
-                    bool playerMoved = game.clickLogic(event.mouseButton.x, event.mouseButton.y);
-
-                    if (playerMoved && game.aiActive)
-                    {
-                        game.aiMoveQueued = true;
-                    }
-                }
-            }
-
-            if (event.type == sf::Event::KeyPressed)
-            {
-                if (event.key.control && event.key.code == sf::Keyboard::Z)
-                {
-                    game.undoLastMove();
-                }
             }
         }
 
-        // Update animations
-        game.updateAnimations(deltaTime);
-
-        // Process AI move if queued and animation is finished
-        if (game.aiMoveQueued && !game.animationInProgress && game.winner == '-')
+        // Update the frame if needed or if enough time has passed
+        if (needsUpdate || frameClock.getElapsedTime() >= frameTime)
         {
-            char aiPlayer = (game.turns % 2 == 0) ? 'b' : 'w';
-            Types::Turn aiMove = ai.minMax(gameLogic, aiPlayer, game.turns, game.alt, game.aiDifficulty,
-                                           -std::numeric_limits<float>::infinity(),
-                                           std::numeric_limits<float>::infinity());
-            game.handlePieceMovement(aiMove.pieceMoved, aiMove.initialSquare, aiMove.finalSquare, aiPlayer);
-            game.aiMoveQueued = false;
+            game.gameFrame(window, pieceImages, backgroundSprite);
+            frameClock.restart();
+
+            // FPS tracking (optional, for debugging)
+            static int frameCount = 0;
+            static sf::Clock fpsClock;
+            static float elapsedTime = 0.0f;
+
+            frameCount++;
+            elapsedTime = fpsClock.getElapsedTime().asSeconds();
+            if (elapsedTime >= 5.0f)
+            {
+                std::cout << "FPS: " << frameCount / elapsedTime << std::endl;
+                frameCount = 0;
+                fpsClock.restart();
+            }
         }
-
-        // Handle AI vs AI gameplay
-        game.handleAiVsAi();
-
-        // Clear the window
-        window.clear(sf::Color::White);
-
-        // Draw the background
-        window.draw(backgroundSprite);
-
-        // Draw the chess board
-        game.drawBoard(window);
-
-        if (game.state == Game::GameState::Menu || game.state == Game::GameState::AIOptions)
-        {
-            game.drawMenuScreen(window);
-        }
-
         else
         {
-            game.highlightSquares(window);
-            game.highlightPreviousMove(window);
-            Types::Coord whiteKingPosition, blackKingPosition;
-            gameLogic.findAndSetKingPosition(whiteKingPosition, 'w');
-            gameLogic.findAndSetKingPosition(blackKingPosition, 'b');
-            game.highlightKing(window, whiteKingPosition, Game::isWhiteKingInCheck);
-            game.highlightKing(window, blackKingPosition, Game::isBlackKingInCheck);
-            game.drawPieces(window, pieceImages);
-            game.drawExitButton(window);
-            game.drawCapturedPieces(window, pieceImages);
-            game.winScreen(window);
+            // Sleep to avoid excessive CPU usage
+            sf::sleep(frameTime - frameClock.getElapsedTime());
         }
-
-        // Display everything that was drawn
-        window.display();
     }
 
     return 0;

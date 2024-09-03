@@ -5,7 +5,6 @@
 #include "include/globals.h"
 #include "include/utility.h"
 #include "include/ai.h"
-#include "include/chessboard.h"
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <vector>
@@ -17,6 +16,7 @@
 
 GameLogic gameLogic;
 Utility utility;
+AI ai(chessboard);
 
 // Constants for the Tamerlane Chess board
 const int rows = 10;
@@ -65,6 +65,10 @@ const sf::Color exitXColor = sf::Color::Black;
 // Draw button
 sf::RectangleShape drawButton(sf::Vector2f(squareSize, squareSize));
 sf::Text drawButtonText;
+
+// Calculate time since last frame
+sf::Clock deltaClock;
+float deltaTime = deltaClock.restart().asSeconds();
 
 // ai settings
 int aiDifficulty = 2; // Default difficulty
@@ -679,207 +683,210 @@ void Game::handleAiVsAi()
 // Menu screen
 void Game::drawMenuScreen(sf::RenderWindow &window)
 {
-    tintScreen(window);
-    sf::Texture titleTexture;
-
-    if (titleTexture.loadFromFile(findAssetsPath("title.png")))
+    if (state == Game::GameState::Menu || state == GameState::AIOptions)
     {
-        sf::Sprite titleSprite(titleTexture);
+        tintScreen(window);
+        sf::Texture titleTexture;
 
-        // Disable smoothing to prevent tearing
-        titleTexture.setSmooth(false);
-
-        // Calculate the scale to fit the window width
-        float scale = window.getSize().x / static_cast<float>(titleTexture.getSize().x);
-        titleSprite.setScale(scale, scale);
-
-        // Center the sprite horizontally and position it at 1/4 of the window height
-        float xPos = 0; // No need to calculate, as we're scaling to fit the width
-        float yPos = (window.getSize().y - titleTexture.getSize().y * scale) / 4.0f;
-
-        titleSprite.setPosition(xPos, yPos);
-
-        // Use integer rounding for position to avoid subpixel rendering
-        sf::Vector2f position = titleSprite.getPosition();
-        titleSprite.setPosition(static_cast<int>(position.x + 0.5f), static_cast<int>(position.y + 0.5f));
-
-        window.draw(titleSprite);
-    }
-    else
-    {
-        std::cerr << "Failed to load title.png" << std::endl;
-    }
-
-    // Variables to track button states
-    static bool isPlayAsWhiteHighlighted = true;
-    static bool isPlayAsBlackHighlighted = false;
-    static bool isMascHighlighted = true;
-    static bool isFemHighlighted = false;
-    static bool isThirdHighlighted = false;
-    static bool wasMousePressed = false; // Track previous mouse button state
-
-    // Create buttons
-    sf::RectangleShape aiButton = Utility::createButton(
-        sf::Vector2f(200, 50),
-        sf::Vector2f((window.getSize().x - 500) / 2 - 75, window.getSize().y / 2 - 100),
-        sf::Color::White);
-
-    sf::RectangleShape aiVsAiButton = Utility::createButton(
-        sf::Vector2f(200, 50),
-        sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 - 100),
-        sf::Color::White);
-
-    sf::RectangleShape pvpButton = Utility::createButton(
-        sf::Vector2f(200, 50),
-        sf::Vector2f((window.getSize().x) / 2 + 125, window.getSize().y / 2 - 100),
-        sf::Color::White);
-
-    sf::RectangleShape masc = Utility::createButton(
-        sf::Vector2f(200, 50),
-        sf::Vector2f((window.getSize().x - 500) / 2 - 75, window.getSize().y / 2 - 25),
-        isMascHighlighted ? colourSelected : sf::Color::White);
-
-    sf::RectangleShape fem = Utility::createButton(
-        sf::Vector2f(200, 50),
-        sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 - 25),
-        isFemHighlighted ? colourSelected : sf::Color::White);
-
-    sf::RectangleShape third = Utility::createButton(
-        sf::Vector2f(200, 50),
-        sf::Vector2f((window.getSize().x) / 2 + 125, window.getSize().y / 2 - 25),
-        isThirdHighlighted ? colourSelected : sf::Color::White);
-
-    sf::RectangleShape blitz = Utility::createButton(
-        sf::Vector2f(200, 50),
-        sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 + 50),
-        alt ? colourSelected : sf::Color::White);
-
-    sf::RectangleShape aiBlackButton = Utility::createButton(
-        sf::Vector2f(200, 50),
-        sf::Vector2f((window.getSize().x) / 2 + 50, window.getSize().y / 2 - 100),
-        isPlayAsBlackHighlighted ? colourSelected : sf::Color::White);
-
-    sf::RectangleShape aiWhiteButton = Utility::createButton(
-        sf::Vector2f(200, 50),
-        sf::Vector2f((window.getSize().x) / 2 - 250, window.getSize().y / 2 - 100),
-        isPlayAsWhiteHighlighted ? colourSelected : sf::Color::White);
-
-    sf::RectangleShape aiPlayButton = Utility::createButton(
-        sf::Vector2f(200, 50),
-        sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 + 75),
-        sf::Color::White);
-
-    sf::RectangleShape backButton = Utility::createButton(
-        sf::Vector2f(200, 50),
-        sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 + 150),
-        sf::Color::White);
-
-    // Create button texts
-    sf::Font font;
-    if (!font.loadFromFile(findAssetsPath("arial.ttf")))
-    {
-        std::cerr << "Failed to load font" << std::endl;
-    }
-
-    // Draw buttons and texts
-    if (state == Game::GameState::Menu)
-    {
-        Utility::drawButton(window, pvpButton, "Player vs Player", font, 20);
-        Utility::drawButton(window, aiButton, "Player vs AI", font, 20);
-        Utility::drawButton(window, aiVsAiButton, "AI vs AI", font, 20);
-        Utility::drawButton(window, masc, "Masc", font, 20);
-        Utility::drawButton(window, fem, "Fem", font, 20);
-        Utility::drawButton(window, third, "Third", font, 20);
-        Utility::drawButton(window, blitz, "Blitz", font, 20);
-    }
-    if (state == Game::GameState::AIOptions)
-    {
-        Utility::drawButton(window, aiWhiteButton, "Player as white", font, 20);
-        Utility::drawButton(window, aiBlackButton, "Player as black", font, 20);
-        Utility::drawButton(window, aiPlayButton, "Play", font, 20);
-        Utility::drawButton(window, backButton, "Back", font, 20);
-        // Draw the slider
-        drawSlider(window, font);
-    }
-    // Handle button clicks
-    sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
-    bool mousePressed = sf::Mouse::isButtonPressed(sf::Mouse::Left);
-
-    if (mousePressed && !wasMousePressed && state == Game::GameState::Menu)
-    {
-        if (Utility::isButtonClicked(pvpButton, mousePosition))
+        if (titleTexture.loadFromFile(findAssetsPath("title.png")))
         {
-            state = Game::GameState::Game;
-            aiActive = false;
+            sf::Sprite titleSprite(titleTexture);
+
+            // Disable smoothing to prevent tearing
+            titleTexture.setSmooth(false);
+
+            // Calculate the scale to fit the window width
+            float scale = window.getSize().x / static_cast<float>(titleTexture.getSize().x);
+            titleSprite.setScale(scale, scale);
+
+            // Center the sprite horizontally and position it at 1/4 of the window height
+            float xPos = 0; // No need to calculate, as we're scaling to fit the width
+            float yPos = (window.getSize().y - titleTexture.getSize().y * scale) / 4.0f;
+
+            titleSprite.setPosition(xPos, yPos);
+
+            // Use integer rounding for position to avoid subpixel rendering
+            sf::Vector2f position = titleSprite.getPosition();
+            titleSprite.setPosition(static_cast<int>(position.x + 0.5f), static_cast<int>(position.y + 0.5f));
+
+            window.draw(titleSprite);
         }
-        else if (Utility::isButtonClicked(aiButton, mousePosition))
+        else
         {
-            state = Game::GameState::AIOptions;
+            std::cerr << "Failed to load title.png" << std::endl;
         }
-        else if (Utility::isButtonClicked(masc, mousePosition))
+
+        // Variables to track button states
+        static bool isPlayAsWhiteHighlighted = true;
+        static bool isPlayAsBlackHighlighted = false;
+        static bool isMascHighlighted = true;
+        static bool isFemHighlighted = false;
+        static bool isThirdHighlighted = false;
+        static bool wasMousePressed = false; // Track previous mouse button state
+
+        // Create buttons
+        sf::RectangleShape aiButton = Utility::createButton(
+            sf::Vector2f(200, 50),
+            sf::Vector2f((window.getSize().x - 500) / 2 - 75, window.getSize().y / 2 - 100),
+            sf::Color::White);
+
+        sf::RectangleShape aiVsAiButton = Utility::createButton(
+            sf::Vector2f(200, 50),
+            sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 - 100),
+            sf::Color::White);
+
+        sf::RectangleShape pvpButton = Utility::createButton(
+            sf::Vector2f(200, 50),
+            sf::Vector2f((window.getSize().x) / 2 + 125, window.getSize().y / 2 - 100),
+            sf::Color::White);
+
+        sf::RectangleShape masc = Utility::createButton(
+            sf::Vector2f(200, 50),
+            sf::Vector2f((window.getSize().x - 500) / 2 - 75, window.getSize().y / 2 - 25),
+            isMascHighlighted ? colourSelected : sf::Color::White);
+
+        sf::RectangleShape fem = Utility::createButton(
+            sf::Vector2f(200, 50),
+            sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 - 25),
+            isFemHighlighted ? colourSelected : sf::Color::White);
+
+        sf::RectangleShape third = Utility::createButton(
+            sf::Vector2f(200, 50),
+            sf::Vector2f((window.getSize().x) / 2 + 125, window.getSize().y / 2 - 25),
+            isThirdHighlighted ? colourSelected : sf::Color::White);
+
+        sf::RectangleShape blitz = Utility::createButton(
+            sf::Vector2f(200, 50),
+            sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 + 50),
+            alt ? colourSelected : sf::Color::White);
+
+        sf::RectangleShape aiBlackButton = Utility::createButton(
+            sf::Vector2f(200, 50),
+            sf::Vector2f((window.getSize().x) / 2 + 50, window.getSize().y / 2 - 100),
+            isPlayAsBlackHighlighted ? colourSelected : sf::Color::White);
+
+        sf::RectangleShape aiWhiteButton = Utility::createButton(
+            sf::Vector2f(200, 50),
+            sf::Vector2f((window.getSize().x) / 2 - 250, window.getSize().y / 2 - 100),
+            isPlayAsWhiteHighlighted ? colourSelected : sf::Color::White);
+
+        sf::RectangleShape aiPlayButton = Utility::createButton(
+            sf::Vector2f(200, 50),
+            sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 + 75),
+            sf::Color::White);
+
+        sf::RectangleShape backButton = Utility::createButton(
+            sf::Vector2f(200, 50),
+            sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 + 150),
+            sf::Color::White);
+
+        // Create button texts
+        sf::Font font;
+        if (!font.loadFromFile(findAssetsPath("arial.ttf")))
         {
-            isMascHighlighted = true;
-            isFemHighlighted = false;
-            isThirdHighlighted = false;
-            chessboard.setMasculineBoard();
+            std::cerr << "Failed to load font" << std::endl;
         }
-        else if (Utility::isButtonClicked(fem, mousePosition))
+
+        // Draw buttons and texts
+        if (state == Game::GameState::Menu)
         {
-            isMascHighlighted = false;
-            isFemHighlighted = true;
-            isThirdHighlighted = false;
-            chessboard.setFeminineBoard();
+            Utility::drawButton(window, pvpButton, "Player vs Player", font, 20);
+            Utility::drawButton(window, aiButton, "Player vs AI", font, 20);
+            Utility::drawButton(window, aiVsAiButton, "AI vs AI", font, 20);
+            Utility::drawButton(window, masc, "Masc", font, 20);
+            Utility::drawButton(window, fem, "Fem", font, 20);
+            Utility::drawButton(window, third, "Third", font, 20);
+            Utility::drawButton(window, blitz, "Blitz", font, 20);
         }
-        else if (Utility::isButtonClicked(third, mousePosition))
+        if (state == Game::GameState::AIOptions)
         {
-            isMascHighlighted = false;
-            isFemHighlighted = false;
-            isThirdHighlighted = true;
+            Utility::drawButton(window, aiWhiteButton, "Player as white", font, 20);
+            Utility::drawButton(window, aiBlackButton, "Player as black", font, 20);
+            Utility::drawButton(window, aiPlayButton, "Play", font, 20);
+            Utility::drawButton(window, backButton, "Back", font, 20);
+            // Draw the slider
+            drawSlider(window, font);
         }
-        else if (Utility::isButtonClicked(aiVsAiButton, mousePosition))
+        // Handle button clicks
+        sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+        bool mousePressed = sf::Mouse::isButtonPressed(sf::Mouse::Left);
+
+        if (mousePressed && !wasMousePressed && state == Game::GameState::Menu)
         {
-            state = Game::GameState::Game;
-            aiVsAiMode = true;
-            aiVsAiClock.restart();
-        }
-        else if (Utility::isButtonClicked(blitz, mousePosition))
-        {
-            alt = !alt;
-        }
-    }
-    if (mousePressed && !wasMousePressed && state == Game::GameState::AIOptions)
-    {
-        if (Utility::isButtonClicked(aiWhiteButton, mousePosition))
-        {
-            isPlayAsWhiteHighlighted = true;
-            isPlayAsBlackHighlighted = false;
-        }
-        else if (Utility::isButtonClicked(aiBlackButton, mousePosition))
-        {
-            isPlayAsWhiteHighlighted = false;
-            isPlayAsBlackHighlighted = true;
-        }
-        else if (Utility::isButtonClicked(aiPlayButton, mousePosition))
-        {
-            state = Game::GameState::Game;
-            aiActive = true;
-            if (isPlayAsBlackHighlighted)
+            if (Utility::isButtonClicked(pvpButton, mousePosition))
             {
-                aiMoveQueued = true;
+                state = Game::GameState::Game;
+                aiActive = false;
+            }
+            else if (Utility::isButtonClicked(aiButton, mousePosition))
+            {
+                state = Game::GameState::AIOptions;
+            }
+            else if (Utility::isButtonClicked(masc, mousePosition))
+            {
+                isMascHighlighted = true;
+                isFemHighlighted = false;
+                isThirdHighlighted = false;
+                chessboard.setMasculineBoard();
+            }
+            else if (Utility::isButtonClicked(fem, mousePosition))
+            {
+                isMascHighlighted = false;
+                isFemHighlighted = true;
+                isThirdHighlighted = false;
+                chessboard.setFeminineBoard();
+            }
+            else if (Utility::isButtonClicked(third, mousePosition))
+            {
+                isMascHighlighted = false;
+                isFemHighlighted = false;
+                isThirdHighlighted = true;
+            }
+            else if (Utility::isButtonClicked(aiVsAiButton, mousePosition))
+            {
+                state = Game::GameState::Game;
+                aiVsAiMode = true;
+                aiVsAiClock.restart();
+            }
+            else if (Utility::isButtonClicked(blitz, mousePosition))
+            {
+                alt = !alt;
             }
         }
-        else if (Utility::isButtonClicked(backButton, mousePosition))
+        if (mousePressed && !wasMousePressed && state == Game::GameState::AIOptions)
         {
-            state = Game::GameState::Menu;
+            if (Utility::isButtonClicked(aiWhiteButton, mousePosition))
+            {
+                isPlayAsWhiteHighlighted = true;
+                isPlayAsBlackHighlighted = false;
+            }
+            else if (Utility::isButtonClicked(aiBlackButton, mousePosition))
+            {
+                isPlayAsWhiteHighlighted = false;
+                isPlayAsBlackHighlighted = true;
+            }
+            else if (Utility::isButtonClicked(aiPlayButton, mousePosition))
+            {
+                state = Game::GameState::Game;
+                aiActive = true;
+                if (isPlayAsBlackHighlighted)
+                {
+                    aiMoveQueued = true;
+                }
+            }
+            else if (Utility::isButtonClicked(backButton, mousePosition))
+            {
+                state = Game::GameState::Menu;
+            }
+            if (slider.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
+            {
+                float newDifficulty = (mousePosition.x - slider.getPosition().x) / slider.getSize().x * 9 + 1;
+                aiDifficulty = std::max(1, std::min(10, static_cast<int>(newDifficulty)));
+            }
         }
-        if (slider.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
-        {
-            float newDifficulty = (mousePosition.x - slider.getPosition().x) / slider.getSize().x * 9 + 1;
-            aiDifficulty = std::max(1, std::min(10, static_cast<int>(newDifficulty)));
-        }
-    }
 
-    wasMousePressed = mousePressed;
+        wasMousePressed = mousePressed;
+    }
 }
 
 // Highlight the previous move
@@ -1004,4 +1011,97 @@ void Game::drawCapturedPieces(sf::RenderWindow &window, const std::map<std::stri
     text.setString(score > 0 ? "+" + std::to_string(score) : std::to_string(score));
     text.setPosition(window.getSize().x - 1025, window.getSize().y - 95);
     window.draw(text);
+}
+
+void Game::handleMoves(sf::RenderWindow &window)
+{
+    // Update animations
+    updateAnimations(deltaTime);
+
+    // Process AI move if queued and animation is finished
+    if (aiMoveQueued && !animationInProgress && winner == '-')
+    {
+        char aiPlayer = (turns % 2 == 0) ? 'b' : 'w';
+        Types::Turn aiMove = ai.minMax(gameLogic, aiPlayer, turns, alt, aiDifficulty,
+                                       -std::numeric_limits<float>::infinity(),
+                                       std::numeric_limits<float>::infinity());
+        handlePieceMovement(aiMove.pieceMoved, aiMove.initialSquare, aiMove.finalSquare, aiPlayer);
+        aiMoveQueued = false;
+    }
+
+    // Handle AI vs AI gameplay
+    handleAiVsAi();
+}
+
+void Game::gameHandler(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages)
+{
+
+    if (state == GameState::Game)
+    {
+        highlightSquares(window);
+        highlightPreviousMove(window);
+        Types::Coord whiteKingPosition, blackKingPosition;
+        gameLogic.findAndSetKingPosition(whiteKingPosition, 'w');
+        gameLogic.findAndSetKingPosition(blackKingPosition, 'b');
+        highlightKing(window, whiteKingPosition, Game::isWhiteKingInCheck);
+        highlightKing(window, blackKingPosition, Game::isBlackKingInCheck);
+        drawPieces(window, pieceImages);
+        drawExitButton(window);
+        drawCapturedPieces(window, pieceImages);
+        winScreen(window);
+    }
+}
+
+bool Game::clickHandler(sf::Event event, sf::RenderWindow &window)
+{
+    if (event.type == sf::Event::Closed)
+        window.close();
+
+    if (event.type == sf::Event::MouseButtonPressed)
+    {
+        if (!gameOver && !animationInProgress && event.mouseButton.button == sf::Mouse::Left)
+        {
+            bool playerMoved = clickLogic(event.mouseButton.x, event.mouseButton.y);
+
+            if (playerMoved)
+            {
+                if (aiActive)
+                {
+                    aiMoveQueued = true;
+                }
+                return true;
+            }
+        }
+    }
+
+    if (event.type == sf::Event::KeyPressed)
+    {
+        if (event.key.control && event.key.code == sf::Keyboard::Z)
+        {
+            undoLastMove();
+            return true;
+        }
+    }
+    return false;
+}
+
+void Game::gameFrame(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages, sf::Sprite &backgroundSprite)
+{
+    handleMoves(window);
+
+    // Clear the window
+    window.clear(sf::Color::White);
+
+    // Draw the background
+    window.draw(backgroundSprite);
+
+    // Draw the chess board
+    drawBoard(window);
+
+    drawMenuScreen(window);
+
+    gameHandler(window, pieceImages);
+
+    // Display everything that was drawn
+    window.display();
 }
