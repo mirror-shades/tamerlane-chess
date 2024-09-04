@@ -45,6 +45,21 @@
     "stdexcept": "cpp",
     "typeinfo": "cpp",
     "chrono": "cpp",
-    "ratio": "cpp"
+    "ratio": "cpp",
+    "filesystem": "cpp",
+    "bit": "cpp",
+    "charconv": "cpp",
+    "codecvt": "cpp",
+    "compare": "cpp",
+    "concepts": "cpp",
+    "optional": "cpp",
+    "string_view": "cpp",
+    "format": "cpp",
+    "iomanip": "cpp",
+    "numbers": "cpp",
+    "span": "cpp",
+    "text_encoding": "cpp",
+    "cinttypes": "cpp",
+    "variant": "cpp"
   }
 }

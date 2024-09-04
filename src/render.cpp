@@ -1,10 +1,12 @@
 // Include necessary headers
-#include "game.h"
+#include "render.h"
+#include "chessboard.h"
 #include "include/gameLogic.h"
 #include "include/types.h"
 #include "include/globals.h"
 #include "include/utility.h"
 #include "include/ai.h"
+#include "include/state.h"
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <vector>
@@ -14,33 +16,10 @@
 #include <iomanip>
 #include <filesystem>
 
-GameLogic gameLogic;
-Utility utility;
 AI ai(chessboard);
 
-// Constants for the Tamerlane Chess board
-const int rows = 10;
-const int cols = 11;
-const int squareSize = 75;
-
 // Global variables for game state
-Game::GameState Game::state = Game::GameState::Menu;
-bool Game::gameOver = false;
-bool Game::animationInProgress = false;
-bool Game::aiActive = false;
-bool Game::aiMoveQueued = false;
-bool Game::isWhiteKingInCheck = false;
-bool Game::isBlackKingInCheck = false;
-char Game::winner = '-';
-int Game::turns = 1;
-int Game::alt = 0;
-int Game::aiDifficulty = 2;
-bool Game::ended = false;
-bool Game::drawPossible = false;
-bool Game::isPieceSelected = false;
-std::vector<Types::Coord> Game::moveList;
-std::string Game::selectedPiece;
-Types::Coord Game::selectedSquare = {-1, -1};
+bool Render::animationInProgress = false;
 
 // Captured pieces
 std::vector<std::string> whitePiecesCaptured;
@@ -58,12 +37,12 @@ std::map<std::string, sf::Texture> textures;
 std::map<std::string, sf::Sprite> images;
 
 // Draw exit button
-const int exitButtonSize = squareSize / 2;
+const int exitButtonSize = Chessboard::squareSize / 2;
 const sf::Color exitButtonColor = sf::Color::Red;
 const sf::Color exitXColor = sf::Color::Black;
 
 // Draw button
-sf::RectangleShape drawButton(sf::Vector2f(squareSize, squareSize));
+sf::RectangleShape drawButton(sf::Vector2f(Chessboard::squareSize, Chessboard::squareSize));
 sf::Text drawButtonText;
 
 // Calculate time since last frame
@@ -92,7 +71,7 @@ struct Animation
 } animation;
 
 // Find the assets path
-std::string findAssetsPath(const std::string &filename)
+std::string Render::findAssetsPath(const std::string &filename)
 {
     std::filesystem::path currentPath = std::filesystem::current_path();
     std::filesystem::path pathParallel = currentPath / "assets" / filename;
@@ -110,34 +89,8 @@ std::string findAssetsPath(const std::string &filename)
     return "";
 }
 
-// Check if the game has ended (checkmate or stalemate)
-bool Game::checkVictoryCondition(const char &player, const char &enemy)
-{
-    auto boardState = chessboard.getBoardState();
-    bool hasLegalMoves = gameLogic.hasLegalMoves(enemy, alt);
-    bool kingInCheck = gameLogic.isKingInCheck(enemy, boardState, alt);
-
-    if (!hasLegalMoves)
-    {
-        if (kingInCheck)
-        {
-            winner = player;
-            std::cout << player << " has won by checkmate" << std::endl;
-        }
-        else
-        {
-            winner = 's';
-            std::cout << "The game is a draw by stalemate" << std::endl;
-        }
-        gameOver = true;
-        return true;
-    }
-
-    return false;
-}
-
 // Initialize piece movement animation
-void Game::startAnimation(std::string piece, Types::Coord start, Types::Coord end, float duration)
+void Render::startAnimation(std::string piece, Types::Coord start, Types::Coord end, float duration)
 {
     animation.isActive = true;
     animationInProgress = true;
@@ -149,13 +102,13 @@ void Game::startAnimation(std::string piece, Types::Coord start, Types::Coord en
 }
 
 // Calculate intermediate position for smooth animation
-sf::Vector2f interpolate(sf::Vector2f startPos, sf::Vector2f endPos, float t)
+sf::Vector2f Render::interpolate(sf::Vector2f startPos, sf::Vector2f endPos, float t)
 {
     return startPos + t * (endPos - startPos);
 }
 
 // Update animation state
-void Game::updateAnimations(float deltaTime)
+void Render::updateAnimations(float deltaTime)
 {
     if (animation.isActive)
     {
@@ -169,76 +122,76 @@ void Game::updateAnimations(float deltaTime)
 }
 
 // Highlight a single square
-void highlightSquare(sf::RenderWindow &window, const Types::Coord &coord)
+void Render::highlightSquare(sf::RenderWindow &window, const Types::Coord &coord)
 {
-    sf::RectangleShape square(sf::Vector2f(squareSize, squareSize));
-    square.setPosition((coord.x + 1) * squareSize, coord.y * squareSize);
+    sf::RectangleShape square(sf::Vector2f(Chessboard::squareSize, Chessboard::squareSize));
+    square.setPosition((coord.x + 1) * Chessboard::squareSize, coord.y * Chessboard::squareSize);
     square.setFillColor(colourMove);
     window.draw(square);
 }
 
 // Highlight selected square and possible moves
-void Game::highlightSquares(sf::RenderWindow &window)
+void Render::highlightSquares(sf::RenderWindow &window)
 {
-    highlightSquare(window, selectedSquare);
+    highlightSquare(window, State::selectedSquare);
 
-    if (selectedPiece == "wKa" && (selectedSquare == Types::Coord{0, 0} || selectedSquare == Types::Coord{0, 1} || selectedSquare == Types::Coord{0, 2}))
+    if (State::selectedPiece == "wKa" && (State::selectedSquare == Types::Coord{0, 0} || State::selectedSquare == Types::Coord{0, 1} || State::selectedSquare == Types::Coord{0, 2}))
     {
         highlightSquare(window, {-1, 1});
     }
-    if (selectedPiece == "bKa" && (selectedSquare == Types::Coord{10, 9} || selectedSquare == Types::Coord{10, 8} || selectedSquare == Types::Coord{10, 7}))
+    if (State::selectedPiece == "bKa" && (State::selectedSquare == Types::Coord{10, 9} || State::selectedSquare == Types::Coord{10, 8} || State::selectedSquare == Types::Coord{10, 7}))
     {
         highlightSquare(window, {11, 8});
     }
 
-    for (const auto &coord : moveList)
+    for (const auto &coord : State::moveList)
     {
         highlightSquare(window, coord);
     }
 }
 
 // Highlight king if in check
-void Game::highlightKing(sf::RenderWindow &window, Types::Coord kingPosition, bool isInCheck)
+void Render::highlightKing(sf::RenderWindow &window, Types::Coord kingPosition, bool isInCheck)
 {
     if (isInCheck)
     {
-        sf::RectangleShape square(sf::Vector2f(squareSize, squareSize));
-        square.setPosition((kingPosition.x + 1) * squareSize, kingPosition.y * squareSize);
+        sf::RectangleShape square(sf::Vector2f(Chessboard::squareSize, Chessboard::squareSize));
+        square.setPosition((kingPosition.x + 1) * Chessboard::squareSize, kingPosition.y * Chessboard::squareSize);
         square.setFillColor(sf::Color::Red);
         window.draw(square);
     }
 }
 
 // Exit to menu
-void Game::exitToMenu()
+void Render::exitToMenu()
 {
     std::cout << "Exiting game" << std::endl;
     // Reset game state and return to menu
-    state = Game::GameState::Menu;
-    gameOver = false;
-    isPieceSelected = false;
-    moveList.clear();
-    selectedSquare = {-1, -1};
+    State::state = State::GameState::Menu;
+    State::gameOver = false;
+    State::isPieceSelected = false;
+    State::moveList.clear();
+    State::selectedSquare = {-1, -1};
     chessboard.resetBoard();
-    turnHistory.clear();
-    turns = 1;
-    drawPossible = false;
-    isWhiteKingInCheck = false;
-    isBlackKingInCheck = false;
-    winner = '-';
+    State::turnHistory.clear();
+    State::turns = 1;
+    State::drawPossible = false;
+    State::isWhiteKingInCheck = false;
+    State::isBlackKingInCheck = false;
+    State::winner = '-';
     aiVsAiMode = false;
     aiVsAiClock.restart();
 }
 
 // Draw the exit button
-void Game::drawExitButton(sf::RenderWindow &window)
+void Render::drawExitButton(sf::RenderWindow &window)
 {
     sf::RectangleShape exitButton(sf::Vector2f(exitButtonSize, exitButtonSize));
     exitButton.setFillColor(exitButtonColor);
 
     // Position the button in the middle of the top-right square
-    float xPos = window.getSize().x - squareSize + (squareSize - exitButtonSize) / 2.0f;
-    float yPos = (squareSize - exitButtonSize) / 2.0f;
+    float xPos = window.getSize().x - Chessboard::squareSize + (Chessboard::squareSize - exitButtonSize) / 2.0f;
+    float yPos = (Chessboard::squareSize - exitButtonSize) / 2.0f;
     exitButton.setPosition(xPos, yPos);
 
     sf::RectangleShape xLine1(sf::Vector2f(exitButtonSize * 0.7f, 2));
@@ -268,41 +221,41 @@ void Game::drawExitButton(sf::RenderWindow &window)
 }
 
 // Draw the Tamerlane Chess board
-void Game::drawBoard(sf::RenderWindow &window)
+void Render::drawBoard(sf::RenderWindow &window)
 {
-    sf::RectangleShape square(sf::Vector2f(squareSize, squareSize));
+    sf::RectangleShape square(sf::Vector2f(Chessboard::squareSize, Chessboard::squareSize));
 
     // Draw main 10x11 board
     for (int row = 0; row < 10; ++row)
     {
         for (int col = 0; col < 11; ++col)
         {
-            square.setPosition((col + 1) * squareSize, row * squareSize);
+            square.setPosition((col + 1) * Chessboard::squareSize, row * Chessboard::squareSize);
             square.setFillColor((row + col) % 2 != 0 ? colour1 : colour2);
             window.draw(square);
         }
     }
 
     // Draw Left Fortress (unique to Tamerlane Chess)
-    square.setSize(sf::Vector2f(squareSize, squareSize));
-    square.setPosition(0, squareSize);
+    square.setSize(sf::Vector2f(Chessboard::squareSize, Chessboard::squareSize));
+    square.setPosition(0, Chessboard::squareSize);
     square.setFillColor(colour2);
     window.draw(square);
 
     // Draw Right Fortress (unique to Tamerlane Chess)
-    square.setPosition(squareSize * 12, squareSize * 8);
+    square.setPosition(Chessboard::squareSize * 12, Chessboard::squareSize * 8);
     square.setFillColor(colour1);
     window.draw(square);
 }
 
 // Draw chess pieces on the board
-void Game::drawPieces(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages)
+void Render::drawPieces(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages)
 {
     auto boardState = chessboard.getBoardState();
 
-    for (int row = 0; row < rows; ++row)
+    for (int row = 0; row < Chessboard::rows; ++row)
     {
-        for (int col = 0; col < cols; ++col)
+        for (int col = 0; col < Chessboard::cols; ++col)
         {
             std::string piece = boardState[row][col];
             if (piece != "---")
@@ -312,14 +265,14 @@ void Game::drawPieces(sf::RenderWindow &window, const std::map<std::string, sf::
                 {
                     float elapsedTime = animation.clock.getElapsedTime().asSeconds();
                     float t = elapsedTime / animation.duration;
-                    sf::Vector2f startPos((animation.start.x + 1) * squareSize, animation.start.y * squareSize);
-                    sf::Vector2f endPos((animation.end.x + 1) * squareSize, animation.end.y * squareSize);
+                    sf::Vector2f startPos((animation.start.x + 1) * Chessboard::squareSize, animation.start.y * Chessboard::squareSize);
+                    sf::Vector2f endPos((animation.end.x + 1) * Chessboard::squareSize, animation.end.y * Chessboard::squareSize);
                     sf::Vector2f currentPos = interpolate(startPos, endPos, t);
                     sprite.setPosition(currentPos);
                 }
                 else
                 {
-                    sprite.setPosition((col + 1) * squareSize, row * squareSize);
+                    sprite.setPosition((col + 1) * Chessboard::squareSize, row * Chessboard::squareSize);
                 }
                 window.draw(sprite);
             }
@@ -328,38 +281,38 @@ void Game::drawPieces(sf::RenderWindow &window, const std::map<std::string, sf::
 }
 
 // Tint screen
-void tintScreen(sf::RenderWindow &window)
+void Render::tintScreen(sf::RenderWindow &window)
 {
-    sf::RectangleShape square(sf::Vector2f(squareSize * 13, squareSize * 13));
+    sf::RectangleShape square(sf::Vector2f(Chessboard::squareSize * 13, Chessboard::squareSize * 13));
     square.setPosition(0, 0);
     square.setFillColor(sf::Color(0x00000088));
     window.draw(square);
 }
 
 // Display win screen
-void Game::winScreen(sf::RenderWindow &window)
+void Render::winScreen(sf::RenderWindow &window)
 {
-    if (winner != '-')
+    if (State::winner != '-')
     {
         tintScreen(window);
         sf::Texture texture;
         std::string assetPath;
-        if (winner == 'w')
+        if (State::winner == 'w')
         {
             assetPath = findAssetsPath("whiteWin.png");
         }
-        else if (winner == 'b')
+        else if (State::winner == 'b')
         {
             assetPath = findAssetsPath("blackWin.png");
         }
-        else if (winner == 'd')
+        else if (State::winner == 'd')
         {
             assetPath = findAssetsPath("draw.png");
         }
 
-        if (!ended) // debugging
+        if (!State::ended) // debugging
         {
-            std::cout << "Winner: " << winner << ", Loading asset: " << assetPath << std::endl;
+            std::cout << "Winner: " << State::winner << ", Loading asset: " << assetPath << std::endl;
         }
 
         if (!texture.loadFromFile(assetPath))
@@ -413,12 +366,12 @@ void Game::winScreen(sf::RenderWindow &window)
             }
         }
 
-        ended = true;
+        State::ended = true;
     }
 }
 
 // Render background
-sf::Sprite Game::renderBackground(sf::RenderWindow &window, sf::Texture &backgroundTexture)
+sf::Sprite Render::renderBackground(sf::RenderWindow &window, sf::Texture &backgroundTexture)
 {
     if (!backgroundTexture.loadFromFile(findAssetsPath("wood.png")))
 
@@ -438,7 +391,7 @@ sf::Sprite Game::renderBackground(sf::RenderWindow &window, sf::Texture &backgro
 }
 
 // Load chess piece images
-std::map<std::string, sf::Sprite> Game::loadImages()
+std::map<std::string, sf::Sprite> Render::loadImages()
 {
     // List of all piece types in Tamerlane Chess
     std::vector<std::string> pieces = {
@@ -465,8 +418,8 @@ std::map<std::string, sf::Sprite> Game::loadImages()
         sprite.setTexture(textures[piece]);
         sf::Vector2u textureSize = texture.getSize();
         sprite.setScale(
-            static_cast<float>(squareSize) / textureSize.x,
-            static_cast<float>(squareSize) / textureSize.y);
+            static_cast<float>(Chessboard::squareSize) / textureSize.x,
+            static_cast<float>(Chessboard::squareSize) / textureSize.y);
 
         images[piece] = sprite;
     }
@@ -475,48 +428,25 @@ std::map<std::string, sf::Sprite> Game::loadImages()
 }
 
 // Handle piece selection
-void Game::handlePieceSelection(const Types::Coord &coord, const char &player)
+void Render::handlePieceSelection(const Types::Coord &coord, const char &player)
 {
-    selectedSquare = coord;
-    selectedPiece = chessboard.getPiece(selectedSquare);
-    std::vector<Types::Coord> possibleMoves = gameLogic.getMoves(selectedSquare, selectedPiece, player, alt);
-    moveList = gameLogic.filterLegalMoves(possibleMoves, selectedSquare, selectedPiece, player, alt);
-    isPieceSelected = true;
-}
-
-// Update game state after a move
-void Game::updateGameState(const Types::Coord &move, const std::string &target, const char &player)
-{
-    auto boardState = chessboard.getBoardState();
-
-    isWhiteKingInCheck = gameLogic.isKingInCheck('w', boardState, alt);
-    isBlackKingInCheck = gameLogic.isKingInCheck('b', boardState, alt);
-
-    Types::Turn newTurn = {
-        turns,
-        player,
-        selectedSquare,
-        move,
-        selectedPiece,
-        target};
-
-    turnHistory.push_back(newTurn);
-    turns++;
-    isPieceSelected = false;
-    moveList.clear();
-    selectedSquare = {-1, -1};
+    State::selectedSquare = coord;
+    State::selectedPiece = chessboard.getPiece(State::selectedSquare);
+    std::vector<Types::Coord> possibleMoves = gameLogic->getMoves(State::selectedSquare, State::selectedPiece, player, State::alt);
+    State::moveList = gameLogic->filterLegalMoves(possibleMoves, State::selectedSquare, State::selectedPiece, player, State::alt);
+    State::isPieceSelected = true;
 }
 
 // Toggle piece selection
-void Game::toggleSelection(const Types::Coord &coord)
+void Render::toggleSelection(const Types::Coord &coord)
 {
-    isPieceSelected = false;
-    moveList.clear();
-    selectedSquare = {-1, -1};
+    State::isPieceSelected = false;
+    State::moveList.clear();
+    State::selectedSquare = {-1, -1};
 }
 
 // Handle piece movement
-void Game::handlePieceMovement(const std::string &_selectedPiece, const Types::Coord &_selectedSquare, const Types::Coord &move, const char &player)
+void Render::handlePieceMovement(const std::string &_selectedPiece, const Types::Coord &_selectedSquare, const Types::Coord &move, const char &player)
 {
     startAnimation(_selectedPiece, _selectedSquare, move, 0.5f);
     std::string target = chessboard.getPiece(move);
@@ -534,69 +464,69 @@ void Game::handlePieceMovement(const std::string &_selectedPiece, const Types::C
         }
     }
 
-    updateGameState(move, target, player);
+    Utility::updateGameState(move, target, player, *gameLogic);
 
     char enemy = (player == 'w') ? 'b' : 'w';
-    gameLogic.promotePawns(player);
+    gameLogic->promotePawns(player);
     // Check for pawn forks (unique to Tamerlane Chess)
-    gameLogic.checkPawnForks(enemy);
+    gameLogic->checkPawnForks(enemy);
     // determine if a draw is possible next turn
-    drawPossible = gameLogic.canDraw(enemy);
-    bool game_over = checkVictoryCondition(player, enemy);
+    State::drawPossible = gameLogic->canDraw(enemy);
+    bool game_over = utility->checkVictoryCondition(*gameLogic, player, enemy);
     if (game_over)
     {
-        gameOver = true;
-        std::cout << "Game over. Winner: " << winner << std::endl;
+        State::gameOver = true;
+        std::cout << "Game over. Winner: " << State::winner << std::endl;
     }
 }
 
 // Handle click logic
-bool Game::clickLogic(int x, int y)
+bool Render::clickLogic(int x, int y)
 {
-    Types::Coord coord = utility.calculateSquare(x, y);
+    Types::Coord coord = utility->calculateSquare(x, y);
     std::cout << coord.x << ", " << coord.y << " | " << chessboard.getPiece(coord) << std::endl;
-    const char player = (turns % 2 == 0) ? 'b' : 'w';
+    const char player = (State::turns % 2 == 0) ? 'b' : 'w';
     const char enemy = (player == 'w') ? 'b' : 'w';
     std::string selected = chessboard.getPiece(coord);
 
     // draw by kings enterning the fortress (click logic takes place outside of the board)
-    if (selectedPiece == "wKa" && (selectedSquare == Types::Coord{0, 0} || selectedSquare == Types::Coord{0, 1} || selectedSquare == Types::Coord{0, 2}))
+    if (State::selectedPiece == "wKa" && (State::selectedSquare == Types::Coord{0, 0} || State::selectedSquare == Types::Coord{0, 1} || State::selectedSquare == Types::Coord{0, 2}))
     {
         if (coord == Types::Coord{-1, 1})
         {
-            winner = 'd';
-            gameOver = true;
+            State::winner = 'd';
+            State::gameOver = true;
             std::cout << "Game ended in a draw" << std::endl;
             return false;
         }
     }
-    if (selectedPiece == "bKa" && (selectedSquare == Types::Coord{10, 9} || selectedSquare == Types::Coord{10, 8} || selectedSquare == Types::Coord{10, 7}))
+    if (State::selectedPiece == "bKa" && (State::selectedSquare == Types::Coord{10, 9} || State::selectedSquare == Types::Coord{10, 8} || State::selectedSquare == Types::Coord{10, 7}))
     {
         if (coord == Types::Coord{11, 8})
         {
-            winner = 'd';
-            gameOver = true;
+            State::winner = 'd';
+            State::gameOver = true;
             std::cout << "Game ended in a draw" << std::endl;
             return false;
         }
     }
 
     // if click is within the board it is handled here
-    if (utility.clickInBoard(x, y))
+    if (utility->clickInBoard(x, y))
     {
-        if (isPieceSelected)
+        if (State::isPieceSelected)
         {
-            for (const auto &move : moveList)
+            for (const auto &move : State::moveList)
             {
                 if (coord == move)
                 {
-                    handlePieceMovement(selectedPiece, selectedSquare, move, player);
+                    handlePieceMovement(State::selectedPiece, State::selectedSquare, move, player);
                     return true; // Exit the function after handling the move
                 }
             }
         }
 
-        if (selectedSquare == coord || selected == "---")
+        if (State::selectedSquare == coord || selected == "---")
         {
             toggleSelection(coord);
         }
@@ -609,23 +539,23 @@ bool Game::clickLogic(int x, int y)
 }
 
 // Undo the last move
-void Game::undoLastMove()
+void Render::undoLastMove()
 {
-    if (!turnHistory.empty())
+    if (!State::turnHistory.empty())
     {
-        Types::Turn lastTurn = turnHistory.back();
-        turnHistory.pop_back();
+        Types::Turn lastTurn = State::turnHistory.back();
+        State::turnHistory.pop_back();
         chessboard.setCell(lastTurn.finalSquare, lastTurn.pieceCaptured);
         chessboard.setCell(lastTurn.initialSquare, lastTurn.pieceMoved);
-        turns--;
+        State::turns--;
         auto boardState = chessboard.getBoardState();
 
-        isWhiteKingInCheck = gameLogic.isKingInCheck('w', boardState, alt);
-        isBlackKingInCheck = gameLogic.isKingInCheck('b', boardState, alt);
+        State::isWhiteKingInCheck = gameLogic->isKingInCheck('w', boardState, State::alt);
+        State::isBlackKingInCheck = gameLogic->isKingInCheck('b', boardState, State::alt);
 
-        isPieceSelected = false;
-        moveList.clear();
-        selectedSquare = {-1, -1};
+        State::isPieceSelected = false;
+        State::moveList.clear();
+        State::selectedSquare = {-1, -1};
 
         std::cout << "Undo move: " << lastTurn.pieceMoved << " from (" << lastTurn.finalSquare.x << ", " << lastTurn.finalSquare.y << ") to (" << lastTurn.initialSquare.x << ", " << lastTurn.initialSquare.y << ")" << std::endl;
         animation.isActive = false;
@@ -636,7 +566,7 @@ void Game::undoLastMove()
     }
 }
 
-void drawSlider(sf::RenderWindow &window, sf::Font &font)
+void Render::drawSlider(sf::RenderWindow &window, sf::Font &font)
 {
     // Slider background
     slider.setSize(sf::Vector2f(200, 5));
@@ -666,13 +596,13 @@ void drawSlider(sf::RenderWindow &window, sf::Font &font)
 }
 
 // Add this function to handle AI vs AI gameplay
-void Game::handleAiVsAi()
+void Render::handleAiVsAi()
 {
     AI ai(chessboard);
-    if (aiVsAiMode && !animationInProgress && winner == '-' && aiVsAiClock.getElapsedTime().asSeconds() >= aiVsAiMoveDelay)
+    if (aiVsAiMode && !animationInProgress && State::winner == '-' && aiVsAiClock.getElapsedTime().asSeconds() >= aiVsAiMoveDelay)
     {
-        char aiPlayer = (turns % 2 == 0) ? 'b' : 'w';
-        Types::Turn aiMove = ai.minMax(gameLogic, aiPlayer, turns, alt, aiDifficulty,
+        char aiPlayer = (State::turns % 2 == 0) ? 'b' : 'w';
+        Types::Turn aiMove = ai.minMax(*gameLogic, aiPlayer, State::turns, State::alt, aiDifficulty,
                                        -std::numeric_limits<float>::infinity(),
                                        std::numeric_limits<float>::infinity());
         handlePieceMovement(aiMove.pieceMoved, aiMove.initialSquare, aiMove.finalSquare, aiPlayer);
@@ -681,9 +611,9 @@ void Game::handleAiVsAi()
 }
 
 // Menu screen
-void Game::drawMenuScreen(sf::RenderWindow &window)
+void Render::drawMenuScreen(sf::RenderWindow &window)
 {
-    if (state == Game::GameState::Menu || state == GameState::AIOptions)
+    if (State::state == State::GameState::Menu || State::state == State::GameState::AIOptions)
     {
         tintScreen(window);
         sf::Texture titleTexture;
@@ -758,7 +688,7 @@ void Game::drawMenuScreen(sf::RenderWindow &window)
         sf::RectangleShape blitz = Utility::createButton(
             sf::Vector2f(200, 50),
             sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 + 50),
-            alt ? colourSelected : sf::Color::White);
+            State::alt ? colourSelected : sf::Color::White);
 
         sf::RectangleShape aiBlackButton = Utility::createButton(
             sf::Vector2f(200, 50),
@@ -788,7 +718,7 @@ void Game::drawMenuScreen(sf::RenderWindow &window)
         }
 
         // Draw buttons and texts
-        if (state == Game::GameState::Menu)
+        if (State::state == State::GameState::Menu)
         {
             Utility::drawButton(window, pvpButton, "Player vs Player", font, 20);
             Utility::drawButton(window, aiButton, "Player vs AI", font, 20);
@@ -798,7 +728,7 @@ void Game::drawMenuScreen(sf::RenderWindow &window)
             Utility::drawButton(window, third, "Third", font, 20);
             Utility::drawButton(window, blitz, "Blitz", font, 20);
         }
-        if (state == Game::GameState::AIOptions)
+        if (State::state == State::GameState::AIOptions)
         {
             Utility::drawButton(window, aiWhiteButton, "Player as white", font, 20);
             Utility::drawButton(window, aiBlackButton, "Player as black", font, 20);
@@ -810,17 +740,16 @@ void Game::drawMenuScreen(sf::RenderWindow &window)
         // Handle button clicks
         sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
         bool mousePressed = sf::Mouse::isButtonPressed(sf::Mouse::Left);
-
-        if (mousePressed && !wasMousePressed && state == Game::GameState::Menu)
+        if (mousePressed && !wasMousePressed && State::state == State::GameState::Menu)
         {
             if (Utility::isButtonClicked(pvpButton, mousePosition))
             {
-                state = Game::GameState::Game;
+                State::state = State::GameState::Game;
                 aiActive = false;
             }
             else if (Utility::isButtonClicked(aiButton, mousePosition))
             {
-                state = Game::GameState::AIOptions;
+                State::state = State::GameState::AIOptions;
             }
             else if (Utility::isButtonClicked(masc, mousePosition))
             {
@@ -844,16 +773,16 @@ void Game::drawMenuScreen(sf::RenderWindow &window)
             }
             else if (Utility::isButtonClicked(aiVsAiButton, mousePosition))
             {
-                state = Game::GameState::Game;
+                State::state = State::GameState::Game;
                 aiVsAiMode = true;
                 aiVsAiClock.restart();
             }
             else if (Utility::isButtonClicked(blitz, mousePosition))
             {
-                alt = !alt;
+                State::alt = !State::alt;
             }
         }
-        if (mousePressed && !wasMousePressed && state == Game::GameState::AIOptions)
+        if (mousePressed && !wasMousePressed && State::state == State::GameState::AIOptions)
         {
             if (Utility::isButtonClicked(aiWhiteButton, mousePosition))
             {
@@ -867,7 +796,7 @@ void Game::drawMenuScreen(sf::RenderWindow &window)
             }
             else if (Utility::isButtonClicked(aiPlayButton, mousePosition))
             {
-                state = Game::GameState::Game;
+                State::state = State::GameState::Game;
                 aiActive = true;
                 if (isPlayAsBlackHighlighted)
                 {
@@ -876,7 +805,7 @@ void Game::drawMenuScreen(sf::RenderWindow &window)
             }
             else if (Utility::isButtonClicked(backButton, mousePosition))
             {
-                state = Game::GameState::Menu;
+                State::state = State::GameState::Menu;
             }
             if (slider.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
             {
@@ -890,16 +819,17 @@ void Game::drawMenuScreen(sf::RenderWindow &window)
 }
 
 // Highlight the previous move
-void Game::highlightPreviousMove(sf::RenderWindow &window)
+void Render::highlightPreviousMove(sf::RenderWindow &window)
 {
-    if (!turnHistory.empty())
+    if (!State::turnHistory.empty())
     {
-        Types::Turn lastTurn = turnHistory.back();
-        sf::RectangleShape initialSquare(sf::Vector2f(squareSize, squareSize));
-        sf::RectangleShape finalSquare(sf::Vector2f(squareSize, squareSize));
+        Types::Turn lastTurn = State::turnHistory.back();
 
-        initialSquare.setPosition((lastTurn.initialSquare.x + 1) * squareSize, lastTurn.initialSquare.y * squareSize);
-        finalSquare.setPosition((lastTurn.finalSquare.x + 1) * squareSize, lastTurn.finalSquare.y * squareSize);
+        sf::RectangleShape initialSquare(sf::Vector2f(Chessboard::squareSize, Chessboard::squareSize));
+        sf::RectangleShape finalSquare(sf::Vector2f(Chessboard::squareSize, Chessboard::squareSize));
+
+        initialSquare.setPosition((lastTurn.initialSquare.x + 1) * Chessboard::squareSize, lastTurn.initialSquare.y * Chessboard::squareSize);
+        finalSquare.setPosition((lastTurn.finalSquare.x + 1) * Chessboard::squareSize, lastTurn.finalSquare.y * Chessboard::squareSize);
 
         initialSquare.setFillColor(colourPrevMove);
         finalSquare.setFillColor(colourPrevMove);
@@ -910,7 +840,7 @@ void Game::highlightPreviousMove(sf::RenderWindow &window)
 }
 
 // Add this function to calculate the material score
-int scoreMaterial()
+int Render::scoreMaterial()
 {
     std::map<char, int> pieceValues = {{'p', 1}, {'E', 3}, {'W', 3}, {'A', 3}, {'V', 5}, {'C', 5}, {'M', 5}, {'T', 9}, {'G', 9}, {'R', 5}, {'K', 0}};
     int whiteScore = 0, blackScore = 0;
@@ -928,7 +858,7 @@ int scoreMaterial()
 }
 
 // Add this function
-void Game::drawCapturedPieces(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages)
+void Render::drawCapturedPieces(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages)
 {
     std::vector<int> numListw, numListb;
     std::vector<std::string> sortedListw, sortedListb;
@@ -1013,16 +943,16 @@ void Game::drawCapturedPieces(sf::RenderWindow &window, const std::map<std::stri
     window.draw(text);
 }
 
-void Game::handleMoves(sf::RenderWindow &window)
+void Render::handleMoves(sf::RenderWindow &window)
 {
     // Update animations
     updateAnimations(deltaTime);
 
     // Process AI move if queued and animation is finished
-    if (aiMoveQueued && !animationInProgress && winner == '-')
+    if (aiMoveQueued && !animationInProgress && State::winner == '-')
     {
-        char aiPlayer = (turns % 2 == 0) ? 'b' : 'w';
-        Types::Turn aiMove = ai.minMax(gameLogic, aiPlayer, turns, alt, aiDifficulty,
+        char aiPlayer = (State::turns % 2 == 0) ? 'b' : 'w';
+        Types::Turn aiMove = ai.minMax(*gameLogic, aiPlayer, State::turns, State::alt, State::aiDifficulty,
                                        -std::numeric_limits<float>::infinity(),
                                        std::numeric_limits<float>::infinity());
         handlePieceMovement(aiMove.pieceMoved, aiMove.initialSquare, aiMove.finalSquare, aiPlayer);
@@ -1033,18 +963,18 @@ void Game::handleMoves(sf::RenderWindow &window)
     handleAiVsAi();
 }
 
-void Game::gameHandler(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages)
+void Render::gameHandler(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages)
 {
 
-    if (state == GameState::Game)
+    if (State::state == State::GameState::Game)
     {
         highlightSquares(window);
         highlightPreviousMove(window);
         Types::Coord whiteKingPosition, blackKingPosition;
-        gameLogic.findAndSetKingPosition(whiteKingPosition, 'w');
-        gameLogic.findAndSetKingPosition(blackKingPosition, 'b');
-        highlightKing(window, whiteKingPosition, Game::isWhiteKingInCheck);
-        highlightKing(window, blackKingPosition, Game::isBlackKingInCheck);
+        gameLogic->findAndSetKingPosition(whiteKingPosition, 'w');
+        gameLogic->findAndSetKingPosition(blackKingPosition, 'b');
+        highlightKing(window, whiteKingPosition, State::isWhiteKingInCheck);
+        highlightKing(window, blackKingPosition, State::isBlackKingInCheck);
         drawPieces(window, pieceImages);
         drawExitButton(window);
         drawCapturedPieces(window, pieceImages);
@@ -1052,14 +982,14 @@ void Game::gameHandler(sf::RenderWindow &window, const std::map<std::string, sf:
     }
 }
 
-bool Game::clickHandler(sf::Event event, sf::RenderWindow &window)
+bool Render::clickHandler(sf::Event event, sf::RenderWindow &window)
 {
     if (event.type == sf::Event::Closed)
         window.close();
 
     if (event.type == sf::Event::MouseButtonPressed)
     {
-        if (!gameOver && !animationInProgress && event.mouseButton.button == sf::Mouse::Left)
+        if (!State::gameOver && !animationInProgress && event.mouseButton.button == sf::Mouse::Left)
         {
             bool playerMoved = clickLogic(event.mouseButton.x, event.mouseButton.y);
 
@@ -1085,7 +1015,7 @@ bool Game::clickHandler(sf::Event event, sf::RenderWindow &window)
     return false;
 }
 
-void Game::gameFrame(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages, sf::Sprite &backgroundSprite)
+void Render::gameFrame(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages, sf::Sprite &backgroundSprite)
 {
     handleMoves(window);
 

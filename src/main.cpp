@@ -1,5 +1,5 @@
 // Include necessary headers
-#include "include/game.h"
+#include "include/render.h"
 #include "include/ai.h"
 #include "include/types.h"
 #include <SFML/Graphics.hpp>
@@ -10,7 +10,7 @@
 // Main function
 int main()
 {
-    Game game;
+    Render render;
     Chessboard chessboard;
     AI ai(chessboard);
     GameLogic gameLogic;
@@ -19,10 +19,10 @@ int main()
 
     // Load and set up the background
     sf::Texture backgroundTexture;
-    sf::Sprite backgroundSprite = game.renderBackground(window, backgroundTexture);
+    sf::Sprite backgroundSprite = render.renderBackground(window, backgroundTexture);
 
     // Load chess piece images
-    auto pieceImages = game.loadImages();
+    auto pieceImages = render.loadImages();
 
     sf::Clock frameClock;
     const sf::Time frameTime = sf::seconds(1.0f / 60.0f); // 60 FPS cap
@@ -40,7 +40,7 @@ int main()
         bool needsUpdate = false;
         while (window.pollEvent(event))
         {
-            if (game.clickHandler(event, window))
+            if (render.clickHandler(event, window))
             {
                 needsUpdate = true;
             }
@@ -53,7 +53,7 @@ int main()
         // Update the frame if needed or if enough time has passed
         if (needsUpdate || frameClock.getElapsedTime() >= frameTime)
         {
-            game.gameFrame(window, pieceImages, backgroundSprite);
+            render.gameFrame(window, pieceImages, backgroundSprite);
             frameClock.restart();
 
             // FPS tracking (optional, for debugging)
