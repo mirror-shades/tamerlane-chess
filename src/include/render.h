@@ -17,7 +17,6 @@ public:
     sf::Sprite renderBackground(sf::RenderWindow &window, sf::Texture &backgroundTexture);
     std::map<std::string, sf::Sprite> loadImages();
     bool clickLogic(int x, int y);
-    void undoLastMove();
     void updateAnimations(float deltaTime);
     void handleAiVsAi();
     void drawBoard(sf::RenderWindow &window);

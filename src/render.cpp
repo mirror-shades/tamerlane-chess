@@ -538,34 +538,6 @@ bool Render::clickLogic(int x, int y)
     return false;
 }
 
-// Undo the last move
-void Render::undoLastMove()
-{
-    if (!State::turnHistory.empty())
-    {
-        Types::Turn lastTurn = State::turnHistory.back();
-        State::turnHistory.pop_back();
-        chessboard.setCell(lastTurn.finalSquare, lastTurn.pieceCaptured);
-        chessboard.setCell(lastTurn.initialSquare, lastTurn.pieceMoved);
-        State::turns--;
-        auto boardState = chessboard.getBoardState();
-
-        State::isWhiteKingInCheck = gameLogic->isKingInCheck('w', boardState, State::alt);
-        State::isBlackKingInCheck = gameLogic->isKingInCheck('b', boardState, State::alt);
-
-        State::isPieceSelected = false;
-        State::moveList.clear();
-        State::selectedSquare = {-1, -1};
-
-        std::cout << "Undo move: " << lastTurn.pieceMoved << " from (" << lastTurn.finalSquare.x << ", " << lastTurn.finalSquare.y << ") to (" << lastTurn.initialSquare.x << ", " << lastTurn.initialSquare.y << ")" << std::endl;
-        animation.isActive = false;
-    }
-    else
-    {
-        std::cout << "No moves to undo" << std::endl;
-    }
-}
-
 void Render::drawSlider(sf::RenderWindow &window, sf::Font &font)
 {
     // Slider background
@@ -1008,7 +980,7 @@ bool Render::clickHandler(sf::Event event, sf::RenderWindow &window)
     {
         if (event.key.control && event.key.code == sf::Keyboard::Z)
         {
-            undoLastMove();
+            utility->undoLastMove();
             return true;
         }
     }

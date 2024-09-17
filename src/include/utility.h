@@ -13,6 +13,7 @@ public:
     static Types::Coord calculateSquare(int x, int y);
     static bool clickInBoard(const int x, const int y);
     static bool checkVictoryCondition(GameLogic &gameLogic, const char &player, const char &enemy);
+    void undoLastMove();
 
     // New button-related functions
     static sf::RectangleShape createButton(const sf::Vector2f &size, const sf::Vector2f &position, const sf::Color &fillColor);

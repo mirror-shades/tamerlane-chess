@@ -100,3 +100,30 @@ void Utility::updateGameState(const Types::Coord &move, const std::string &targe
     State::moveList.clear();
     State::selectedSquare = {-1, -1};
 }
+
+// Undo the last move
+void Utility::undoLastMove()
+{
+    if (!State::turnHistory.empty())
+    {
+        Types::Turn lastTurn = State::turnHistory.back();
+        State::turnHistory.pop_back();
+        chessboard.setCell(lastTurn.finalSquare, lastTurn.pieceCaptured);
+        chessboard.setCell(lastTurn.initialSquare, lastTurn.pieceMoved);
+        State::turns--;
+        auto boardState = chessboard.getBoardState();
+
+        State::isWhiteKingInCheck = gameLogic->isKingInCheck('w', boardState, State::alt);
+        State::isBlackKingInCheck = gameLogic->isKingInCheck('b', boardState, State::alt);
+
+        State::isPieceSelected = false;
+        State::moveList.clear();
+        State::selectedSquare = {-1, -1};
+
+        std::cout << "Undo move: " << lastTurn.pieceMoved << " from (" << lastTurn.finalSquare.x << ", " << lastTurn.finalSquare.y << ") to (" << lastTurn.initialSquare.x << ", " << lastTurn.initialSquare.y << ")" << std::endl;
+    }
+    else
+    {
+        std::cout << "No moves to undo" << std::endl;
+    }
+}
