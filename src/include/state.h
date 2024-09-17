@@ -32,4 +32,6 @@ public:
     static char player;
     static std::vector<Types::Coord> moveList;
     static std::vector<std::string> moveHistory;
+    static std::vector<std::string> whitePiecesCaptured;
+    static std::vector<std::string> blackPiecesCaptured;
 };

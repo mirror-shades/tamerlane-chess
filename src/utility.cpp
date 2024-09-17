@@ -127,3 +127,20 @@ void Utility::undoLastMove()
         std::cout << "No moves to undo" << std::endl;
     }
 }
+
+int Utility::scoreMaterial()
+{
+    std::map<char, int> pieceValues = {{'p', 1}, {'E', 3}, {'W', 3}, {'A', 3}, {'V', 5}, {'C', 5}, {'M', 5}, {'T', 9}, {'G', 9}, {'R', 5}, {'K', 0}};
+    int whiteScore = 0, blackScore = 0;
+
+    for (const auto &piece : State::whitePiecesCaptured)
+    {
+        blackScore += pieceValues[piece[1]];
+    }
+    for (const auto &piece : State::blackPiecesCaptured)
+    {
+        whiteScore += pieceValues[piece[1]];
+    }
+
+    return whiteScore - blackScore;
+}

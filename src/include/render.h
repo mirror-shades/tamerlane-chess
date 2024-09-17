@@ -43,5 +43,4 @@ private:
     std::string findAssetsPath(const std::string &filename);
     void tintScreen(sf::RenderWindow &window);
     void drawSlider(sf::RenderWindow &window, sf::Font &font);
-    int scoreMaterial();
 };

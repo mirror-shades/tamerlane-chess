@@ -21,10 +21,6 @@ AI ai(chessboard);
 // Global variables for game state
 bool Render::animationInProgress = false;
 
-// Captured pieces
-std::vector<std::string> whitePiecesCaptured;
-std::vector<std::string> blackPiecesCaptured;
-
 // Colors for the chess board and piece highlighting
 sf::Color colour1 = sf::Color(0xE5E5E5ff);
 sf::Color colour2 = sf::Color(0x26403Cff);
@@ -456,11 +452,11 @@ void Render::handlePieceMovement(const std::string &_selectedPiece, const Types:
     {
         if (player == 'w')
         {
-            blackPiecesCaptured.push_back(target);
+            State::blackPiecesCaptured.push_back(target);
         }
         else
         {
-            whitePiecesCaptured.push_back(target);
+            State::whitePiecesCaptured.push_back(target);
         }
     }
 
@@ -811,25 +807,6 @@ void Render::highlightPreviousMove(sf::RenderWindow &window)
     }
 }
 
-// Add this function to calculate the material score
-int Render::scoreMaterial()
-{
-    std::map<char, int> pieceValues = {{'p', 1}, {'E', 3}, {'W', 3}, {'A', 3}, {'V', 5}, {'C', 5}, {'M', 5}, {'T', 9}, {'G', 9}, {'R', 5}, {'K', 0}};
-    int whiteScore = 0, blackScore = 0;
-
-    for (const auto &piece : whitePiecesCaptured)
-    {
-        blackScore += pieceValues[piece[1]];
-    }
-    for (const auto &piece : blackPiecesCaptured)
-    {
-        whiteScore += pieceValues[piece[1]];
-    }
-
-    return whiteScore - blackScore;
-}
-
-// Add this function
 void Render::drawCapturedPieces(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages)
 {
     std::vector<int> numListw, numListb;
@@ -838,7 +815,7 @@ void Render::drawCapturedPieces(sf::RenderWindow &window, const std::map<std::st
     std::map<int, std::string> numToPiece = {{1, "px"}, {2, "El"}, {3, "We"}, {4, "Ad"}, {5, "Vi"}, {6, "Ca"}, {7, "Mo"}, {8, "Ta"}, {9, "Gi"}, {10, "Rk"}, {11, "Ka"}};
 
     // Sort white captured pieces
-    for (const auto &piece : whitePiecesCaptured)
+    for (const auto &piece : State::whitePiecesCaptured)
     {
         numListw.push_back(pieceToNum[piece[1]]);
     }
@@ -849,7 +826,7 @@ void Render::drawCapturedPieces(sf::RenderWindow &window, const std::map<std::st
     }
 
     // Sort black captured pieces
-    for (const auto &piece : blackPiecesCaptured)
+    for (const auto &piece : State::blackPiecesCaptured)
     {
         numListb.push_back(pieceToNum[piece[1]]);
     }
@@ -899,7 +876,7 @@ void Render::drawCapturedPieces(sf::RenderWindow &window, const std::map<std::st
     }
 
     // Draw score
-    int score = scoreMaterial();
+    int score = utility->scoreMaterial();
     sf::Font font;
     if (!font.loadFromFile(findAssetsPath("arial.ttf")))
     {
@@ -935,6 +912,7 @@ void Render::handleMoves(sf::RenderWindow &window)
     handleAiVsAi();
 }
 
+// rename and rethink this function, it doesn't fit here
 void Render::gameHandler(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages)
 {
 

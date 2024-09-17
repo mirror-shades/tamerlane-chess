@@ -9,6 +9,9 @@ bool State::drawPossible = false;
 bool State::alt = false;
 bool State::gameOver = false;
 char State::winner = '-';
+// Captured pieces
+std::vector<std::string> State::whitePiecesCaptured;
+std::vector<std::string> State::blackPiecesCaptured;
 std::vector<Types::Turn> State::turnHistory;
 State::GameState State::state = State::GameState::Menu;
 char State::player = 'w';
