@@ -1,10 +1,12 @@
 #include "include/types.h"
 #include "include/globals.h"
 #include "include/utility.h"
+#include "include/render.h"
 #include "include/gameLogic.h"
 #include "include/state.h"
 #include <iostream>
 
+Render *render;
 const int squareSize = 75;
 
 Types::Coord Utility::calculateSquare(int x, int y)
@@ -143,4 +145,24 @@ int Utility::scoreMaterial()
     }
 
     return whiteScore - blackScore;
+}
+
+// Exit to menu
+void Utility::exitToMenu()
+{
+    std::cout << "Exiting game" << std::endl;
+    // Reset game state and return to menu
+    State::state = State::GameState::Menu;
+    State::gameOver = false;
+    State::isPieceSelected = false;
+    State::moveList.clear();
+    State::selectedSquare = {-1, -1};
+    chessboard.resetBoard();
+    State::turnHistory.clear();
+    State::turns = 1;
+    State::drawPossible = false;
+    State::isWhiteKingInCheck = false;
+    State::isBlackKingInCheck = false;
+    State::winner = '-';
+    State::aiVsAiMode = false;
 }

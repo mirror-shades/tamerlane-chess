@@ -15,6 +15,8 @@ public:
     static bool checkVictoryCondition(GameLogic &gameLogic, const char &player, const char &enemy);
     int scoreMaterial();
     void undoLastMove();
+    void exitToMenu();
+    void handleAiVsAi();
 
     // New button-related functions
     static sf::RectangleShape createButton(const sf::Vector2f &size, const sf::Vector2f &position, const sf::Color &fillColor);

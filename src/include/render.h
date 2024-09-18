@@ -20,7 +20,6 @@ public:
     void updateAnimations(float deltaTime);
     void handleAiVsAi();
     void drawBoard(sf::RenderWindow &window);
-    void exitToMenu();
     void drawExitButton(sf::RenderWindow &window);
     void winScreen(sf::RenderWindow &window);
     void drawMenuScreen(sf::RenderWindow &window);

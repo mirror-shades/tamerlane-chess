@@ -2,6 +2,7 @@
 #include "types.h"
 #include <vector>
 #include <string>
+#include <SFML/Graphics.hpp>
 
 class State
 {
@@ -14,6 +15,7 @@ public:
     };
 
     static GameState state;
+    static sf::Clock aiVsAiClock;
     static char winner;
     static bool gameOver;
     static bool alt;
@@ -26,6 +28,7 @@ public:
     static bool ended;
     static bool drawPossible;
     static bool isPieceSelected;
+    static bool aiVsAiMode;
     static std::string selectedPiece;
     static Types::Coord selectedSquare;
     static std::vector<Types::Turn> turnHistory;

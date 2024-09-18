@@ -1,4 +1,5 @@
 #include "state.h"
+#include <SFML/Graphics.hpp>
 
 int State::turns = 1;
 int State::aiDifficulty = 2;
@@ -9,6 +10,9 @@ bool State::drawPossible = false;
 bool State::alt = false;
 bool State::gameOver = false;
 char State::winner = '-';
+bool State::aiVsAiMode = false;
+sf::Clock State::aiVsAiClock;
+
 // Captured pieces
 std::vector<std::string> State::whitePiecesCaptured;
 std::vector<std::string> State::blackPiecesCaptured;

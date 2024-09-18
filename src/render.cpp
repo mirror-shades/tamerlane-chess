@@ -51,8 +51,6 @@ sf::RectangleShape slider;
 sf::CircleShape sliderHandle;
 bool aiActive = false;
 bool aiMoveQueued = false;
-bool aiVsAiMode = false;
-sf::Clock aiVsAiClock;
 float aiVsAiMoveDelay = 0.1f;
 
 // Structure for piece movement animation
@@ -158,27 +156,6 @@ void Render::highlightKing(sf::RenderWindow &window, Types::Coord kingPosition, 
     }
 }
 
-// Exit to menu
-void Render::exitToMenu()
-{
-    std::cout << "Exiting game" << std::endl;
-    // Reset game state and return to menu
-    State::state = State::GameState::Menu;
-    State::gameOver = false;
-    State::isPieceSelected = false;
-    State::moveList.clear();
-    State::selectedSquare = {-1, -1};
-    chessboard.resetBoard();
-    State::turnHistory.clear();
-    State::turns = 1;
-    State::drawPossible = false;
-    State::isWhiteKingInCheck = false;
-    State::isBlackKingInCheck = false;
-    State::winner = '-';
-    aiVsAiMode = false;
-    aiVsAiClock.restart();
-}
-
 // Draw the exit button
 void Render::drawExitButton(sf::RenderWindow &window)
 {
@@ -211,7 +188,7 @@ void Render::drawExitButton(sf::RenderWindow &window)
     {
         if (exitButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
         {
-            exitToMenu();
+            utility->exitToMenu();
         }
     }
 }
@@ -354,7 +331,7 @@ void Render::winScreen(sf::RenderWindow &window)
         {
             if (Utility::isButtonClicked(menuButton, mousePosition))
             {
-                exitToMenu();
+                utility->exitToMenu();
             }
             else if (Utility::isButtonClicked(analysisButton, mousePosition))
             {
@@ -563,18 +540,17 @@ void Render::drawSlider(sf::RenderWindow &window, sf::Font &font)
     window.draw(difficultyText);
 }
 
-// Add this function to handle AI vs AI gameplay
 void Render::handleAiVsAi()
 {
     AI ai(chessboard);
-    if (aiVsAiMode && !animationInProgress && State::winner == '-' && aiVsAiClock.getElapsedTime().asSeconds() >= aiVsAiMoveDelay)
+    if (State::aiVsAiMode && !animationInProgress && State::winner == '-' && State::aiVsAiClock.getElapsedTime().asSeconds() >= aiVsAiMoveDelay)
     {
         char aiPlayer = (State::turns % 2 == 0) ? 'b' : 'w';
         Types::Turn aiMove = ai.minMax(*gameLogic, aiPlayer, State::turns, State::alt, aiDifficulty,
                                        -std::numeric_limits<float>::infinity(),
                                        std::numeric_limits<float>::infinity());
         handlePieceMovement(aiMove.pieceMoved, aiMove.initialSquare, aiMove.finalSquare, aiPlayer);
-        aiVsAiClock.restart();
+        State::aiVsAiClock.restart();
     }
 }
 
@@ -742,8 +718,8 @@ void Render::drawMenuScreen(sf::RenderWindow &window)
             else if (Utility::isButtonClicked(aiVsAiButton, mousePosition))
             {
                 State::state = State::GameState::Game;
-                aiVsAiMode = true;
-                aiVsAiClock.restart();
+                State::aiVsAiMode = true;
+                State::aiVsAiClock.restart();
             }
             else if (Utility::isButtonClicked(blitz, mousePosition))
             {
