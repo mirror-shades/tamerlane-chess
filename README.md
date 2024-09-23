@@ -30,14 +30,14 @@ parent directory
 ## todo
 
 [ ] qol and bug fixes  
-[ ] ai thinking blocks input for exiting the game
-[ ] ai thinking should happen after ai options menu is closed
-[ ] capture piece list
+[ ] ai thinking blocks input for exiting the game  
+[ ] ai thinking should happen after ai options menu is closed  
+[ ] capture piece list  
 
 analysis mode:  
 [ ] move by move history  
 [ ] best move analysis  
-[ ] move accuracy evaluation
+[ ] move accuracy evaluation  
 
 ## done
 
