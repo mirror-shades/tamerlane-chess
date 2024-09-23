@@ -11,7 +11,13 @@ bool State::alt = false;
 bool State::gameOver = false;
 char State::winner = '-';
 bool State::aiVsAiMode = false;
+bool State::aiActive = false;
+bool State::aiMoveQueued = false;
 sf::Clock State::aiVsAiClock;
+
+// Calculate time since last frame
+sf::Clock State::deltaClock;
+float State::deltaTime = State::deltaClock.restart().asSeconds();
 
 // Captured pieces
 std::vector<std::string> State::whitePiecesCaptured;

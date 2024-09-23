@@ -37,4 +37,6 @@ public:
     static std::vector<std::string> moveHistory;
     static std::vector<std::string> whitePiecesCaptured;
     static std::vector<std::string> blackPiecesCaptured;
+    static sf::Clock deltaClock;
+    static float deltaTime;
 };

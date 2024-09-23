@@ -11,6 +11,7 @@
 int main()
 {
     Render render;
+    Utility utility;
     Chessboard chessboard;
     AI ai(chessboard);
     GameLogic gameLogic;
@@ -40,7 +41,7 @@ int main()
         bool needsUpdate = false;
         while (window.pollEvent(event))
         {
-            if (render.clickHandler(event, window))
+            if (utility.clickHandler(event, window))
             {
                 needsUpdate = true;
             }

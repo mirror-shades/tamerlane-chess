@@ -16,8 +16,6 @@
 #include <iomanip>
 #include <filesystem>
 
-AI ai(chessboard);
-
 // Global variables for game state
 bool Render::animationInProgress = false;
 
@@ -41,17 +39,10 @@ const sf::Color exitXColor = sf::Color::Black;
 sf::RectangleShape drawButton(sf::Vector2f(Chessboard::squareSize, Chessboard::squareSize));
 sf::Text drawButtonText;
 
-// Calculate time since last frame
-sf::Clock deltaClock;
-float deltaTime = deltaClock.restart().asSeconds();
-
 // ai settings
 int aiDifficulty = 2; // Default difficulty
 sf::RectangleShape slider;
 sf::CircleShape sliderHandle;
-bool aiActive = false;
-bool aiMoveQueued = false;
-float aiVsAiMoveDelay = 0.1f;
 
 // Structure for piece movement animation
 struct Animation
@@ -400,109 +391,6 @@ std::map<std::string, sf::Sprite> Render::loadImages()
     return images;
 }
 
-// Handle piece selection
-void Render::handlePieceSelection(const Types::Coord &coord, const char &player)
-{
-    State::selectedSquare = coord;
-    State::selectedPiece = chessboard.getPiece(State::selectedSquare);
-    std::vector<Types::Coord> possibleMoves = gameLogic->getMoves(State::selectedSquare, State::selectedPiece, player, State::alt);
-    State::moveList = gameLogic->filterLegalMoves(possibleMoves, State::selectedSquare, State::selectedPiece, player, State::alt);
-    State::isPieceSelected = true;
-}
-
-// Handle piece movement
-void Render::handlePieceMovement(const std::string &_selectedPiece, const Types::Coord &_selectedSquare, const Types::Coord &move, const char &player)
-{
-    startAnimation(_selectedPiece, _selectedSquare, move, 0.5f);
-    std::string target = chessboard.getPiece(move);
-    chessboard.setCell(_selectedSquare, "---");
-    chessboard.setCell(move, _selectedPiece);
-    if (target != "---")
-    {
-        if (player == 'w')
-        {
-            State::blackPiecesCaptured.push_back(target);
-        }
-        else
-        {
-            State::whitePiecesCaptured.push_back(target);
-        }
-    }
-
-    Utility::updateGameState(move, target, player, *gameLogic);
-
-    char enemy = (player == 'w') ? 'b' : 'w';
-    gameLogic->promotePawns(player);
-    // Check for pawn forks (unique to Tamerlane Chess)
-    gameLogic->checkPawnForks(enemy);
-    // determine if a draw is possible next turn
-    State::drawPossible = gameLogic->canDraw(enemy);
-    bool game_over = utility->checkVictoryCondition(*gameLogic, player, enemy);
-    if (game_over)
-    {
-        State::gameOver = true;
-        std::cout << "Game over. Winner: " << State::winner << std::endl;
-    }
-}
-
-// Handle click logic
-bool Render::clickLogic(int x, int y)
-{
-    Types::Coord coord = utility->calculateSquare(x, y);
-    std::cout << coord.x << ", " << coord.y << " | " << chessboard.getPiece(coord) << std::endl;
-    const char player = (State::turns % 2 == 0) ? 'b' : 'w';
-    const char enemy = (player == 'w') ? 'b' : 'w';
-    std::string selected = chessboard.getPiece(coord);
-
-    // draw by kings enterning the fortress (click logic takes place outside of the board)
-    if (State::selectedPiece == "wKa" && (State::selectedSquare == Types::Coord{0, 0} || State::selectedSquare == Types::Coord{0, 1} || State::selectedSquare == Types::Coord{0, 2}))
-    {
-        if (coord == Types::Coord{-1, 1})
-        {
-            State::winner = 'd';
-            State::gameOver = true;
-            std::cout << "Game ended in a draw" << std::endl;
-            return false;
-        }
-    }
-    if (State::selectedPiece == "bKa" && (State::selectedSquare == Types::Coord{10, 9} || State::selectedSquare == Types::Coord{10, 8} || State::selectedSquare == Types::Coord{10, 7}))
-    {
-        if (coord == Types::Coord{11, 8})
-        {
-            State::winner = 'd';
-            State::gameOver = true;
-            std::cout << "Game ended in a draw" << std::endl;
-            return false;
-        }
-    }
-
-    // if click is within the board it is handled here
-    if (utility->clickInBoard(x, y))
-    {
-        if (State::isPieceSelected)
-        {
-            for (const auto &move : State::moveList)
-            {
-                if (coord == move)
-                {
-                    handlePieceMovement(State::selectedPiece, State::selectedSquare, move, player);
-                    return true; // Exit the function after handling the move
-                }
-            }
-        }
-
-        if (State::selectedSquare == coord || selected == "---")
-        {
-            utility->toggleSelection(coord);
-        }
-        else if (selected[0] == player)
-        {
-            handlePieceSelection(coord, player);
-        }
-    }
-    return false;
-}
-
 void Render::drawSlider(sf::RenderWindow &window, sf::Font &font)
 {
     // Slider background
@@ -530,20 +418,6 @@ void Render::drawSlider(sf::RenderWindow &window, sf::Font &font)
     difficultyText.setString(ss.str());
     difficultyText.setPosition((window.getSize().x - difficultyText.getLocalBounds().width) / 2, slider.getPosition().y - 40);
     window.draw(difficultyText);
-}
-
-void Render::handleAiVsAi()
-{
-    AI ai(chessboard);
-    if (State::aiVsAiMode && !animationInProgress && State::winner == '-' && State::aiVsAiClock.getElapsedTime().asSeconds() >= aiVsAiMoveDelay)
-    {
-        char aiPlayer = (State::turns % 2 == 0) ? 'b' : 'w';
-        Types::Turn aiMove = ai.minMax(*gameLogic, aiPlayer, State::turns, State::alt, aiDifficulty,
-                                       -std::numeric_limits<float>::infinity(),
-                                       std::numeric_limits<float>::infinity());
-        handlePieceMovement(aiMove.pieceMoved, aiMove.initialSquare, aiMove.finalSquare, aiPlayer);
-        State::aiVsAiClock.restart();
-    }
 }
 
 // Menu screen
@@ -681,7 +555,7 @@ void Render::drawMenuScreen(sf::RenderWindow &window)
             if (Utility::isButtonClicked(pvpButton, mousePosition))
             {
                 State::state = State::GameState::Game;
-                aiActive = false;
+                State::aiActive = false;
             }
             else if (Utility::isButtonClicked(aiButton, mousePosition))
             {
@@ -733,10 +607,10 @@ void Render::drawMenuScreen(sf::RenderWindow &window)
             else if (Utility::isButtonClicked(aiPlayButton, mousePosition))
             {
                 State::state = State::GameState::Game;
-                aiActive = true;
+                State::aiActive = true;
                 if (isPlayAsBlackHighlighted)
                 {
-                    aiMoveQueued = true;
+                    State::aiMoveQueued = true;
                 }
             }
             else if (Utility::isButtonClicked(backButton, mousePosition))
@@ -860,26 +734,6 @@ void Render::drawCapturedPieces(sf::RenderWindow &window, const std::map<std::st
     window.draw(text);
 }
 
-void Render::handleMoves(sf::RenderWindow &window)
-{
-    // Update animations
-    updateAnimations(deltaTime);
-
-    // Process AI move if queued and animation is finished
-    if (aiMoveQueued && !animationInProgress && State::winner == '-')
-    {
-        char aiPlayer = (State::turns % 2 == 0) ? 'b' : 'w';
-        Types::Turn aiMove = ai.minMax(*gameLogic, aiPlayer, State::turns, State::alt, State::aiDifficulty,
-                                       -std::numeric_limits<float>::infinity(),
-                                       std::numeric_limits<float>::infinity());
-        handlePieceMovement(aiMove.pieceMoved, aiMove.initialSquare, aiMove.finalSquare, aiPlayer);
-        aiMoveQueued = false;
-    }
-
-    // Handle AI vs AI gameplay
-    handleAiVsAi();
-}
-
 // rename and rethink this function, it doesn't fit here
 void Render::gameHandler(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages)
 {
@@ -900,42 +754,9 @@ void Render::gameHandler(sf::RenderWindow &window, const std::map<std::string, s
     }
 }
 
-bool Render::clickHandler(sf::Event event, sf::RenderWindow &window)
-{
-    if (event.type == sf::Event::Closed)
-        window.close();
-
-    if (event.type == sf::Event::MouseButtonPressed)
-    {
-        if (!State::gameOver && !animationInProgress && event.mouseButton.button == sf::Mouse::Left)
-        {
-            bool playerMoved = clickLogic(event.mouseButton.x, event.mouseButton.y);
-
-            if (playerMoved)
-            {
-                if (aiActive)
-                {
-                    aiMoveQueued = true;
-                }
-                return true;
-            }
-        }
-    }
-
-    if (event.type == sf::Event::KeyPressed)
-    {
-        if (event.key.control && event.key.code == sf::Keyboard::Z)
-        {
-            utility->undoLastMove();
-            return true;
-        }
-    }
-    return false;
-}
-
 void Render::gameFrame(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages, sf::Sprite &backgroundSprite)
 {
-    handleMoves(window);
+    utility->handleMoves(window);
 
     // Clear the window
     window.clear(sf::Color::White);

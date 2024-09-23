@@ -13,12 +13,9 @@ public:
     static bool animationInProgress;
     static Types::Coord move;
 
-    void handlePieceMovement(const std::string &_selectedPiece, const Types::Coord &_selectedSquare, const Types::Coord &move, const char &player);
     sf::Sprite renderBackground(sf::RenderWindow &window, sf::Texture &backgroundTexture);
     std::map<std::string, sf::Sprite> loadImages();
-    bool clickLogic(int x, int y);
     void updateAnimations(float deltaTime);
-    void handleAiVsAi();
     void drawBoard(sf::RenderWindow &window);
     void drawExitButton(sf::RenderWindow &window);
     void winScreen(sf::RenderWindow &window);
@@ -29,10 +26,7 @@ public:
     void drawPieces(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages);
     void drawCapturedPieces(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages);
     void startAnimation(std::string piece, Types::Coord start, Types::Coord end, float duration);
-    void handlePieceSelection(const Types::Coord &coord, const char &player);
-    void handleMoves(sf::RenderWindow &window);
     void gameHandler(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages);
-    bool clickHandler(sf::Event event, sf::RenderWindow &window);
     void gameFrame(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages, sf::Sprite &backgroundSprite);
 
 private:

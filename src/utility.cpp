@@ -4,8 +4,10 @@
 #include "include/render.h"
 #include "include/gameLogic.h"
 #include "include/state.h"
+#include "include/ai.h"
 #include <iostream>
 
+AI ai(chessboard);
 Render *render;
 const int squareSize = 75;
 
@@ -173,4 +175,174 @@ void Utility::exitToMenu()
     State::isBlackKingInCheck = false;
     State::winner = '-';
     State::aiVsAiMode = false;
+}
+
+bool Utility::clickHandler(sf::Event event, sf::RenderWindow &window)
+{
+    if (event.type == sf::Event::Closed)
+        window.close();
+
+    if (event.type == sf::Event::MouseButtonPressed)
+    {
+        if (!State::gameOver && !Render::animationInProgress && event.mouseButton.button == sf::Mouse::Left)
+        {
+            bool playerMoved = clickLogic(event.mouseButton.x, event.mouseButton.y);
+
+            if (playerMoved)
+            {
+                if (State::aiActive)
+                {
+                    State::aiMoveQueued = true;
+                }
+                return true;
+            }
+        }
+    }
+
+    if (event.type == sf::Event::KeyPressed)
+    {
+        if (event.key.control && event.key.code == sf::Keyboard::Z)
+        {
+            undoLastMove();
+            return true;
+        }
+    }
+    return false;
+}
+
+// Handle click logic
+bool Utility::clickLogic(int x, int y)
+{
+    Types::Coord coord = calculateSquare(x, y);
+    std::cout << coord.x << ", " << coord.y << " | " << chessboard.getPiece(coord) << std::endl;
+    const char player = (State::turns % 2 == 0) ? 'b' : 'w';
+    const char enemy = (player == 'w') ? 'b' : 'w';
+    std::string selected = chessboard.getPiece(coord);
+
+    // draw by kings enterning the fortress (click logic takes place outside of the board)
+    if (State::selectedPiece == "wKa" && (State::selectedSquare == Types::Coord{0, 0} || State::selectedSquare == Types::Coord{0, 1} || State::selectedSquare == Types::Coord{0, 2}))
+    {
+        if (coord == Types::Coord{-1, 1})
+        {
+            State::winner = 'd';
+            State::gameOver = true;
+            std::cout << "Game ended in a draw" << std::endl;
+            return false;
+        }
+    }
+    if (State::selectedPiece == "bKa" && (State::selectedSquare == Types::Coord{10, 9} || State::selectedSquare == Types::Coord{10, 8} || State::selectedSquare == Types::Coord{10, 7}))
+    {
+        if (coord == Types::Coord{11, 8})
+        {
+            State::winner = 'd';
+            State::gameOver = true;
+            std::cout << "Game ended in a draw" << std::endl;
+            return false;
+        }
+    }
+
+    // if click is within the board it is handled here
+    if (clickInBoard(x, y))
+    {
+        if (State::isPieceSelected)
+        {
+            for (const auto &move : State::moveList)
+            {
+                if (coord == move)
+                {
+                    handlePieceMovement(State::selectedPiece, State::selectedSquare, move, player);
+                    return true; // Exit the function after handling the move
+                }
+            }
+        }
+
+        if (State::selectedSquare == coord || selected == "---")
+        {
+            toggleSelection(coord);
+        }
+        else if (selected[0] == player)
+        {
+            handlePieceSelection(coord, player);
+        }
+    }
+    return false;
+}
+
+// Handle piece movement
+void Utility::handlePieceMovement(const std::string &_selectedPiece, const Types::Coord &_selectedSquare, const Types::Coord &move, const char &player)
+{
+    render->startAnimation(_selectedPiece, _selectedSquare, move, 0.5f);
+    std::string target = chessboard.getPiece(move);
+    chessboard.setCell(_selectedSquare, "---");
+    chessboard.setCell(move, _selectedPiece);
+    if (target != "---")
+    {
+        if (player == 'w')
+        {
+            State::blackPiecesCaptured.push_back(target);
+        }
+        else
+        {
+            State::whitePiecesCaptured.push_back(target);
+        }
+    }
+
+    Utility::updateGameState(move, target, player, *gameLogic);
+
+    char enemy = (player == 'w') ? 'b' : 'w';
+    gameLogic->promotePawns(player);
+    // Check for pawn forks (unique to Tamerlane Chess)
+    gameLogic->checkPawnForks(enemy);
+    // determine if a draw is possible next turn
+    State::drawPossible = gameLogic->canDraw(enemy);
+    bool game_over = checkVictoryCondition(*gameLogic, player, enemy);
+    if (game_over)
+    {
+        State::gameOver = true;
+        std::cout << "Game over. Winner: " << State::winner << std::endl;
+    }
+}
+
+// Handle piece selection
+void Utility::handlePieceSelection(const Types::Coord &coord, const char &player)
+{
+    State::selectedSquare = coord;
+    State::selectedPiece = chessboard.getPiece(State::selectedSquare);
+    std::vector<Types::Coord> possibleMoves = gameLogic->getMoves(State::selectedSquare, State::selectedPiece, player, State::alt);
+    State::moveList = gameLogic->filterLegalMoves(possibleMoves, State::selectedSquare, State::selectedPiece, player, State::alt);
+    State::isPieceSelected = true;
+}
+
+void Utility::handleAiVsAi()
+{
+    float aiVsAiMoveDelay = 0.1f;
+    if (State::aiVsAiMode && !Render::animationInProgress && State::winner == '-' && State::aiVsAiClock.getElapsedTime().asSeconds() >= aiVsAiMoveDelay)
+    {
+        char aiPlayer = (State::turns % 2 == 0) ? 'b' : 'w';
+        Types::Turn aiMove = ai.minMax(*gameLogic, aiPlayer, State::turns, State::alt, State::aiDifficulty,
+                                       -std::numeric_limits<float>::infinity(),
+                                       std::numeric_limits<float>::infinity());
+        handlePieceMovement(aiMove.pieceMoved, aiMove.initialSquare, aiMove.finalSquare, aiPlayer);
+        State::aiVsAiClock.restart();
+    }
+}
+
+void Utility::handleMoves(sf::RenderWindow &window)
+{
+    // Update animations
+    render->updateAnimations(State::deltaTime);
+
+    // Process AI move if queued and animation is finished
+    if (State::aiMoveQueued && !Render::animationInProgress && State::winner == '-')
+    {
+        char aiPlayer = (State::turns % 2 == 0) ? 'b' : 'w';
+        Types::Turn aiMove = ai.minMax(*gameLogic, aiPlayer, State::turns, State::alt, State::aiDifficulty,
+                                       -std::numeric_limits<float>::infinity(),
+                                       std::numeric_limits<float>::infinity());
+        handlePieceMovement(aiMove.pieceMoved, aiMove.initialSquare, aiMove.finalSquare, aiPlayer);
+        State::aiMoveQueued = false;
+    }
+
+    // Handle AI vs AI gameplay
+    handleAiVsAi();
 }
