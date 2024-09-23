@@ -24,6 +24,14 @@ bool Utility::clickInBoard(const int x, const int y)
     return !(x < boardOffset || x > boardWidth || y > boardHeight);
 }
 
+// Toggle piece selection
+void Utility::toggleSelection(const Types::Coord &coord)
+{
+    State::isPieceSelected = false;
+    State::moveList.clear();
+    State::selectedSquare = {-1, -1};
+}
+
 sf::RectangleShape Utility::createButton(const sf::Vector2f &size, const sf::Vector2f &position, const sf::Color &fillColor)
 {
     sf::RectangleShape button(size);

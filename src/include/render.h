@@ -30,7 +30,6 @@ public:
     void drawCapturedPieces(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages);
     void startAnimation(std::string piece, Types::Coord start, Types::Coord end, float duration);
     void handlePieceSelection(const Types::Coord &coord, const char &player);
-    void toggleSelection(const Types::Coord &coord);
     void handleMoves(sf::RenderWindow &window);
     void gameHandler(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages);
     bool clickHandler(sf::Event event, sf::RenderWindow &window);

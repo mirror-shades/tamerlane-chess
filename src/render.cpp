@@ -410,14 +410,6 @@ void Render::handlePieceSelection(const Types::Coord &coord, const char &player)
     State::isPieceSelected = true;
 }
 
-// Toggle piece selection
-void Render::toggleSelection(const Types::Coord &coord)
-{
-    State::isPieceSelected = false;
-    State::moveList.clear();
-    State::selectedSquare = {-1, -1};
-}
-
 // Handle piece movement
 void Render::handlePieceMovement(const std::string &_selectedPiece, const Types::Coord &_selectedSquare, const Types::Coord &move, const char &player)
 {
@@ -501,7 +493,7 @@ bool Render::clickLogic(int x, int y)
 
         if (State::selectedSquare == coord || selected == "---")
         {
-            toggleSelection(coord);
+            utility->toggleSelection(coord);
         }
         else if (selected[0] == player)
         {
