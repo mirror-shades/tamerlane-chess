@@ -31,12 +31,12 @@ parent directory
 
 [ ] qol and bug fixes  
 [ ] ai thinking blocks input for exiting the game  
-[ ] ai thinking should happen after ai options menu is closed  
+[ ] ai thinking should happen after ai options menu is closed
 
 analysis mode:  
 [ ] move by move history  
 [ ] best move analysis  
-[ ] move accuracy evaluation  
+[ ] move accuracy evaluation
 
 ## done
 
@@ -53,6 +53,7 @@ analysis mode:
 [x] previous move highlighting  
 [x] AI menu, select which side to play as and difficulty  
 [x] capture piece list  
+[x] play move and capture sounds
 
 implement moves:  
 [x] pawn moves  

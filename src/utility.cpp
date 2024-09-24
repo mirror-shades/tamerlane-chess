@@ -182,6 +182,8 @@ void Utility::exitToMenu()
     State::isBlackKingInCheck = false;
     State::winner = '-';
     State::aiVsAiMode = false;
+    State::whitePiecesCaptured = {};
+    State::blackPiecesCaptured = {};
 }
 
 // In the Utility class constructor or initialization method
