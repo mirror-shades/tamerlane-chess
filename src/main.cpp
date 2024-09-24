@@ -2,6 +2,7 @@
 #include "include/render.h"
 #include "include/ai.h"
 #include "include/types.h"
+#include "include/utility.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include "include/chessboard.h"
@@ -24,6 +25,8 @@ int main()
 
     // Load chess piece images
     auto pieceImages = render.loadImages();
+    // Initialize sounds
+    utility.initializeSounds();
 
     sf::Clock frameClock;
     const sf::Time frameTime = sf::seconds(1.0f / 60.0f); // 60 FPS cap

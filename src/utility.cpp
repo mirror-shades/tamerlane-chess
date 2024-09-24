@@ -6,6 +6,13 @@
 #include "include/state.h"
 #include "include/ai.h"
 #include <iostream>
+#include <SFML/Audio.hpp>
+
+// Add these as member variables in the Utility class or as global variables
+sf::SoundBuffer moveSoundBuffer;
+sf::SoundBuffer captureSoundBuffer;
+sf::Sound moveSound;
+sf::Sound captureSound;
 
 AI ai(chessboard);
 Render *render;
@@ -177,6 +184,21 @@ void Utility::exitToMenu()
     State::aiVsAiMode = false;
 }
 
+// In the Utility class constructor or initialization method
+void Utility::initializeSounds()
+{
+    if (!moveSoundBuffer.loadFromFile("assets/audio/move.mp3"))
+    {
+        std::cerr << "Failed to load move sound" << std::endl;
+    }
+    if (!captureSoundBuffer.loadFromFile("assets/audio/capture.mp3"))
+    {
+        std::cerr << "Failed to load capture sound" << std::endl;
+    }
+    moveSound.setBuffer(moveSoundBuffer);
+    captureSound.setBuffer(captureSoundBuffer);
+}
+
 bool Utility::clickHandler(sf::Event event, sf::RenderWindow &window)
 {
     if (event.type == sf::Event::Closed)
@@ -268,6 +290,24 @@ bool Utility::clickLogic(int x, int y)
     return false;
 }
 
+void Utility::playMoveSound()
+{
+    if (moveSound.getStatus() != sf::Sound::Playing)
+    {
+        moveSound.play();
+        std::cout << "Playing move sound" << std::endl; // Debug output
+    }
+}
+
+void Utility::playCaptureSound()
+{
+    if (captureSound.getStatus() != sf::Sound::Playing)
+    {
+        captureSound.play();
+        std::cout << "Playing capture sound" << std::endl; // Debug output
+    }
+}
+
 // Handle piece movement
 void Utility::handlePieceMovement(const std::string &_selectedPiece, const Types::Coord &_selectedSquare, const Types::Coord &move, const char &player)
 {
@@ -277,6 +317,8 @@ void Utility::handlePieceMovement(const std::string &_selectedPiece, const Types
     chessboard.setCell(move, _selectedPiece);
     if (target != "---")
     {
+        // Play capture sound
+        playCaptureSound();
         if (player == 'w')
         {
             State::blackPiecesCaptured.push_back(target);
@@ -285,6 +327,11 @@ void Utility::handlePieceMovement(const std::string &_selectedPiece, const Types
         {
             State::whitePiecesCaptured.push_back(target);
         }
+    }
+    else
+    {
+        // Play move sound
+        playMoveSound();
     }
 
     Utility::updateGameState(move, target, player, *gameLogic);
