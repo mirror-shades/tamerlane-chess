@@ -8,7 +8,7 @@ An engine for Tamerlane chess built in C++. Tamerlane chess is a medieval chess 
 
 ## Compiling
 
-The game is compiled using SFML 2.6.1 built on minGW 13.1.0.
+The game is compiled using SFML 2.6.1 built on minGW 13.1.0. All dependancies are included with the source code and no dependancy installation should be necessary. Currently there is only a Windows build.
 
 There is a batch file to compile the game in the root directory called `run.bat`.
 
@@ -30,14 +30,13 @@ parent directory
 ## todo
 
 [ ] qol and bug fixes  
-[ ] ai thinking blocks input for exiting the game
-[ ] ai thinking should happen after ai options menu is closed
-[ ] capture piece list
+[ ] ai thinking blocks input for exiting the game  
+[ ] ai thinking should happen after ai options menu is closed  
 
 analysis mode:  
 [ ] move by move history  
 [ ] best move analysis  
-[ ] move accuracy evaluation
+[ ] move accuracy evaluation  
 
 ## done
 
@@ -52,7 +51,8 @@ analysis mode:
 [x] install script  
 [x] proper highlighting for fortress squares regarding draws  
 [x] previous move highlighting  
-[x] AI menu, select which side to play as and difficulty
+[x] AI menu, select which side to play as and difficulty  
+[x] capture piece list  
 
 implement moves:  
 [x] pawn moves  
