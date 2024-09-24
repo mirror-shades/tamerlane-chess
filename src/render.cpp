@@ -730,7 +730,7 @@ void Render::drawCapturedPieces(sf::RenderWindow &window, const std::map<std::st
     text.setCharacterSize(34);
     text.setFillColor(sf::Color::White);
     text.setString(score > 0 ? "+" + std::to_string(score) : std::to_string(score));
-    text.setPosition(window.getSize().x - 1025, window.getSize().y - 95);
+    text.setPosition(window.getSize().x - 75, window.getSize().y - 95);
     window.draw(text);
 }
 
