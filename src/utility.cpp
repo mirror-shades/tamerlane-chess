@@ -34,7 +34,7 @@ bool Utility::clickInBoard(const int x, const int y)
 }
 
 // Toggle piece selection
-void Utility::toggleSelection(const Types::Coord &coord)
+void Utility::toggleSelection()
 {
     State::isPieceSelected = false;
     State::moveList.clear();
@@ -98,7 +98,7 @@ bool Utility::checkVictoryCondition(GameLogic &gameLogic, const char &player, co
 }
 
 // Update game state after a move
-void Utility::updateGameState(const Types::Coord &move, const std::string &target, const char &player, GameLogic &gameLogic)
+void Utility::updateGameState(const Types::Coord &move, const std::string &target, GameLogic &gameLogic)
 {
     auto boardState = chessboard.getBoardState();
 
@@ -111,10 +111,12 @@ void Utility::updateGameState(const Types::Coord &move, const std::string &targe
         State::selectedSquare,
         move,
         State::selectedPiece,
-        target};
+        target,
+        0.0f};
 
     State::turnHistory.push_back(newTurn);
     State::turns++;
+
     State::isPieceSelected = false;
     State::moveList.clear();
     State::selectedSquare = {-1, -1};
@@ -240,7 +242,6 @@ bool Utility::clickLogic(int x, int y)
     Types::Coord coord = calculateSquare(x, y);
     std::cout << coord.x << ", " << coord.y << " | " << chessboard.getPiece(coord) << std::endl;
     const char player = (State::turns % 2 == 0) ? 'b' : 'w';
-    const char enemy = (player == 'w') ? 'b' : 'w';
     std::string selected = chessboard.getPiece(coord);
 
     // draw by kings enterning the fortress (click logic takes place outside of the board)
@@ -282,7 +283,7 @@ bool Utility::clickLogic(int x, int y)
 
         if (State::selectedSquare == coord || selected == "---")
         {
-            toggleSelection(coord);
+            toggleSelection();
         }
         else if (selected[0] == player)
         {
@@ -336,7 +337,7 @@ void Utility::handlePieceMovement(const std::string &_selectedPiece, const Types
         playMoveSound();
     }
 
-    Utility::updateGameState(move, target, player, *gameLogic);
+    Utility::updateGameState(move, target, *gameLogic);
 
     char enemy = (player == 'w') ? 'b' : 'w';
     gameLogic->promotePawns(player);
@@ -376,10 +377,10 @@ void Utility::handleAiVsAi()
     }
 }
 
-void Utility::handleMoves(sf::RenderWindow &window)
+void Utility::handleMoves()
 {
     // Update animations
-    render->updateAnimations(State::deltaTime);
+    render->updateAnimations();
 
     // Process AI move if queued and animation is finished
     if (State::aiMoveQueued && !Render::animationInProgress && State::winner == '-')

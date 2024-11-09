@@ -15,7 +15,7 @@ public:
 
     sf::Sprite renderBackground(sf::RenderWindow &window, sf::Texture &backgroundTexture);
     std::map<std::string, sf::Sprite> loadImages();
-    void updateAnimations(float deltaTime);
+    void updateAnimations();
     void drawBoard(sf::RenderWindow &window);
     void drawExitButton(sf::RenderWindow &window);
     void winScreen(sf::RenderWindow &window);
