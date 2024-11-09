@@ -1,0 +1,3 @@
+/home/user/Development/c++/tamerlane-cpp-2.0/build/CMakeFiles/Tamerlane-Chess.dir
+/home/user/Development/c++/tamerlane-cpp-2.0/build/CMakeFiles/edit_cache.dir
+/home/user/Development/c++/tamerlane-cpp-2.0/build/CMakeFiles/rebuild_cache.dir

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(SFMLGame)
+project(Tamerlane-Chess)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -15,7 +15,7 @@ elseif(UNIX AND NOT APPLE)
 endif()
 
 # Find SFML
-find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
+find_package(SFML 2.6.1 COMPONENTS graphics window system REQUIRED)
 
 # Add executable
 add_executable(${PROJECT_NAME} src/main.cpp)
@@ -26,3 +26,13 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     sfml-window 
     sfml-system
 )
+
+# Add include directories
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/include)
+
+# Enable warnings
+if(MSVC)
+    target_compile_options(${PROJECT_NAME} PRIVATE /W4)
+else()
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra)
+endif()

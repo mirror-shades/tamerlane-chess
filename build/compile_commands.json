@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/user/Development/c++/tamerlane-cpp-2.0/build",
+  "command": "/usr/bin/g++  -I/home/user/Development/c++/tamerlane-cpp-2.0/include -isystem /home/user/Development/c++/tamerlane-cpp-2.0/external/SFML-Linux/include -g -std=gnu++17 -Wall -Wextra -o CMakeFiles/Tamerlane-Chess.dir/src/main.cpp.o -c /home/user/Development/c++/tamerlane-cpp-2.0/src/main.cpp",
+  "file": "/home/user/Development/c++/tamerlane-cpp-2.0/src/main.cpp",
+  "output": "CMakeFiles/Tamerlane-Chess.dir/src/main.cpp.o"
+}
+]
