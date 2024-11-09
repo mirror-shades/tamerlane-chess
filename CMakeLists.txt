@@ -5,11 +5,24 @@ project(Tamerlane-Chess)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Detect operating system
-if(WIN32)
+# Detect operating system and set compiler flags
+if(APPLE)
+    # Add MacOS specific compiler flags
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
+    
+    # If using ARM64 (M1/M2 Macs)
+    if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
+        set(SFML_DIR "${CMAKE_SOURCE_DIR}/external/SFML-Mac-ARM64/lib/cmake/SFML")
+    else()
+        # For Intel Macs
+        set(SFML_DIR "${CMAKE_SOURCE_DIR}/external/SFML-Mac/lib/cmake/SFML")
+    endif()
+    
+    # Add rpath for SFML libraries
+    set(CMAKE_INSTALL_RPATH "@executable_path/../Frameworks")
+    set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+elseif(WIN32)
     set(SFML_DIR "${CMAKE_SOURCE_DIR}/external/SFML-Windows/lib/cmake/SFML")
-elseif(APPLE)
-    set(SFML_DIR "${CMAKE_SOURCE_DIR}/external/SFML-Mac/lib/cmake/SFML")
 elseif(UNIX AND NOT APPLE)
     set(SFML_DIR "${CMAKE_SOURCE_DIR}/external/SFML-Linux/lib/cmake/SFML")
 endif()

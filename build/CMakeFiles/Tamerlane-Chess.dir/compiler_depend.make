@@ -2407,6 +2407,7 @@ Tamerlane-Chess: /usr/lib/libc.so \
   /usr/lib/libgcc_s.so \
   /usr/lib/libm.so \
   /usr/lib/ld-linux-x86-64.so.2 \
+  /usr/lib/libFLAC.so.12 \
   /usr/lib/libX11.so.6 \
   /usr/lib/libXau.so.6 \
   /usr/lib/libXcursor.so.1 \
@@ -2423,9 +2424,14 @@ Tamerlane-Chess: /usr/lib/libc.so \
   /usr/lib/libglib-2.0.so.0 \
   /usr/lib/libgraphite2.so.3 \
   /usr/lib/libharfbuzz.so.0 \
+  /usr/lib/libogg.so.0 \
+  /usr/lib/libopenal.so.1 \
   /usr/lib/libpcre2-8.so.0 \
   /usr/lib/libpng16.so.16 \
   /usr/lib/libudev.so.1 \
+  /usr/lib/libvorbis.so.0 \
+  /usr/lib/libvorbisenc.so.2 \
+  /usr/lib/libvorbisfile.so.3 \
   /usr/lib/libxcb.so.1 \
   /usr/lib/libz.so.1 \
   /usr/lib32/libX11.so.6 \
@@ -2464,7 +2470,15 @@ Tamerlane-Chess: /usr/lib/libc.so \
 
 /usr/lib32/libXdmcp.so.6:
 
+/usr/lib/libvorbisfile.so.3:
+
+/usr/lib/libvorbisenc.so.2:
+
+/usr/lib/libvorbis.so.0:
+
 /usr/lib/libpcre2-8.so.0:
+
+/usr/lib/libopenal.so.1:
 
 /usr/lib/libharfbuzz.so.0:
 
@@ -2477,6 +2491,8 @@ Tamerlane-Chess: /usr/lib/libc.so \
 /usr/lib/libXdmcp.so.6:
 
 /usr/lib/libXau.so.6:
+
+/usr/lib/libFLAC.so.12:
 
 /usr/include/c++/14.2.1/bits/stl_set.h:
 
@@ -2571,6 +2587,8 @@ Tamerlane-Chess: /usr/lib/libc.so \
 /usr/include/pthread.h:
 
 /usr/include/c++/14.2.1/string:
+
+/usr/lib/libogg.so.0:
 
 /usr/include/c++/14.2.1/streambuf:
 

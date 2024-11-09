@@ -2416,6 +2416,7 @@ Tamerlane-Chess
  /usr/lib/libgcc_s.so
  /usr/lib/libm.so
  /usr/lib/ld-linux-x86-64.so.2
+ /usr/lib/libFLAC.so.12
  /usr/lib/libX11.so.6
  /usr/lib/libXau.so.6
  /usr/lib/libXcursor.so.1
@@ -2432,9 +2433,14 @@ Tamerlane-Chess
  /usr/lib/libglib-2.0.so.0
  /usr/lib/libgraphite2.so.3
  /usr/lib/libharfbuzz.so.0
+ /usr/lib/libogg.so.0
+ /usr/lib/libopenal.so.1
  /usr/lib/libpcre2-8.so.0
  /usr/lib/libpng16.so.16
  /usr/lib/libudev.so.1
+ /usr/lib/libvorbis.so.0
+ /usr/lib/libvorbisenc.so.2
+ /usr/lib/libvorbisfile.so.3
  /usr/lib/libxcb.so.1
  /usr/lib/libz.so.1
  /usr/lib32/libX11.so.6
