@@ -7,10 +7,6 @@ import sys
 import platform
 
 def run_cmake_build():
-    # Create build directory if it doesn't exist
-    if not os.path.exists("build"):
-        os.makedirs("build")
-    
     # Change to build directory
     os.chdir("build")
     
