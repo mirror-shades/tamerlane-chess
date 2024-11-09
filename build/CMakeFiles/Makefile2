@@ -85,12 +85,12 @@ clean: CMakeFiles/Tamerlane-Chess.dir/clean
 CMakeFiles/Tamerlane-Chess.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Tamerlane-Chess.dir/build.make CMakeFiles/Tamerlane-Chess.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Tamerlane-Chess.dir/build.make CMakeFiles/Tamerlane-Chess.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/user/Development/c++/tamerlane-cpp-2.0/build/CMakeFiles --progress-num=1,2 "Built target Tamerlane-Chess"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/user/Development/c++/tamerlane-cpp-2.0/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9 "Built target Tamerlane-Chess"
 .PHONY : CMakeFiles/Tamerlane-Chess.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/Tamerlane-Chess.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/user/Development/c++/tamerlane-cpp-2.0/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/user/Development/c++/tamerlane-cpp-2.0/build/CMakeFiles 9
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/Tamerlane-Chess.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/user/Development/c++/tamerlane-cpp-2.0/build/CMakeFiles 0
 .PHONY : CMakeFiles/Tamerlane-Chess.dir/rule

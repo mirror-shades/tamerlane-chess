@@ -129,6 +129,78 @@ Tamerlane-Chess/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Tamerlane-Chess.dir/build.make CMakeFiles/Tamerlane-Chess.dir/build
 .PHONY : Tamerlane-Chess/fast
 
+src/ai.o: src/ai.cpp.o
+.PHONY : src/ai.o
+
+# target to build an object file
+src/ai.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Tamerlane-Chess.dir/build.make CMakeFiles/Tamerlane-Chess.dir/src/ai.cpp.o
+.PHONY : src/ai.cpp.o
+
+src/ai.i: src/ai.cpp.i
+.PHONY : src/ai.i
+
+# target to preprocess a source file
+src/ai.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Tamerlane-Chess.dir/build.make CMakeFiles/Tamerlane-Chess.dir/src/ai.cpp.i
+.PHONY : src/ai.cpp.i
+
+src/ai.s: src/ai.cpp.s
+.PHONY : src/ai.s
+
+# target to generate assembly for a file
+src/ai.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Tamerlane-Chess.dir/build.make CMakeFiles/Tamerlane-Chess.dir/src/ai.cpp.s
+.PHONY : src/ai.cpp.s
+
+src/chessboard.o: src/chessboard.cpp.o
+.PHONY : src/chessboard.o
+
+# target to build an object file
+src/chessboard.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Tamerlane-Chess.dir/build.make CMakeFiles/Tamerlane-Chess.dir/src/chessboard.cpp.o
+.PHONY : src/chessboard.cpp.o
+
+src/chessboard.i: src/chessboard.cpp.i
+.PHONY : src/chessboard.i
+
+# target to preprocess a source file
+src/chessboard.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Tamerlane-Chess.dir/build.make CMakeFiles/Tamerlane-Chess.dir/src/chessboard.cpp.i
+.PHONY : src/chessboard.cpp.i
+
+src/chessboard.s: src/chessboard.cpp.s
+.PHONY : src/chessboard.s
+
+# target to generate assembly for a file
+src/chessboard.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Tamerlane-Chess.dir/build.make CMakeFiles/Tamerlane-Chess.dir/src/chessboard.cpp.s
+.PHONY : src/chessboard.cpp.s
+
+src/gameLogic.o: src/gameLogic.cpp.o
+.PHONY : src/gameLogic.o
+
+# target to build an object file
+src/gameLogic.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Tamerlane-Chess.dir/build.make CMakeFiles/Tamerlane-Chess.dir/src/gameLogic.cpp.o
+.PHONY : src/gameLogic.cpp.o
+
+src/gameLogic.i: src/gameLogic.cpp.i
+.PHONY : src/gameLogic.i
+
+# target to preprocess a source file
+src/gameLogic.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Tamerlane-Chess.dir/build.make CMakeFiles/Tamerlane-Chess.dir/src/gameLogic.cpp.i
+.PHONY : src/gameLogic.cpp.i
+
+src/gameLogic.s: src/gameLogic.cpp.s
+.PHONY : src/gameLogic.s
+
+# target to generate assembly for a file
+src/gameLogic.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Tamerlane-Chess.dir/build.make CMakeFiles/Tamerlane-Chess.dir/src/gameLogic.cpp.s
+.PHONY : src/gameLogic.cpp.s
+
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
 
@@ -153,6 +225,102 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Tamerlane-Chess.dir/build.make CMakeFiles/Tamerlane-Chess.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+src/pieceLogic.o: src/pieceLogic.cpp.o
+.PHONY : src/pieceLogic.o
+
+# target to build an object file
+src/pieceLogic.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Tamerlane-Chess.dir/build.make CMakeFiles/Tamerlane-Chess.dir/src/pieceLogic.cpp.o
+.PHONY : src/pieceLogic.cpp.o
+
+src/pieceLogic.i: src/pieceLogic.cpp.i
+.PHONY : src/pieceLogic.i
+
+# target to preprocess a source file
+src/pieceLogic.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Tamerlane-Chess.dir/build.make CMakeFiles/Tamerlane-Chess.dir/src/pieceLogic.cpp.i
+.PHONY : src/pieceLogic.cpp.i
+
+src/pieceLogic.s: src/pieceLogic.cpp.s
+.PHONY : src/pieceLogic.s
+
+# target to generate assembly for a file
+src/pieceLogic.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Tamerlane-Chess.dir/build.make CMakeFiles/Tamerlane-Chess.dir/src/pieceLogic.cpp.s
+.PHONY : src/pieceLogic.cpp.s
+
+src/render.o: src/render.cpp.o
+.PHONY : src/render.o
+
+# target to build an object file
+src/render.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Tamerlane-Chess.dir/build.make CMakeFiles/Tamerlane-Chess.dir/src/render.cpp.o
+.PHONY : src/render.cpp.o
+
+src/render.i: src/render.cpp.i
+.PHONY : src/render.i
+
+# target to preprocess a source file
+src/render.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Tamerlane-Chess.dir/build.make CMakeFiles/Tamerlane-Chess.dir/src/render.cpp.i
+.PHONY : src/render.cpp.i
+
+src/render.s: src/render.cpp.s
+.PHONY : src/render.s
+
+# target to generate assembly for a file
+src/render.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Tamerlane-Chess.dir/build.make CMakeFiles/Tamerlane-Chess.dir/src/render.cpp.s
+.PHONY : src/render.cpp.s
+
+src/state.o: src/state.cpp.o
+.PHONY : src/state.o
+
+# target to build an object file
+src/state.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Tamerlane-Chess.dir/build.make CMakeFiles/Tamerlane-Chess.dir/src/state.cpp.o
+.PHONY : src/state.cpp.o
+
+src/state.i: src/state.cpp.i
+.PHONY : src/state.i
+
+# target to preprocess a source file
+src/state.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Tamerlane-Chess.dir/build.make CMakeFiles/Tamerlane-Chess.dir/src/state.cpp.i
+.PHONY : src/state.cpp.i
+
+src/state.s: src/state.cpp.s
+.PHONY : src/state.s
+
+# target to generate assembly for a file
+src/state.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Tamerlane-Chess.dir/build.make CMakeFiles/Tamerlane-Chess.dir/src/state.cpp.s
+.PHONY : src/state.cpp.s
+
+src/utility.o: src/utility.cpp.o
+.PHONY : src/utility.o
+
+# target to build an object file
+src/utility.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Tamerlane-Chess.dir/build.make CMakeFiles/Tamerlane-Chess.dir/src/utility.cpp.o
+.PHONY : src/utility.cpp.o
+
+src/utility.i: src/utility.cpp.i
+.PHONY : src/utility.i
+
+# target to preprocess a source file
+src/utility.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Tamerlane-Chess.dir/build.make CMakeFiles/Tamerlane-Chess.dir/src/utility.cpp.i
+.PHONY : src/utility.cpp.i
+
+src/utility.s: src/utility.cpp.s
+.PHONY : src/utility.s
+
+# target to generate assembly for a file
+src/utility.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Tamerlane-Chess.dir/build.make CMakeFiles/Tamerlane-Chess.dir/src/utility.cpp.s
+.PHONY : src/utility.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -162,9 +330,30 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... Tamerlane-Chess"
+	@echo "... src/ai.o"
+	@echo "... src/ai.i"
+	@echo "... src/ai.s"
+	@echo "... src/chessboard.o"
+	@echo "... src/chessboard.i"
+	@echo "... src/chessboard.s"
+	@echo "... src/gameLogic.o"
+	@echo "... src/gameLogic.i"
+	@echo "... src/gameLogic.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/pieceLogic.o"
+	@echo "... src/pieceLogic.i"
+	@echo "... src/pieceLogic.s"
+	@echo "... src/render.o"
+	@echo "... src/render.i"
+	@echo "... src/render.s"
+	@echo "... src/state.o"
+	@echo "... src/state.i"
+	@echo "... src/state.s"
+	@echo "... src/utility.o"
+	@echo "... src/utility.i"
+	@echo "... src/utility.s"
 .PHONY : help
 
 

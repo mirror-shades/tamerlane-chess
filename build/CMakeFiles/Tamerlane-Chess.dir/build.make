@@ -86,21 +86,134 @@ CMakeFiles/Tamerlane-Chess.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Tamerlane-Chess.dir/src/main.cpp.s"
 	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/user/Development/c++/tamerlane-cpp-2.0/src/main.cpp -o CMakeFiles/Tamerlane-Chess.dir/src/main.cpp.s
 
+CMakeFiles/Tamerlane-Chess.dir/src/ai.cpp.o: CMakeFiles/Tamerlane-Chess.dir/flags.make
+CMakeFiles/Tamerlane-Chess.dir/src/ai.cpp.o: /home/user/Development/c++/tamerlane-cpp-2.0/src/ai.cpp
+CMakeFiles/Tamerlane-Chess.dir/src/ai.cpp.o: CMakeFiles/Tamerlane-Chess.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/user/Development/c++/tamerlane-cpp-2.0/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/Tamerlane-Chess.dir/src/ai.cpp.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Tamerlane-Chess.dir/src/ai.cpp.o -MF CMakeFiles/Tamerlane-Chess.dir/src/ai.cpp.o.d -o CMakeFiles/Tamerlane-Chess.dir/src/ai.cpp.o -c /home/user/Development/c++/tamerlane-cpp-2.0/src/ai.cpp
+
+CMakeFiles/Tamerlane-Chess.dir/src/ai.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Tamerlane-Chess.dir/src/ai.cpp.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/user/Development/c++/tamerlane-cpp-2.0/src/ai.cpp > CMakeFiles/Tamerlane-Chess.dir/src/ai.cpp.i
+
+CMakeFiles/Tamerlane-Chess.dir/src/ai.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Tamerlane-Chess.dir/src/ai.cpp.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/user/Development/c++/tamerlane-cpp-2.0/src/ai.cpp -o CMakeFiles/Tamerlane-Chess.dir/src/ai.cpp.s
+
+CMakeFiles/Tamerlane-Chess.dir/src/chessboard.cpp.o: CMakeFiles/Tamerlane-Chess.dir/flags.make
+CMakeFiles/Tamerlane-Chess.dir/src/chessboard.cpp.o: /home/user/Development/c++/tamerlane-cpp-2.0/src/chessboard.cpp
+CMakeFiles/Tamerlane-Chess.dir/src/chessboard.cpp.o: CMakeFiles/Tamerlane-Chess.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/user/Development/c++/tamerlane-cpp-2.0/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/Tamerlane-Chess.dir/src/chessboard.cpp.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Tamerlane-Chess.dir/src/chessboard.cpp.o -MF CMakeFiles/Tamerlane-Chess.dir/src/chessboard.cpp.o.d -o CMakeFiles/Tamerlane-Chess.dir/src/chessboard.cpp.o -c /home/user/Development/c++/tamerlane-cpp-2.0/src/chessboard.cpp
+
+CMakeFiles/Tamerlane-Chess.dir/src/chessboard.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Tamerlane-Chess.dir/src/chessboard.cpp.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/user/Development/c++/tamerlane-cpp-2.0/src/chessboard.cpp > CMakeFiles/Tamerlane-Chess.dir/src/chessboard.cpp.i
+
+CMakeFiles/Tamerlane-Chess.dir/src/chessboard.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Tamerlane-Chess.dir/src/chessboard.cpp.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/user/Development/c++/tamerlane-cpp-2.0/src/chessboard.cpp -o CMakeFiles/Tamerlane-Chess.dir/src/chessboard.cpp.s
+
+CMakeFiles/Tamerlane-Chess.dir/src/gameLogic.cpp.o: CMakeFiles/Tamerlane-Chess.dir/flags.make
+CMakeFiles/Tamerlane-Chess.dir/src/gameLogic.cpp.o: /home/user/Development/c++/tamerlane-cpp-2.0/src/gameLogic.cpp
+CMakeFiles/Tamerlane-Chess.dir/src/gameLogic.cpp.o: CMakeFiles/Tamerlane-Chess.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/user/Development/c++/tamerlane-cpp-2.0/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/Tamerlane-Chess.dir/src/gameLogic.cpp.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Tamerlane-Chess.dir/src/gameLogic.cpp.o -MF CMakeFiles/Tamerlane-Chess.dir/src/gameLogic.cpp.o.d -o CMakeFiles/Tamerlane-Chess.dir/src/gameLogic.cpp.o -c /home/user/Development/c++/tamerlane-cpp-2.0/src/gameLogic.cpp
+
+CMakeFiles/Tamerlane-Chess.dir/src/gameLogic.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Tamerlane-Chess.dir/src/gameLogic.cpp.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/user/Development/c++/tamerlane-cpp-2.0/src/gameLogic.cpp > CMakeFiles/Tamerlane-Chess.dir/src/gameLogic.cpp.i
+
+CMakeFiles/Tamerlane-Chess.dir/src/gameLogic.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Tamerlane-Chess.dir/src/gameLogic.cpp.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/user/Development/c++/tamerlane-cpp-2.0/src/gameLogic.cpp -o CMakeFiles/Tamerlane-Chess.dir/src/gameLogic.cpp.s
+
+CMakeFiles/Tamerlane-Chess.dir/src/pieceLogic.cpp.o: CMakeFiles/Tamerlane-Chess.dir/flags.make
+CMakeFiles/Tamerlane-Chess.dir/src/pieceLogic.cpp.o: /home/user/Development/c++/tamerlane-cpp-2.0/src/pieceLogic.cpp
+CMakeFiles/Tamerlane-Chess.dir/src/pieceLogic.cpp.o: CMakeFiles/Tamerlane-Chess.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/user/Development/c++/tamerlane-cpp-2.0/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/Tamerlane-Chess.dir/src/pieceLogic.cpp.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Tamerlane-Chess.dir/src/pieceLogic.cpp.o -MF CMakeFiles/Tamerlane-Chess.dir/src/pieceLogic.cpp.o.d -o CMakeFiles/Tamerlane-Chess.dir/src/pieceLogic.cpp.o -c /home/user/Development/c++/tamerlane-cpp-2.0/src/pieceLogic.cpp
+
+CMakeFiles/Tamerlane-Chess.dir/src/pieceLogic.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Tamerlane-Chess.dir/src/pieceLogic.cpp.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/user/Development/c++/tamerlane-cpp-2.0/src/pieceLogic.cpp > CMakeFiles/Tamerlane-Chess.dir/src/pieceLogic.cpp.i
+
+CMakeFiles/Tamerlane-Chess.dir/src/pieceLogic.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Tamerlane-Chess.dir/src/pieceLogic.cpp.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/user/Development/c++/tamerlane-cpp-2.0/src/pieceLogic.cpp -o CMakeFiles/Tamerlane-Chess.dir/src/pieceLogic.cpp.s
+
+CMakeFiles/Tamerlane-Chess.dir/src/render.cpp.o: CMakeFiles/Tamerlane-Chess.dir/flags.make
+CMakeFiles/Tamerlane-Chess.dir/src/render.cpp.o: /home/user/Development/c++/tamerlane-cpp-2.0/src/render.cpp
+CMakeFiles/Tamerlane-Chess.dir/src/render.cpp.o: CMakeFiles/Tamerlane-Chess.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/user/Development/c++/tamerlane-cpp-2.0/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/Tamerlane-Chess.dir/src/render.cpp.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Tamerlane-Chess.dir/src/render.cpp.o -MF CMakeFiles/Tamerlane-Chess.dir/src/render.cpp.o.d -o CMakeFiles/Tamerlane-Chess.dir/src/render.cpp.o -c /home/user/Development/c++/tamerlane-cpp-2.0/src/render.cpp
+
+CMakeFiles/Tamerlane-Chess.dir/src/render.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Tamerlane-Chess.dir/src/render.cpp.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/user/Development/c++/tamerlane-cpp-2.0/src/render.cpp > CMakeFiles/Tamerlane-Chess.dir/src/render.cpp.i
+
+CMakeFiles/Tamerlane-Chess.dir/src/render.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Tamerlane-Chess.dir/src/render.cpp.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/user/Development/c++/tamerlane-cpp-2.0/src/render.cpp -o CMakeFiles/Tamerlane-Chess.dir/src/render.cpp.s
+
+CMakeFiles/Tamerlane-Chess.dir/src/state.cpp.o: CMakeFiles/Tamerlane-Chess.dir/flags.make
+CMakeFiles/Tamerlane-Chess.dir/src/state.cpp.o: /home/user/Development/c++/tamerlane-cpp-2.0/src/state.cpp
+CMakeFiles/Tamerlane-Chess.dir/src/state.cpp.o: CMakeFiles/Tamerlane-Chess.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/user/Development/c++/tamerlane-cpp-2.0/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/Tamerlane-Chess.dir/src/state.cpp.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Tamerlane-Chess.dir/src/state.cpp.o -MF CMakeFiles/Tamerlane-Chess.dir/src/state.cpp.o.d -o CMakeFiles/Tamerlane-Chess.dir/src/state.cpp.o -c /home/user/Development/c++/tamerlane-cpp-2.0/src/state.cpp
+
+CMakeFiles/Tamerlane-Chess.dir/src/state.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Tamerlane-Chess.dir/src/state.cpp.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/user/Development/c++/tamerlane-cpp-2.0/src/state.cpp > CMakeFiles/Tamerlane-Chess.dir/src/state.cpp.i
+
+CMakeFiles/Tamerlane-Chess.dir/src/state.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Tamerlane-Chess.dir/src/state.cpp.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/user/Development/c++/tamerlane-cpp-2.0/src/state.cpp -o CMakeFiles/Tamerlane-Chess.dir/src/state.cpp.s
+
+CMakeFiles/Tamerlane-Chess.dir/src/utility.cpp.o: CMakeFiles/Tamerlane-Chess.dir/flags.make
+CMakeFiles/Tamerlane-Chess.dir/src/utility.cpp.o: /home/user/Development/c++/tamerlane-cpp-2.0/src/utility.cpp
+CMakeFiles/Tamerlane-Chess.dir/src/utility.cpp.o: CMakeFiles/Tamerlane-Chess.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/user/Development/c++/tamerlane-cpp-2.0/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/Tamerlane-Chess.dir/src/utility.cpp.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Tamerlane-Chess.dir/src/utility.cpp.o -MF CMakeFiles/Tamerlane-Chess.dir/src/utility.cpp.o.d -o CMakeFiles/Tamerlane-Chess.dir/src/utility.cpp.o -c /home/user/Development/c++/tamerlane-cpp-2.0/src/utility.cpp
+
+CMakeFiles/Tamerlane-Chess.dir/src/utility.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Tamerlane-Chess.dir/src/utility.cpp.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/user/Development/c++/tamerlane-cpp-2.0/src/utility.cpp > CMakeFiles/Tamerlane-Chess.dir/src/utility.cpp.i
+
+CMakeFiles/Tamerlane-Chess.dir/src/utility.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Tamerlane-Chess.dir/src/utility.cpp.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/user/Development/c++/tamerlane-cpp-2.0/src/utility.cpp -o CMakeFiles/Tamerlane-Chess.dir/src/utility.cpp.s
+
 # Object files for target Tamerlane-Chess
 Tamerlane__Chess_OBJECTS = \
-"CMakeFiles/Tamerlane-Chess.dir/src/main.cpp.o"
+"CMakeFiles/Tamerlane-Chess.dir/src/main.cpp.o" \
+"CMakeFiles/Tamerlane-Chess.dir/src/ai.cpp.o" \
+"CMakeFiles/Tamerlane-Chess.dir/src/chessboard.cpp.o" \
+"CMakeFiles/Tamerlane-Chess.dir/src/gameLogic.cpp.o" \
+"CMakeFiles/Tamerlane-Chess.dir/src/pieceLogic.cpp.o" \
+"CMakeFiles/Tamerlane-Chess.dir/src/render.cpp.o" \
+"CMakeFiles/Tamerlane-Chess.dir/src/state.cpp.o" \
+"CMakeFiles/Tamerlane-Chess.dir/src/utility.cpp.o"
 
 # External object files for target Tamerlane-Chess
 Tamerlane__Chess_EXTERNAL_OBJECTS =
 
 Tamerlane-Chess: CMakeFiles/Tamerlane-Chess.dir/src/main.cpp.o
+Tamerlane-Chess: CMakeFiles/Tamerlane-Chess.dir/src/ai.cpp.o
+Tamerlane-Chess: CMakeFiles/Tamerlane-Chess.dir/src/chessboard.cpp.o
+Tamerlane-Chess: CMakeFiles/Tamerlane-Chess.dir/src/gameLogic.cpp.o
+Tamerlane-Chess: CMakeFiles/Tamerlane-Chess.dir/src/pieceLogic.cpp.o
+Tamerlane-Chess: CMakeFiles/Tamerlane-Chess.dir/src/render.cpp.o
+Tamerlane-Chess: CMakeFiles/Tamerlane-Chess.dir/src/state.cpp.o
+Tamerlane-Chess: CMakeFiles/Tamerlane-Chess.dir/src/utility.cpp.o
 Tamerlane-Chess: CMakeFiles/Tamerlane-Chess.dir/build.make
 Tamerlane-Chess: CMakeFiles/Tamerlane-Chess.dir/compiler_depend.ts
 Tamerlane-Chess: /home/user/Development/c++/tamerlane-cpp-2.0/external/SFML-Linux/lib/libsfml-graphics-d.so.2.6.1
+Tamerlane-Chess: /home/user/Development/c++/tamerlane-cpp-2.0/external/SFML-Linux/lib/libsfml-audio-d.so.2.6.1
 Tamerlane-Chess: /home/user/Development/c++/tamerlane-cpp-2.0/external/SFML-Linux/lib/libsfml-window-d.so.2.6.1
 Tamerlane-Chess: /home/user/Development/c++/tamerlane-cpp-2.0/external/SFML-Linux/lib/libsfml-system-d.so.2.6.1
 Tamerlane-Chess: CMakeFiles/Tamerlane-Chess.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/user/Development/c++/tamerlane-cpp-2.0/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable Tamerlane-Chess"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/user/Development/c++/tamerlane-cpp-2.0/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX executable Tamerlane-Chess"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/Tamerlane-Chess.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

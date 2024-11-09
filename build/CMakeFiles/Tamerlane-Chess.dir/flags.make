@@ -6,5 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -I/home/user/Development/c++/tamerlane-cpp-2.0/include -isystem /home/user/Development/c++/tamerlane-cpp-2.0/external/SFML-Linux/include
 
-CXX_FLAGS = -g -std=gnu++17 -Wall -Wextra
+CXX_FLAGS = -g -std=gnu++20 -Wall -Wextra
 

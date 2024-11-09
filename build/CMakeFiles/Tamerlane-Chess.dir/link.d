@@ -10,6 +10,12 @@ Tamerlane-Chess: \
   /usr/lib32/libfreetype.so.6 \
   /usr/lib/libfreetype.so.6 \
   /usr/lib/ld-linux-x86-64.so.2 \
+  /usr/lib/libopenal.so.1 \
+  /usr/lib/libvorbisenc.so.2 \
+  /usr/lib/libvorbisfile.so.3 \
+  /usr/lib/libvorbis.so.0 \
+  /usr/lib/libogg.so.0 \
+  /usr/lib/libFLAC.so.12 \
   /usr/lib32/libX11.so.6 \
   /usr/lib/libX11.so.6 \
   /usr/lib32/libXrandr.so.2 \
@@ -71,6 +77,18 @@ Tamerlane-Chess: \
 /usr/lib/libfreetype.so.6:
 
 /usr/lib/ld-linux-x86-64.so.2:
+
+/usr/lib/libopenal.so.1:
+
+/usr/lib/libvorbisenc.so.2:
+
+/usr/lib/libvorbisfile.so.3:
+
+/usr/lib/libvorbis.so.0:
+
+/usr/lib/libogg.so.0:
+
+/usr/lib/libFLAC.so.12:
 
 /usr/lib32/libX11.so.6:
 
