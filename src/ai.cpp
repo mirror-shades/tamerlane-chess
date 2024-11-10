@@ -1,7 +1,7 @@
-#include "include/types.h"
-#include "include/globals.h"
-#include "include/utility.h"
-#include "include/ai.h"
+#include "types.h"
+#include "globals.h"
+#include "utility.h"
+#include "ai.h"
 #include <vector>
 #include <random>
 #include <stdexcept>
@@ -16,48 +16,69 @@ static std::mt19937 rng(std::random_device{}());
 const std::unordered_map<char, float> AI::pieceValues = {
     {'K', 3.5f}, {'p', 1.0f}, {'M', 3.0f}, {'C', 2.0f}, {'G', 4.0f}, {'R', 5.0f}, {'T', 2.5f}, {'E', 1.5f}, {'W', 2.0f}, {'V', 1.5f}, {'A', 1.5f}};
 
-Types::Turn AI::minMax(GameLogic gameLogic, char player, int turn, bool alt, int depth, float alpha, float beta)
+Types::Turn AI::minMax(char player, int turn, bool alt, int depth, float alpha, float beta)
 {
-    if (depth == 0)
-    {
-        float score = quiescenceSearch(player, alpha, beta);
-        return Types::Turn{turn, player, {-1, -1}, {-1, -1}, "---", "---", score};
-    }
     auto start = std::chrono::high_resolution_clock::now();
 
-    std::vector<Types::Turn> bestMoves;
-    float bestValue = (player == 'w') ? -std::numeric_limits<float>::infinity() : std::numeric_limits<float>::infinity();
-
     std::vector<Types::Turn> allMoves = generateAllLegalMoves(player, turn, alt);
+    if (allMoves.empty())
+    {
+        throw std::runtime_error("No legal moves available for AI player");
+    }
 
+    // Sort moves to evaluate captures first
     std::sort(allMoves.begin(), allMoves.end(), [](const Types::Turn &a, const Types::Turn &b)
               { return a.pieceCaptured != "---" && b.pieceCaptured == "---"; });
 
-    const int maxMovesToConsider = std::min(static_cast<int>(allMoves.size()), 10);
+    Types::Turn bestMove = allMoves[0];
+    float bestValue = (player == 'w') ? -std::numeric_limits<float>::infinity() : std::numeric_limits<float>::infinity();
 
-#pragma omp parallel for
-    for (int i = 0; i < maxMovesToConsider; ++i)
+    GameLogic gameLogic;
+    for (const auto &move : allMoves)
     {
-        const auto &moveInfo = allMoves[i];
-        chessboard.setCell(moveInfo.finalSquare, moveInfo.pieceMoved);
-        chessboard.setCell(moveInfo.initialSquare, "---");
+        // Make move
+        std::string originalPiece = chessboard.getPiece(move.finalSquare);
+        chessboard.setCell(move.finalSquare, move.pieceMoved);
+        chessboard.setCell(move.initialSquare, "---");
 
-        float moveValue = minMaxHelper(gameLogic, (player == 'w' ? 'b' : 'w'), turn + 1, alt, depth - 1, alpha, beta);
-
-        chessboard.setCell(moveInfo.initialSquare, moveInfo.pieceMoved);
-        chessboard.setCell(moveInfo.finalSquare, moveInfo.pieceCaptured);
-
-#pragma omp critical
+        // Evaluate position
+        float value;
+        if (depth <= 1)
         {
-            if ((player == 'w' && moveValue > bestValue) || (player == 'b' && moveValue < bestValue))
+            value = evaluateBoard();
+        }
+        else
+        {
+            value = minMaxHelper(gameLogic, (player == 'w' ? 'b' : 'w'), turn + 1, alt, depth - 1, alpha, beta);
+        }
+
+        // Undo move
+        chessboard.setCell(move.initialSquare, move.pieceMoved);
+        chessboard.setCell(move.finalSquare, originalPiece);
+
+        // Update best move
+        if (player == 'w')
+        {
+            if (value > bestValue)
             {
-                bestValue = moveValue;
-                bestMoves = {moveInfo};
+                bestValue = value;
+                bestMove = move;
             }
-            else if (moveValue == bestValue)
+            alpha = std::max(alpha, value);
+        }
+        else
+        {
+            if (value < bestValue)
             {
-                bestMoves.push_back(moveInfo);
+                bestValue = value;
+                bestMove = move;
             }
+            beta = std::min(beta, value);
+        }
+
+        if (beta <= alpha)
+        {
+            break;
         }
     }
 
@@ -65,14 +86,8 @@ Types::Turn AI::minMax(GameLogic gameLogic, char player, int turn, bool alt, int
     std::chrono::duration<double> elapsed = end - start;
     std::cout << "AI move calculation time: " << elapsed.count() << " seconds" << std::endl;
 
-    if (!bestMoves.empty())
-    {
-        Types::Turn bestMove = bestMoves[std::uniform_int_distribution<>(0, bestMoves.size() - 1)(rng)];
-        bestMove.score = bestValue;
-        return bestMove;
-    }
-
-    throw std::runtime_error("No legal moves available for AI player");
+    bestMove.score = bestValue;
+    return bestMove;
 }
 
 float AI::minMaxHelper(GameLogic gameLogic, char player, int turn, bool alt, int depth, float alpha, float beta)
@@ -304,7 +319,6 @@ float AI::evaluatePieceMobility(const std::string &piece, int col, int row)
 float AI::evaluateKingSafety(int col, int row, bool isWhite)
 {
     float safetyScore = 0.0f;
-    GameLogic gameLogic;
     char player = isWhite ? 'w' : 'b';
     char opponent = isWhite ? 'b' : 'w';
 
@@ -474,7 +488,17 @@ std::vector<Types::Turn> AI::generateCaptureMoves(char player)
                     std::string capturedPiece = chessboard.getPiece(move);
                     if (capturedPiece != "---" && capturedPiece[0] != player)
                     {
-                        captureMoves.emplace_back(Types::Turn{0, player, currentSquare, move, piece, capturedPiece});
+                        // Initialize all fields including score
+                        Types::Turn turn = {
+                            0,             // turn
+                            player,        // player
+                            currentSquare, // initialSquare
+                            move,          // finalSquare
+                            piece,         // pieceMoved
+                            capturedPiece, // pieceCaptured
+                            0.0f           // score
+                        };
+                        captureMoves.push_back(turn);
                     }
                 }
             }

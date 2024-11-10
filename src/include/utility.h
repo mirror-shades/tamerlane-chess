@@ -23,8 +23,6 @@ public:
     bool clickLogic(int x, int y);
     void handlePieceSelection(const Types::Coord &coord, const char &player);
     void handleMoves(sf::RenderWindow &window);
-    void playMoveSound();
-    void playCaptureSound();
     void handlePieceMovement(const std::string &_selectedPiece, const Types::Coord &_selectedSquare, const Types::Coord &move, const char &player);
 
     // New button-related functions
