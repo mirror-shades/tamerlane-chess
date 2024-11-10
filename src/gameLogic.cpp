@@ -1,7 +1,7 @@
 #include <iostream>
-#include "include/gameLogic.h"
-#include "include/pieceLogic.h"
-#include "include/globals.h"
+#include "gameLogic.h"
+#include "pieceLogic.h"
+#include "globals.h"
 
 PieceLogic pieceLogic;
 

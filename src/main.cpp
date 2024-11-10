@@ -1,11 +1,11 @@
 // Include necessary headers
-#include "include/render.h"
-#include "include/ai.h"
-#include "include/types.h"
-#include "include/utility.h"
+#include "render.h"
+#include "ai.h"
+#include "types.h"
+#include "utility.h"
+#include "chessboard.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
-#include "include/chessboard.h"
 #include <iostream>
 
 // Main function
@@ -15,7 +15,6 @@ int main()
     Utility utility;
     Chessboard chessboard;
     AI ai(chessboard);
-    GameLogic gameLogic;
     // Initialize the game window
     sf::RenderWindow window(sf::VideoMode(975, 900), "Tamerlane Chess");
 
@@ -32,9 +31,7 @@ int main()
     const sf::Time frameTime = sf::seconds(1.0f / 60.0f); // 60 FPS cap
 
     // FPS tracking (optional, for debugging)
-    static int frameCount = 0;
     static sf::Clock fpsClock;
-    static float elapsedTime = 0.0f;
 
     // Main game loop
     while (window.isOpen())
