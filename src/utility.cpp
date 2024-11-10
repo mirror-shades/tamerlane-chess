@@ -1,15 +1,20 @@
-#include "include/types.h"
-#include "include/globals.h"
-#include "include/utility.h"
-#include "include/render.h"
-#include "include/gameLogic.h"
-#include "include/state.h"
-#include "include/ai.h"
-#include "include/audio.h"
+#include "types.h"
+#include "globals.h"
+#include "utility.h"
+#include "render.h"
+#include "gameLogic.h"
+#include "state.h"
+#include "ai.h"
 #include <iostream>
+#include <SFML/Audio.hpp>
+
+// Add these as member variables in the Utility class or as global variables
+sf::SoundBuffer moveSoundBuffer;
+sf::SoundBuffer captureSoundBuffer;
+sf::Sound moveSound;
+sf::Sound captureSound;
 
 AI ai(chessboard);
-Audio audio;
 Render *render;
 const int squareSize = 75;
 
@@ -29,7 +34,7 @@ bool Utility::clickInBoard(const int x, const int y)
 }
 
 // Toggle piece selection
-void Utility::toggleSelection(const Types::Coord &coord)
+void Utility::toggleSelection()
 {
     State::isPieceSelected = false;
     State::moveList.clear();
@@ -93,7 +98,7 @@ bool Utility::checkVictoryCondition(GameLogic &gameLogic, const char &player, co
 }
 
 // Update game state after a move
-void Utility::updateGameState(const Types::Coord &move, const std::string &target, const char &player, GameLogic &gameLogic)
+void Utility::updateGameState(const Types::Coord &move, const std::string &target, GameLogic &gameLogic)
 {
     auto boardState = chessboard.getBoardState();
 
@@ -106,10 +111,12 @@ void Utility::updateGameState(const Types::Coord &move, const std::string &targe
         State::selectedSquare,
         move,
         State::selectedPiece,
-        target};
+        target,
+        0.0f};
 
     State::turnHistory.push_back(newTurn);
     State::turns++;
+
     State::isPieceSelected = false;
     State::moveList.clear();
     State::selectedSquare = {-1, -1};
@@ -181,6 +188,21 @@ void Utility::exitToMenu()
     State::blackPiecesCaptured = {};
 }
 
+// In the Utility class constructor or initialization method
+void Utility::initializeSounds()
+{
+    if (!moveSoundBuffer.loadFromFile("assets/audio/move.mp3"))
+    {
+        std::cerr << "Failed to load move sound" << std::endl;
+    }
+    if (!captureSoundBuffer.loadFromFile("assets/audio/capture.mp3"))
+    {
+        std::cerr << "Failed to load capture sound" << std::endl;
+    }
+    moveSound.setBuffer(moveSoundBuffer);
+    captureSound.setBuffer(captureSoundBuffer);
+}
+
 bool Utility::clickHandler(sf::Event event, sf::RenderWindow &window)
 {
     if (event.type == sf::Event::Closed)
@@ -220,7 +242,6 @@ bool Utility::clickLogic(int x, int y)
     Types::Coord coord = calculateSquare(x, y);
     std::cout << coord.x << ", " << coord.y << " | " << chessboard.getPiece(coord) << std::endl;
     const char player = (State::turns % 2 == 0) ? 'b' : 'w';
-    const char enemy = (player == 'w') ? 'b' : 'w';
     std::string selected = chessboard.getPiece(coord);
 
     // draw by kings enterning the fortress (click logic takes place outside of the board)
@@ -262,7 +283,7 @@ bool Utility::clickLogic(int x, int y)
 
         if (State::selectedSquare == coord || selected == "---")
         {
-            toggleSelection(coord);
+            toggleSelection();
         }
         else if (selected[0] == player)
         {
@@ -270,6 +291,24 @@ bool Utility::clickLogic(int x, int y)
         }
     }
     return false;
+}
+
+void Utility::playMoveSound()
+{
+    if (moveSound.getStatus() != sf::Sound::Playing)
+    {
+        moveSound.play();
+        std::cout << "Playing move sound" << std::endl; // Debug output
+    }
+}
+
+void Utility::playCaptureSound()
+{
+    if (captureSound.getStatus() != sf::Sound::Playing)
+    {
+        captureSound.play();
+        std::cout << "Playing capture sound" << std::endl; // Debug output
+    }
 }
 
 // Handle piece movement
@@ -282,7 +321,7 @@ void Utility::handlePieceMovement(const std::string &_selectedPiece, const Types
     if (target != "---")
     {
         // Play capture sound
-        audio.playCaptureSound();
+        playCaptureSound();
         if (player == 'w')
         {
             State::blackPiecesCaptured.push_back(target);
@@ -295,10 +334,10 @@ void Utility::handlePieceMovement(const std::string &_selectedPiece, const Types
     else
     {
         // Play move sound
-        audio.playMoveSound();
+        playMoveSound();
     }
 
-    Utility::updateGameState(move, target, player, *gameLogic);
+    Utility::updateGameState(move, target, *gameLogic);
 
     char enemy = (player == 'w') ? 'b' : 'w';
     gameLogic->promotePawns(player);
@@ -330,7 +369,7 @@ void Utility::handleAiVsAi()
     if (State::aiVsAiMode && !Render::animationInProgress && State::winner == '-' && State::aiVsAiClock.getElapsedTime().asSeconds() >= aiVsAiMoveDelay)
     {
         char aiPlayer = (State::turns % 2 == 0) ? 'b' : 'w';
-        Types::Turn aiMove = ai.minMax(*gameLogic, aiPlayer, State::turns, State::alt, State::aiDifficulty,
+        Types::Turn aiMove = ai.minMax(aiPlayer, State::turns, State::alt, State::aiDifficulty,
                                        -std::numeric_limits<float>::infinity(),
                                        std::numeric_limits<float>::infinity());
         handlePieceMovement(aiMove.pieceMoved, aiMove.initialSquare, aiMove.finalSquare, aiPlayer);
@@ -338,16 +377,16 @@ void Utility::handleAiVsAi()
     }
 }
 
-void Utility::handleMoves(sf::RenderWindow &window)
+void Utility::handleMoves()
 {
     // Update animations
-    render->updateAnimations(State::deltaTime);
+    render->updateAnimations();
 
     // Process AI move if queued and animation is finished
     if (State::aiMoveQueued && !Render::animationInProgress && State::winner == '-')
     {
         char aiPlayer = (State::turns % 2 == 0) ? 'b' : 'w';
-        Types::Turn aiMove = ai.minMax(*gameLogic, aiPlayer, State::turns, State::alt, State::aiDifficulty,
+        Types::Turn aiMove = ai.minMax(aiPlayer, State::turns, State::alt, State::aiDifficulty,
                                        -std::numeric_limits<float>::infinity(),
                                        std::numeric_limits<float>::infinity());
         handlePieceMovement(aiMove.pieceMoved, aiMove.initialSquare, aiMove.finalSquare, aiPlayer);

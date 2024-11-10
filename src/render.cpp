@@ -1,12 +1,12 @@
 // Include necessary headers
 #include "render.h"
 #include "chessboard.h"
-#include "include/gameLogic.h"
-#include "include/types.h"
-#include "include/globals.h"
-#include "include/utility.h"
-#include "include/ai.h"
-#include "include/state.h"
+#include "gameLogic.h"
+#include "types.h"
+#include "globals.h"
+#include "utility.h"
+#include "ai.h"
+#include "state.h"
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <vector>
@@ -93,7 +93,7 @@ sf::Vector2f Render::interpolate(sf::Vector2f startPos, sf::Vector2f endPos, flo
 }
 
 // Update animation state
-void Render::updateAnimations(float deltaTime)
+void Render::updateAnimations()
 {
     if (animation.isActive)
     {
@@ -263,15 +263,15 @@ void Render::winScreen(sf::RenderWindow &window)
         std::string assetPath;
         if (State::winner == 'w')
         {
-            assetPath = findAssetsPath("whiteWin.png");
+            assetPath = findAssetsPath("images/whiteWin.png");
         }
         else if (State::winner == 'b')
         {
-            assetPath = findAssetsPath("blackWin.png");
+            assetPath = findAssetsPath("images/blackWin.png");
         }
         else if (State::winner == 'd')
         {
-            assetPath = findAssetsPath("draw.png");
+            assetPath = findAssetsPath("images/draw.png");
         }
 
         if (!State::ended) // debugging
@@ -294,7 +294,7 @@ void Render::winScreen(sf::RenderWindow &window)
         window.draw(sprite);
 
         sf::Font font;
-        if (!font.loadFromFile(findAssetsPath("arial.ttf")))
+        if (!font.loadFromFile(findAssetsPath("fonts/arial.ttf")))
         {
             std::cerr << "Error loading font" << std::endl;
             return;
@@ -337,7 +337,7 @@ void Render::winScreen(sf::RenderWindow &window)
 // Render background
 sf::Sprite Render::renderBackground(sf::RenderWindow &window, sf::Texture &backgroundTexture)
 {
-    if (!backgroundTexture.loadFromFile(findAssetsPath("wood.png")))
+    if (!backgroundTexture.loadFromFile(findAssetsPath("images/wood.png")))
 
     {
         std::cerr << "Error loading background texture" << std::endl;
@@ -370,7 +370,7 @@ std::map<std::string, sf::Sprite> Render::loadImages()
     for (const auto &piece : pieces)
     {
         sf::Texture texture;
-        if (!texture.loadFromFile(findAssetsPath("pieces/" + piece + ".png")))
+        if (!texture.loadFromFile(findAssetsPath("images/pieces/" + piece + ".png")))
         {
             std::cerr << "Error loading image: " << piece << ".png" << std::endl;
             continue;
@@ -428,7 +428,7 @@ void Render::drawMenuScreen(sf::RenderWindow &window)
         tintScreen(window);
         sf::Texture titleTexture;
 
-        if (titleTexture.loadFromFile(findAssetsPath("title.png")))
+        if (titleTexture.loadFromFile(findAssetsPath("images/title.png")))
         {
             sf::Sprite titleSprite(titleTexture);
 
@@ -522,7 +522,7 @@ void Render::drawMenuScreen(sf::RenderWindow &window)
 
         // Create button texts
         sf::Font font;
-        if (!font.loadFromFile(findAssetsPath("arial.ttf")))
+        if (!font.loadFromFile(findAssetsPath("fonts/arial.ttf")))
         {
             std::cerr << "Failed to load font" << std::endl;
         }
@@ -720,7 +720,7 @@ void Render::drawCapturedPieces(sf::RenderWindow &window, const std::map<std::st
     // Draw score
     int score = utility->scoreMaterial();
     sf::Font font;
-    if (!font.loadFromFile(findAssetsPath("arial.ttf")))
+    if (!font.loadFromFile(findAssetsPath("fonts/arial.ttf")))
     {
         std::cerr << "Error loading font" << std::endl;
         return;
@@ -756,7 +756,7 @@ void Render::gameHandler(sf::RenderWindow &window, const std::map<std::string, s
 
 void Render::gameFrame(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages, sf::Sprite &backgroundSprite)
 {
-    utility->handleMoves(window);
+    utility->handleMoves();
 
     // Clear the window
     window.clear(sf::Color::White);
