@@ -8,14 +8,16 @@ An engine for Tamerlane chess built in C++. Tamerlane chess is a medieval chess 
 
 ## Compiling
 
-The game is compiled using SFML 2.6.1 built on minGW 13.1.0. All dependancies are included with the source code and no dependancy installation should be necessary. Currently there is only a Windows build.
+The game is compiled using SFML 2.6.1 built on minGW 13.1.0 using CMake. SFML is included with the source code and no SFML installation should be necessary. You can build as normal using CMake or use the included python scripts. Currently Windows, Linux, and MacOS builds are supported (macOS is untested).
 
-There is a batch file to compile the game in the scripts directory called `run.bat`.
+There is a script to build and run the game in the scripts directory called `run.py` and a script to install the game in the scripts directory called `install.py` which takes an argument of the install directory.
 
-Alternatively, run in powershell:  
-`mingw32-make -f Makefile; if ($?) { ./build/main.exe }`  
-or run in terminal:  
-`mingw32-make -f Makefile && build\main.exe`
+Alternatively, run in terminal:
+
+```
+cmake -G "MinGW Makefiles" -B build
+cmake --build build
+```
 
 ## Installing
 
@@ -54,6 +56,8 @@ analysis mode:
 [x] AI menu, select which side to play as and difficulty  
 [x] capture piece list  
 [x] play move and capture sounds
+[x] init cmake
+[x] multiplatform build system
 
 implement moves:  
 [x] pawn moves  
