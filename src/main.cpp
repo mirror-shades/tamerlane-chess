@@ -6,14 +6,16 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include "include/chessboard.h"
+#include "include/audio.h"
 #include <iostream>
 
 // Main function
 int main()
 {
     Render render;
-    Utility utility;
     Chessboard chessboard;
+    Utility utility;
+    Audio audio;
     AI ai(chessboard);
     GameLogic gameLogic;
     // Initialize the game window
@@ -26,7 +28,7 @@ int main()
     // Load chess piece images
     auto pieceImages = render.loadImages();
     // Initialize sounds
-    utility.initializeSounds();
+    audio.initializeSounds();
 
     sf::Clock frameClock;
     const sf::Time frameTime = sf::seconds(1.0f / 60.0f); // 60 FPS cap
