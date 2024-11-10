@@ -369,7 +369,7 @@ void Utility::handleAiVsAi()
     if (State::aiVsAiMode && !Render::animationInProgress && State::winner == '-' && State::aiVsAiClock.getElapsedTime().asSeconds() >= aiVsAiMoveDelay)
     {
         char aiPlayer = (State::turns % 2 == 0) ? 'b' : 'w';
-        Types::Turn aiMove = ai.minMax(*gameLogic, aiPlayer, State::turns, State::alt, State::aiDifficulty,
+        Types::Turn aiMove = ai.minMax(aiPlayer, State::turns, State::alt, State::aiDifficulty,
                                        -std::numeric_limits<float>::infinity(),
                                        std::numeric_limits<float>::infinity());
         handlePieceMovement(aiMove.pieceMoved, aiMove.initialSquare, aiMove.finalSquare, aiPlayer);
@@ -386,7 +386,7 @@ void Utility::handleMoves()
     if (State::aiMoveQueued && !Render::animationInProgress && State::winner == '-')
     {
         char aiPlayer = (State::turns % 2 == 0) ? 'b' : 'w';
-        Types::Turn aiMove = ai.minMax(*gameLogic, aiPlayer, State::turns, State::alt, State::aiDifficulty,
+        Types::Turn aiMove = ai.minMax(aiPlayer, State::turns, State::alt, State::aiDifficulty,
                                        -std::numeric_limits<float>::infinity(),
                                        std::numeric_limits<float>::infinity());
         handlePieceMovement(aiMove.pieceMoved, aiMove.initialSquare, aiMove.finalSquare, aiPlayer);

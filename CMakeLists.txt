@@ -53,6 +53,32 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     sfml-audio
 )
 
+# Add Windows-specific DLL copying
+if(WIN32)
+    # Add commands to copy DLLs to output directory
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/sfml-system-2.dll"
+            "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/sfml-window-2.dll"
+            "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/sfml-graphics-2.dll"
+            "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/sfml-audio-2.dll"
+            "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/openal32.dll"
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    )
+
+    # Copy debug DLLs if in debug configuration
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/sfml-system-d-2.dll"
+                "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/sfml-window-d-2.dll"
+                "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/sfml-graphics-d-2.dll"
+                "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/sfml-audio-d-2.dll"
+                $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        )
+    endif()
+endif()
+
 # Add include directories
 target_include_directories(${PROJECT_NAME} PRIVATE 
     ${CMAKE_SOURCE_DIR}/include

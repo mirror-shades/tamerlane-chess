@@ -39,7 +39,6 @@ std::vector<Types::Coord> PieceLogic::getRookMoves(Types::Coord coord, char play
 {
     auto boardState = chessboard.getBoardState();
     std::vector<Types::Coord> moves;
-    int direction = (player == 'w') ? -1 : 1;
     char enemy = (player == 'w') ? 'b' : 'w';
     int spaceDown = Chessboard::rows - coord.y - 1;
     int spaceUp = coord.y;
@@ -258,7 +257,6 @@ std::vector<Types::Coord> PieceLogic::getElephantMoves(Types::Coord coord, char 
 {
     auto boardState = chessboard.getBoardState();
     std::vector<Types::Coord> moves;
-    char enemy = (player == 'w') ? 'b' : 'w';
 
     std::vector<Types::Coord> possibleMoves = {
         {coord.x - 2, coord.y + 2}, // down left
@@ -284,7 +282,6 @@ std::vector<Types::Coord> PieceLogic::getVizierMoves(Types::Coord coord, char pl
 {
     auto boardState = chessboard.getBoardState();
     std::vector<Types::Coord> moves;
-    char enemy = (player == 'w') ? 'b' : 'w';
 
     std::vector<Types::Coord> possibleMoves = {
         {coord.x - 1, coord.y + 1}, // left down
@@ -310,7 +307,6 @@ std::vector<Types::Coord> PieceLogic::getKhanMoves(Types::Coord coord, char play
 {
     auto boardState = chessboard.getBoardState();
     std::vector<Types::Coord> moves;
-    char enemy = (player == 'w') ? 'b' : 'w';
 
     std::vector<Types::Coord> possibleMoves = {
         {coord.x, coord.y - 1},     // up
@@ -340,7 +336,6 @@ std::vector<Types::Coord> PieceLogic::getWarEngineMoves(Types::Coord coord, char
 {
     auto boardState = chessboard.getBoardState();
     std::vector<Types::Coord> moves;
-    char enemy = (player == 'w') ? 'b' : 'w';
 
     std::vector<Types::Coord> possibleMoves = {
         {coord.x, coord.y - 2}, // up
@@ -366,7 +361,6 @@ std::vector<Types::Coord> PieceLogic::getAdminMoves(Types::Coord coord, char pla
 {
     auto boardState = chessboard.getBoardState();
     std::vector<Types::Coord> moves;
-    char enemy = (player == 'w') ? 'b' : 'w';
 
     std::vector<Types::Coord> possibleMoves = {
         {coord.x, coord.y - 1}, // up
@@ -392,7 +386,6 @@ std::vector<Types::Coord> PieceLogic::getMongolMoves(Types::Coord coord, char pl
 {
     auto boardState = chessboard.getBoardState();
     std::vector<Types::Coord> moves;
-    char enemy = (player == 'w') ? 'b' : 'w';
 
     std::vector<Types::Coord> possibleMoves = {
         {coord.x + 1, coord.y + 2},
@@ -421,7 +414,6 @@ std::vector<Types::Coord> PieceLogic::getCamelMoves(Types::Coord coord, char pla
 {
     auto boardState = chessboard.getBoardState();
     std::vector<Types::Coord> moves;
-    char enemy = (player == 'w') ? 'b' : 'w';
 
     std::vector<Types::Coord> possibleMoves = {
         {coord.x + 1, coord.y + 3},
@@ -481,21 +473,21 @@ std::vector<Types::Coord> PieceLogic::getGiraffeMoves(Types::Coord coord, char p
         }
 
         // Function to add possible moves if path is not blocked
-        auto addMoves = [&](Types::Coord move, bool blocked)
-        {
-            if (!blocked && chessboard.isValidCoord(move))
-            {
-                std::string target = chessboard.getPiece(move);
-                if (target == "---")
-                {
-                    moves.push_back(move);
-                }
-                else if (target[0] == enemy)
-                {
-                    moves.push_back(move);
-                }
-            }
-        };
+        // auto addMoves = [&](Types::Coord move, bool blocked)
+        // {
+        //     if (!blocked && chessboard.isValidCoord(move))
+        //     {
+        //         std::string target = chessboard.getPiece(move);
+        //         if (target == "---")
+        //         {
+        //             moves.push_back(move);
+        //         }
+        //         else if (target[0] == enemy)
+        //         {
+        //             moves.push_back(move);
+        //         }
+        //     }
+        // };
 
         // Explore horizontal moves after the diagonalMove
         if (!blockedHorizontal)
@@ -605,7 +597,6 @@ std::vector<Types::Coord> PieceLogic::getAltWarEngineMoves(Types::Coord coord, c
 {
     auto boardState = chessboard.getBoardState();
     std::vector<Types::Coord> moves;
-    char enemy = (player == 'w') ? 'b' : 'w';
 
     std::vector<Types::Coord> possibleMoves = {
         {coord.x, coord.y - 2},     // up
@@ -635,7 +626,6 @@ std::vector<Types::Coord> PieceLogic::getAltElephantMoves(Types::Coord coord, ch
 {
     auto boardState = chessboard.getBoardState();
     std::vector<Types::Coord> moves;
-    char enemy = (player == 'w') ? 'b' : 'w';
 
     std::vector<Types::Coord> possibleMoves = {
         {coord.x, coord.y - 1},     // up
@@ -665,7 +655,6 @@ std::vector<Types::Coord> PieceLogic::getAltVizierMoves(Types::Coord coord, char
 {
     auto boardState = chessboard.getBoardState();
     std::vector<Types::Coord> moves;
-    char enemy = (player == 'w') ? 'b' : 'w';
 
     std::vector<Types::Coord> possibleMoves = {
         {coord.x - 1, coord.y + 1}, // left down
@@ -695,7 +684,6 @@ std::vector<Types::Coord> PieceLogic::getAltAdminMoves(Types::Coord coord, char 
 {
     auto boardState = chessboard.getBoardState();
     std::vector<Types::Coord> moves;
-    char enemy = (player == 'w') ? 'b' : 'w';
 
     std::vector<Types::Coord> possibleMoves = {
         {coord.x, coord.y - 1}, // up
