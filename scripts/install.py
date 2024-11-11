@@ -15,7 +15,27 @@ os.makedirs(build_dir, exist_ok=True)
 os.chdir(build_dir)
 
 # Run CMake and build
-subprocess.run(["cmake", "..", "-DCMAKE_BUILD_TYPE=Release"], check=True)
+if platform.system() == "Windows":
+    # Add SFML_DIR to help CMake find SFML
+    sfml_dir = os.path.abspath(os.path.join("..", "external", "SFML-Windows"))
+    
+    # Remove any existing CMakeCache.txt to ensure clean configuration
+    cache_file = os.path.join(os.getcwd(), "CMakeCache.txt")
+    if os.path.exists(cache_file):
+        os.remove(cache_file)
+    
+    subprocess.run(["cmake", "..", 
+                   "-DCMAKE_BUILD_TYPE=Release",
+                   f"-DSFML_DIR={sfml_dir}",
+                   "-DSFML_STATIC_LIBRARIES=TRUE",
+                   "-DSFML_USE_STATIC_STD_LIBS=TRUE",
+                   "-DBUILD_SHARED_LIBS=FALSE"], check=True)
+    
+    # Clean the build directory first
+    subprocess.run(["cmake", "--build", ".", "--target", "clean"], check=True)
+else:
+    subprocess.run(["cmake", "..", "-DCMAKE_BUILD_TYPE=Release"], check=True)
+
 subprocess.run(["cmake", "--build", ".", "--config", "Release"], check=True)
 
 # Copy executable to install directory

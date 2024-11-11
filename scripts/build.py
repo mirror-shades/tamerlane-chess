@@ -1,0 +1,127 @@
+# this runs the cmake build to create the proper build 
+# then runs the Tamerlane-Chess executable in the build dir
+
+import subprocess
+import os
+import sys
+import shutil
+
+
+def run_cmake_build():    
+    # Create build directory if it doesn't exist
+    if os.path.exists("build"):
+        print("Removing existing build directory")
+        shutil.rmtree("build", ignore_errors=True)
+        
+    os.makedirs("build")
+
+    print("Creating build directory")
+
+    # Change to build directory
+    os.chdir("build")
+    
+    print("Running cmake")
+    try:
+        # Run cmake with MinGW Makefiles generator
+        subprocess.run(["cmake", "..", "-G", "MinGW Makefiles"], check=True)
+        
+        # Build using cmake --build
+        subprocess.run(["cmake", "--build", "."], check=True)
+    except Exception as e:
+        print(f"CMake build failed: {str(e)}")
+        sys.exit(1)
+    
+    os.chdir("..")
+    print("Build complete")
+
+def run_executable():
+    # Run the executable from the build directory
+    print("Running executable")
+    try:
+        subprocess.run(["./build/Tamerlane-Chess.exe"], check=True)
+    except Exception as e:
+        print(f"Executable failed to run: {str(e)}")
+        sys.exit(1)
+
+def run_install(path):
+    print(f"Installing from build directory to {path}/Tamerlane-Chess")
+    # check if the path exists
+    if not os.path.exists(path):
+        print(f"Error: Path {path} does not exist")
+        sys.exit(1)
+    
+    #check if the Tamerlane-Chess directory exists
+    if os.path.exists(os.path.join(path, "Tamerlane-Chess")):
+        #ask to overwrite
+        overwrite = input(f"Tamerlane-Chess directory already exists in {path}. Overwrite? (y/N): ")
+        if overwrite.lower() != "y":
+            print("Installation cancelled.")
+            sys.exit(1)
+        else:
+            shutil.rmtree(os.path.join(path, "Tamerlane-Chess"))
+    
+    try:    
+        # Create the target directory first
+        print("Creating Tamerlane-Chess directory")
+        os.makedirs(os.path.join(path, "Tamerlane-Chess"), exist_ok=True)
+        
+        # Could use a list of files to make maintenance easier
+        files_to_copy = [
+            "Tamerlane-Chess.exe",
+            "libsfml-audio.dll",
+            "libsfml-graphics.dll",
+            "libsfml-window.dll",
+            "libsfml-system.dll",
+            "openal32.dll"
+        ]
+        
+        print("Copying files to Tamerlane-Chess directory")
+        for file in files_to_copy:
+            print(f"Copying {file}")
+            shutil.copy(f"build/{file}", os.path.join(path, "Tamerlane-Chess"))
+        #copy the assets folder 
+        print("Copying assets folder")
+        shutil.copytree("build/assets", os.path.join(path, "Tamerlane-Chess/assets"))
+    except Exception as e:
+        print(f"Error during installation: {str(e)}")
+        #remove the Tamerlane-Chess directory if it exists
+        if os.path.exists(os.path.join(path, "Tamerlane-Chess")):
+            shutil.rmtree(os.path.join(path, "Tamerlane-Chess"))
+        sys.exit(1)
+
+    print(f"Installation complete. Tamerlane-Chess executable is in {path}/Tamerlane-Chess")
+    
+
+
+def main():
+    runAfterBuild = False
+    install = False
+    installPath = ""
+    if len(sys.argv) > 1 and sys.argv[1] == "run":
+        runAfterBuild = True
+    elif len(sys.argv) > 1 and sys.argv[1] == "install":
+        install = True
+        if not len(sys.argv) > 2:
+            print("Error: No path provided for installation")
+            print("Install to current directory? (y/n):     ")
+            if input().lower() != "y":
+                sys.exit(1)
+            else:
+                installPath = os.getcwd()
+        else:
+            installPath = sys.argv[2]
+    try:
+        run_cmake_build()
+        if runAfterBuild:
+            run_executable()
+        if install and installPath != "":
+            run_install(installPath)
+    except subprocess.CalledProcessError as e:
+        print(f"Error: Build or execution failed with error code {e.returncode}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

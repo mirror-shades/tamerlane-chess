@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
 project(Tamerlane-Chess)
 
+# Set default build type to Release
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -28,7 +33,7 @@ elseif(UNIX AND NOT APPLE)
 endif()
 
 # Find SFML packages
-find_package(SFML 2.5 COMPONENTS system window graphics audio REQUIRED)
+find_package(SFML 2.6.1 COMPONENTS system window graphics audio REQUIRED)
 
 # Collect all source files
 set(SOURCES 
@@ -55,35 +60,66 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 # Add Windows-specific DLL copying
 if(WIN32)
+    # Get the configuration type (Debug/Release)
+    if(CMAKE_BUILD_TYPE)
+        string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_UPPER)
+    endif()
+
+    # Determine which DLLs to copy based on configuration
+    if(CMAKE_BUILD_TYPE_UPPER STREQUAL "DEBUG")
+        set(SFML_DLL_SUFFIX "-d-2.dll")
+    else()
+        set(SFML_DLL_SUFFIX "-2.dll")
+    endif()
+
     # Add commands to copy DLLs to output directory
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/sfml-system-2.dll"
-            "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/sfml-window-2.dll"
-            "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/sfml-graphics-2.dll"
-            "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/sfml-audio-2.dll"
+            "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/sfml-system${SFML_DLL_SUFFIX}"
+            "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/sfml-window${SFML_DLL_SUFFIX}"
+            "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/sfml-graphics${SFML_DLL_SUFFIX}"
+            "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/sfml-audio${SFML_DLL_SUFFIX}"
             "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/openal32.dll"
             $<TARGET_FILE_DIR:${PROJECT_NAME}>
     )
-
-    # Copy debug DLLs if in debug configuration
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/sfml-system-d-2.dll"
-                "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/sfml-window-d-2.dll"
-                "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/sfml-graphics-d-2.dll"
-                "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/sfml-audio-d-2.dll"
-                $<TARGET_FILE_DIR:${PROJECT_NAME}>
-        )
-    endif()
 endif()
 
-# Add include directories
-target_include_directories(${PROJECT_NAME} PRIVATE 
-    ${CMAKE_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}/external/SFML-Linux/include
-)
+# Copy SFML DLLs for MinGW
+if(WIN32 AND MINGW)
+    # Copy the required DLLs to the build directory
+    file(COPY 
+        "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/sfml-system-2.dll"
+        "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/sfml-window-2.dll"
+        "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/sfml-graphics-2.dll"
+        "${CMAKE_SOURCE_DIR}/external/SFML-Windows/bin/sfml-audio-2.dll"
+        DESTINATION ${CMAKE_BINARY_DIR}
+    )
+endif()
+
+# Add include directories - corrected for each platform
+if(WIN32)
+    target_include_directories(${PROJECT_NAME} PRIVATE 
+        ${CMAKE_SOURCE_DIR}/include
+        ${CMAKE_SOURCE_DIR}/external/SFML-Windows/include
+    )
+elseif(APPLE)
+    if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
+        target_include_directories(${PROJECT_NAME} PRIVATE 
+            ${CMAKE_SOURCE_DIR}/include
+            ${CMAKE_SOURCE_DIR}/external/SFML-Mac-ARM64/include
+        )
+    else()
+        target_include_directories(${PROJECT_NAME} PRIVATE 
+            ${CMAKE_SOURCE_DIR}/include
+            ${CMAKE_SOURCE_DIR}/external/SFML-Mac/include
+        )
+    endif()
+else()
+    target_include_directories(${PROJECT_NAME} PRIVATE 
+        ${CMAKE_SOURCE_DIR}/include
+        ${CMAKE_SOURCE_DIR}/external/SFML-Linux/include
+    )
+endif()
 
 # Enable warnings
 if(MSVC)
