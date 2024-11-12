@@ -68,6 +68,18 @@ private:
 
     void initialize()
     {
+        // Load window icon
+        sf::Image icon;
+        if (icon.loadFromFile("assets/images/icon.png"))
+        {
+            window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
+        }
+        else
+        {
+            // Handle error
+            std::cerr << "Failed to load icon.png" << std::endl;
+        }
+
         render.drawBackground(window);
         State::images = render.loadImages(window);
         utility.initializeSounds();

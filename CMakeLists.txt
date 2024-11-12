@@ -47,8 +47,26 @@ set(SOURCES
     src/utility.cpp
 )
 
+# Include the resource file when compiling on Windows
+if(WIN32)
+    set(RESOURCE_FILE assets/resources.rc)
+    # Add resource compiler flags for MinGW
+    if(MINGW)
+        enable_language(RC)
+        set(CMAKE_RC_COMPILER_INIT windres)
+        set(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> <FLAGS> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>")
+    endif()
+    # Add the resource file to the sources
+    list(APPEND SOURCES ${RESOURCE_FILE})
+endif()
+
 # Add executable with all source files
-add_executable(${PROJECT_NAME} ${SOURCES})
+# Use WIN32 keyword on Windows to prevent console window
+if(WIN32)
+    add_executable(${PROJECT_NAME} WIN32 ${SOURCES})
+else()
+    add_executable(${PROJECT_NAME} ${SOURCES})
+endif()
 
 # Link SFML libraries
 target_link_libraries(${PROJECT_NAME} PRIVATE 
