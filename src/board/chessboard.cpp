@@ -8,7 +8,7 @@ Chessboard chessboard;
 #include <string>
 #include <iostream>
 
-void Chessboard::setBoard(const std::array<std::array<std::string, 11>, 10> &newBoard)
+void Chessboard::setBoard(const std::array<std::array<Types::Piece, 11>, 10> &newBoard)
 {
     chessboard = newBoard;
 }
@@ -60,12 +60,12 @@ void Chessboard::setThirdBoard()
                    {"wEl", "---", "wCa", "---", "wAd", "wKa", "wVi", "---", "wCa", "---", "wEl"}}};
 }
 
-const std::array<std::array<std::string, Chessboard::cols>, Chessboard::rows> &Chessboard::getBoardState() const
+const std::array<std::array<Types::Piece, Chessboard::cols>, Chessboard::rows> &Chessboard::getBoardState() const
 {
     return chessboard;
 }
 
-const std::string Chessboard::getPiece(Types::Coord coord) const
+const Types::Piece Chessboard::getPiece(Types::Coord coord) const
 {
     if (isValidCoord(coord))
     {
@@ -74,7 +74,7 @@ const std::string Chessboard::getPiece(Types::Coord coord) const
     return "Invalid"; // or handle the invalid case appropriately
 }
 
-void Chessboard::setCell(Types::Coord coord, const std::string &value)
+void Chessboard::setCell(Types::Coord coord, const Types::Piece &value)
 {
     if (isValidCoord(coord))
     {
@@ -93,7 +93,7 @@ void Chessboard::printBoard() const
     {
         for (const auto &cell : row)
         {
-            std::cout << cell << " ";
+            std::cout << cell.code << " ";
         }
         std::cout << std::endl;
     }

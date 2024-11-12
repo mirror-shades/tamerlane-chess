@@ -1,4 +1,12 @@
-// Include necessary headers
+// Copyright 2024. mirror-shades. GPL-2.0 License.
+#include <string>
+#include <vector>
+#include <iostream>
+#include <map>
+#include <sstream>
+#include <iomanip>
+#include <filesystem>
+#include <algorithm>
 #include "render.h"
 #include "chessboard.h"
 #include "gameLogic.h"
@@ -8,13 +16,6 @@
 #include "ai.h"
 #include "state.h"
 #include <SFML/Graphics.hpp>
-#include <string>
-#include <vector>
-#include <iostream>
-#include <map>
-#include <sstream>
-#include <iomanip>
-#include <filesystem>
 
 // Colors for the chess board and piece highlighting
 sf::Color colour1 = sf::Color(0xE5E5E5ff);
@@ -33,11 +34,12 @@ const sf::Color exitButtonColor = sf::Color::Red;
 const sf::Color exitXColor = sf::Color::Black;
 
 // Draw button
-sf::RectangleShape drawButton(sf::Vector2f(Chessboard::squareSize, Chessboard::squareSize));
+sf::RectangleShape drawButton(
+    sf::Vector2f(Chessboard::squareSize, Chessboard::squareSize));
 sf::Text drawButtonText;
 
-// ai settings
-int aiDifficulty = 2; // Default difficulty
+// ai settings, default difficulty is 2
+int aiDifficulty = 2;
 sf::RectangleShape slider;
 sf::CircleShape sliderHandle;
 
@@ -57,7 +59,8 @@ std::string Render::findAssetsPath(const std::string &filename)
 {
     std::filesystem::path currentPath = std::filesystem::current_path();
     std::filesystem::path pathParallel = currentPath / "assets" / filename;
-    std::filesystem::path pathOneLevelAbove = currentPath.parent_path() / "assets" / filename;
+    std::filesystem::path pathOneLevelAbove =
+        currentPath.parent_path() / "assets" / filename;
 
     if (std::filesystem::exists(pathParallel))
     {
@@ -72,7 +75,11 @@ std::string Render::findAssetsPath(const std::string &filename)
 }
 
 // Initialize piece movement animation
-void Render::startAnimation(std::string piece, Types::Coord start, Types::Coord end, float duration)
+void Render::startAnimation(
+    std::string piece,
+    Types::Coord start,
+    Types::Coord end,
+    float duration)
 {
     animation.isActive = true;
     State::animationActive = true;
@@ -84,7 +91,10 @@ void Render::startAnimation(std::string piece, Types::Coord start, Types::Coord 
 }
 
 // Calculate intermediate position for smooth animation
-sf::Vector2f Render::interpolate(sf::Vector2f startPos, sf::Vector2f endPos, float t)
+sf::Vector2f Render::interpolate(
+    sf::Vector2f startPos,
+    sf::Vector2f endPos,
+    float t)
 {
     return startPos + t * (endPos - startPos);
 }
@@ -104,10 +114,15 @@ void Render::updateAnimations()
 }
 
 // Highlight a single square
-void Render::highlightSquare(sf::RenderWindow &window, const Types::Coord &coord)
+void Render::highlightSquare(
+    sf::RenderWindow &window,
+    const Types::Coord &coord)
 {
-    sf::RectangleShape square(sf::Vector2f(Chessboard::squareSize, Chessboard::squareSize));
-    square.setPosition((coord.x + 1) * Chessboard::squareSize, coord.y * Chessboard::squareSize);
+    sf::RectangleShape square(
+        sf::Vector2f(Chessboard::squareSize, Chessboard::squareSize));
+    square.setPosition(
+        (coord.x + 1) * Chessboard::squareSize,
+        coord.y * Chessboard::squareSize);
     square.setFillColor(colourMove);
     window.draw(square);
 }
@@ -117,11 +132,17 @@ void Render::highlightSquares(sf::RenderWindow &window)
 {
     highlightSquare(window, State::selectedSquare);
 
-    if (State::selectedPiece == "wKa" && (State::selectedSquare == Types::Coord{0, 0} || State::selectedSquare == Types::Coord{0, 1} || State::selectedSquare == Types::Coord{0, 2}))
+    if (State::selectedPiece == "wKa" &&
+        (State::selectedSquare == Types::Coord{0, 0} ||
+         State::selectedSquare == Types::Coord{0, 1} ||
+         State::selectedSquare == Types::Coord{0, 2}))
     {
         highlightSquare(window, {-1, 1});
     }
-    if (State::selectedPiece == "bKa" && (State::selectedSquare == Types::Coord{10, 9} || State::selectedSquare == Types::Coord{10, 8} || State::selectedSquare == Types::Coord{10, 7}))
+    if (State::selectedPiece == "bKa" &&
+        (State::selectedSquare == Types::Coord{10, 9} ||
+         State::selectedSquare == Types::Coord{10, 8} ||
+         State::selectedSquare == Types::Coord{10, 7}))
     {
         highlightSquare(window, {11, 8});
     }
@@ -133,12 +154,18 @@ void Render::highlightSquares(sf::RenderWindow &window)
 }
 
 // Highlight king if in check
-void Render::highlightKing(sf::RenderWindow &window, Types::Coord kingPosition, bool isInCheck)
+void Render::highlightKing(
+    sf::RenderWindow &window,
+    Types::Coord kingPosition,
+    bool isInCheck)
 {
     if (isInCheck)
     {
-        sf::RectangleShape square(sf::Vector2f(Chessboard::squareSize, Chessboard::squareSize));
-        square.setPosition((kingPosition.x + 1) * Chessboard::squareSize, kingPosition.y * Chessboard::squareSize);
+        sf::RectangleShape square(
+            sf::Vector2f(Chessboard::squareSize, Chessboard::squareSize));
+        square.setPosition(
+            (kingPosition.x + 1) * Chessboard::squareSize,
+            kingPosition.y * Chessboard::squareSize);
         square.setFillColor(sf::Color::Red);
         window.draw(square);
     }
@@ -151,7 +178,8 @@ void Render::drawExitButton(sf::RenderWindow &window)
     exitButton.setFillColor(exitButtonColor);
 
     // Position the button in the middle of the top-right square
-    float xPos = window.getSize().x - Chessboard::squareSize + (Chessboard::squareSize - exitButtonSize) / 2.0f;
+    float xPos = window.getSize().x - Chessboard::squareSize +
+                 (Chessboard::squareSize - exitButtonSize) / 2.0f;
     float yPos = (Chessboard::squareSize - exitButtonSize) / 2.0f;
     exitButton.setPosition(xPos, yPos);
 
@@ -174,7 +202,9 @@ void Render::drawExitButton(sf::RenderWindow &window)
     sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
-        if (exitButton.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
+        if (exitButton.getGlobalBounds().contains(
+                mousePosition.x,
+                mousePosition.y))
         {
             utility->exitToMenu();
         }
@@ -184,21 +214,26 @@ void Render::drawExitButton(sf::RenderWindow &window)
 // Draw the Tamerlane Chess board
 void Render::drawBoard(sf::RenderWindow &window)
 {
-    sf::RectangleShape square(sf::Vector2f(Chessboard::squareSize, Chessboard::squareSize));
+    sf::RectangleShape square(
+        sf::Vector2f(Chessboard::squareSize, Chessboard::squareSize));
 
     // Draw main 10x11 board
     for (int row = 0; row < 10; ++row)
     {
         for (int col = 0; col < 11; ++col)
         {
-            square.setPosition((col + 1) * Chessboard::squareSize, row * Chessboard::squareSize);
+            square.setPosition(
+                (col + 1) * Chessboard::squareSize,
+                row * Chessboard::squareSize);
             square.setFillColor((row + col) % 2 != 0 ? colour1 : colour2);
             window.draw(square);
         }
     }
 
     // Draw Left Fortress (unique to Tamerlane Chess)
-    square.setSize(sf::Vector2f(Chessboard::squareSize, Chessboard::squareSize));
+    square.setSize(sf::Vector2f(
+        Chessboard::squareSize,
+        Chessboard::squareSize));
     square.setPosition(0, Chessboard::squareSize);
     square.setFillColor(colour2);
     window.draw(square);
@@ -210,7 +245,9 @@ void Render::drawBoard(sf::RenderWindow &window)
 }
 
 // Draw chess pieces on the board
-void Render::drawPieces(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages)
+void Render::drawPieces(
+    sf::RenderWindow &window,
+    const std::map<std::string, sf::Sprite> &pieceImages)
 {
     auto boardState = chessboard.getBoardState();
 
@@ -218,22 +255,32 @@ void Render::drawPieces(sf::RenderWindow &window, const std::map<std::string, sf
     {
         for (int col = 0; col < Chessboard::cols; ++col)
         {
-            std::string piece = boardState[row][col];
+            std::string piece = boardState[row][col].toString();
             if (piece != "---")
             {
                 sf::Sprite sprite = pieceImages.at(piece);
-                if (animation.isActive && animation.piece == piece && animation.end.x == col && animation.end.y == row)
+                if (animation.isActive &&
+                    animation.piece == piece &&
+                    animation.end.x == col &&
+                    animation.end.y == row)
                 {
-                    float elapsedTime = animation.clock.getElapsedTime().asSeconds();
+                    float elapsedTime =
+                        animation.clock.getElapsedTime().asSeconds();
                     float t = elapsedTime / animation.duration;
-                    sf::Vector2f startPos((animation.start.x + 1) * Chessboard::squareSize, animation.start.y * Chessboard::squareSize);
-                    sf::Vector2f endPos((animation.end.x + 1) * Chessboard::squareSize, animation.end.y * Chessboard::squareSize);
+                    sf::Vector2f startPos(
+                        (animation.start.x + 1) * Chessboard::squareSize,
+                        animation.start.y * Chessboard::squareSize);
+                    sf::Vector2f endPos(
+                        (animation.end.x + 1) * Chessboard::squareSize,
+                        animation.end.y * Chessboard::squareSize);
                     sf::Vector2f currentPos = interpolate(startPos, endPos, t);
                     sprite.setPosition(currentPos);
                 }
                 else
                 {
-                    sprite.setPosition((col + 1) * Chessboard::squareSize, row * Chessboard::squareSize);
+                    sprite.setPosition(
+                        (col + 1) * Chessboard::squareSize,
+                        row * Chessboard::squareSize);
                 }
                 window.draw(sprite);
             }
@@ -244,7 +291,8 @@ void Render::drawPieces(sf::RenderWindow &window, const std::map<std::string, sf
 // Tint screen
 void Render::tintScreen(sf::RenderWindow &window)
 {
-    sf::RectangleShape square(sf::Vector2f(Chessboard::squareSize * 13, Chessboard::squareSize * 13));
+    sf::RectangleShape square(
+        sf::Vector2f(Chessboard::squareSize * 13, Chessboard::squareSize * 13));
     square.setPosition(0, 0);
     square.setFillColor(sf::Color(0x00000088));
     window.draw(square);
@@ -271,11 +319,6 @@ void Render::winScreen(sf::RenderWindow &window)
             assetPath = findAssetsPath("images/draw.png");
         }
 
-        if (!State::ended) // debugging
-        {
-            std::cout << "Winner: " << State::winner << ", Loading asset: " << assetPath << std::endl;
-        }
-
         if (!texture.loadFromFile(assetPath))
         {
             std::cerr << "Error loading win screen: " << assetPath << std::endl;
@@ -300,13 +343,15 @@ void Render::winScreen(sf::RenderWindow &window)
         // Create menu button
         sf::RectangleShape menuButton = Utility::createButton(
             sf::Vector2f(150, 50),
-            sf::Vector2f((window.getSize().x / 2) - 160, (window.getSize().y / 2) + 100),
+            sf::Vector2f((window.getSize().x / 2) - 160,
+                         (window.getSize().y / 2) + 100),
             sf::Color::White);
 
         // Create analysis button
         sf::RectangleShape analysisButton = Utility::createButton(
             sf::Vector2f(150, 50),
-            sf::Vector2f((window.getSize().x / 2) + 10, (window.getSize().y / 2) + 100),
+            sf::Vector2f((window.getSize().x / 2) + 10,
+                         (window.getSize().y / 2) + 100),
             sf::Color::White);
 
         // Draw buttons
@@ -369,9 +414,11 @@ std::map<std::string, sf::Sprite> Render::loadImages(sf::RenderWindow &window)
     for (const auto &piece : pieces)
     {
         sf::Texture texture;
-        if (!texture.loadFromFile(findAssetsPath("images/pieces/" + piece + ".png")))
+        if (!texture.loadFromFile(
+                findAssetsPath("images/pieces/" + piece + ".png")))
         {
-            std::cerr << "Error loading image: " << piece << ".png" << std::endl;
+            std::cerr << "Error loading image: " << piece << ".png"
+                      << std::endl;
             continue;
         }
 
@@ -390,12 +437,16 @@ std::map<std::string, sf::Sprite> Render::loadImages(sf::RenderWindow &window)
     return images;
 }
 
-void Render::drawSlider(sf::RenderWindow &window, sf::Font &font)
+void Render::drawSlider(
+    sf::RenderWindow &window,
+    sf::Font &font)
 {
     // Slider background
     slider.setSize(sf::Vector2f(200, 5));
     slider.setFillColor(sf::Color(150, 150, 150));
-    slider.setPosition((window.getSize().x - slider.getSize().x) / 2, window.getSize().y / 2 + 25);
+    slider.setPosition(
+        (window.getSize().x - slider.getSize().x) / 2,
+        window.getSize().y / 2 + 25);
     window.draw(slider);
 
     // Slider handle
@@ -403,8 +454,13 @@ void Render::drawSlider(sf::RenderWindow &window, sf::Font &font)
     sliderHandle.setFillColor(sf::Color::White);
     sliderHandle.setOutlineThickness(2);
     sliderHandle.setOutlineColor(sf::Color::Black);
-    float handleX = slider.getPosition().x + (aiDifficulty - 1) * (slider.getSize().x / 9);
-    sliderHandle.setPosition(handleX - sliderHandle.getRadius(), slider.getPosition().y - sliderHandle.getRadius() + slider.getSize().y / 2);
+    float handleX = slider.getPosition().x + (aiDifficulty - 1) *
+                                                 (slider.getSize().x / 9);
+    sliderHandle.setPosition(
+        handleX - sliderHandle.getRadius(),
+        slider.getPosition().y -
+            sliderHandle.getRadius() +
+            slider.getSize().y / 2);
     window.draw(sliderHandle);
 
     // Difficulty text
@@ -415,14 +471,17 @@ void Render::drawSlider(sf::RenderWindow &window, sf::Font &font)
     std::stringstream ss;
     ss << "AI Difficulty: " << aiDifficulty;
     difficultyText.setString(ss.str());
-    difficultyText.setPosition((window.getSize().x - difficultyText.getLocalBounds().width) / 2, slider.getPosition().y - 40);
+    difficultyText.setPosition(
+        (window.getSize().x - difficultyText.getLocalBounds().width) / 2,
+        slider.getPosition().y - 40);
     window.draw(difficultyText);
 }
 
 // Menu screen
 void Render::drawMenuScreen(sf::RenderWindow &window)
 {
-    if (State::state == State::GameState::Menu || State::state == State::GameState::AIOptions)
+    if (State::state == State::GameState::Menu ||
+        State::state == State::GameState::AIOptions)
     {
         tintScreen(window);
         sf::Texture titleTexture;
@@ -435,18 +494,25 @@ void Render::drawMenuScreen(sf::RenderWindow &window)
             titleTexture.setSmooth(false);
 
             // Calculate the scale to fit the window width
-            float scale = window.getSize().x / static_cast<float>(titleTexture.getSize().x);
+            float scale = window.getSize().x /
+                          static_cast<float>(titleTexture.getSize().x);
             titleSprite.setScale(scale, scale);
 
-            // Center the sprite horizontally and position it at 1/4 of the window height
-            float xPos = 0; // No need to calculate, as we're scaling to fit the width
-            float yPos = (window.getSize().y - titleTexture.getSize().y * scale) / 4.0f;
+            // Center the sprite horizontally and position
+            // at 1/4 of window height
+            // No need to calculate xPos, as we're scaling to fit width
+            float xPos = 0;
+            float yPos = (window.getSize().y -
+                          titleTexture.getSize().y * scale) /
+                         4.0f;
 
             titleSprite.setPosition(xPos, yPos);
 
             // Use integer rounding for position to avoid subpixel rendering
             sf::Vector2f position = titleSprite.getPosition();
-            titleSprite.setPosition(static_cast<int>(position.x + 0.5f), static_cast<int>(position.y + 0.5f));
+            titleSprite.setPosition(
+                static_cast<int>(position.x + 0.5f),
+                static_cast<int>(position.y + 0.5f));
 
             window.draw(titleSprite);
         }
@@ -461,62 +527,74 @@ void Render::drawMenuScreen(sf::RenderWindow &window)
         static bool isMascHighlighted = true;
         static bool isFemHighlighted = false;
         static bool isThirdHighlighted = false;
-        static bool wasMousePressed = false; // Track previous mouse button state
+        // Track previous mouse button state
+        static bool wasMousePressed = false;
 
         // Create buttons
         sf::RectangleShape aiButton = Utility::createButton(
             sf::Vector2f(200, 50),
-            sf::Vector2f((window.getSize().x - 500) / 2 - 75, window.getSize().y / 2 - 100),
+            sf::Vector2f((window.getSize().x - 500) / 2 - 75,
+                         window.getSize().y / 2 - 100),
             sf::Color::White);
 
         sf::RectangleShape aiVsAiButton = Utility::createButton(
             sf::Vector2f(200, 50),
-            sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 - 100),
+            sf::Vector2f((window.getSize().x) / 2 - 100,
+                         window.getSize().y / 2 - 100),
             sf::Color::White);
 
         sf::RectangleShape pvpButton = Utility::createButton(
             sf::Vector2f(200, 50),
-            sf::Vector2f((window.getSize().x) / 2 + 125, window.getSize().y / 2 - 100),
+            sf::Vector2f((window.getSize().x) / 2 + 125,
+                         window.getSize().y / 2 - 100),
             sf::Color::White);
 
         sf::RectangleShape masc = Utility::createButton(
             sf::Vector2f(200, 50),
-            sf::Vector2f((window.getSize().x - 500) / 2 - 75, window.getSize().y / 2 - 25),
+            sf::Vector2f((window.getSize().x - 500) / 2 - 75,
+                         window.getSize().y / 2 - 25),
             isMascHighlighted ? colourSelected : sf::Color::White);
 
         sf::RectangleShape fem = Utility::createButton(
             sf::Vector2f(200, 50),
-            sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 - 25),
+            sf::Vector2f((window.getSize().x) / 2 - 100,
+                         window.getSize().y / 2 - 25),
             isFemHighlighted ? colourSelected : sf::Color::White);
 
         sf::RectangleShape third = Utility::createButton(
             sf::Vector2f(200, 50),
-            sf::Vector2f((window.getSize().x) / 2 + 125, window.getSize().y / 2 - 25),
+            sf::Vector2f((window.getSize().x) / 2 + 125,
+                         window.getSize().y / 2 - 25),
             isThirdHighlighted ? colourSelected : sf::Color::White);
 
         sf::RectangleShape blitz = Utility::createButton(
             sf::Vector2f(200, 50),
-            sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 + 50),
+            sf::Vector2f((window.getSize().x) / 2 - 100,
+                         window.getSize().y / 2 + 50),
             State::alt ? colourSelected : sf::Color::White);
 
         sf::RectangleShape aiBlackButton = Utility::createButton(
             sf::Vector2f(200, 50),
-            sf::Vector2f((window.getSize().x) / 2 + 50, window.getSize().y / 2 - 100),
+            sf::Vector2f((window.getSize().x) / 2 + 50,
+                         window.getSize().y / 2 - 100),
             isPlayAsBlackHighlighted ? colourSelected : sf::Color::White);
 
         sf::RectangleShape aiWhiteButton = Utility::createButton(
             sf::Vector2f(200, 50),
-            sf::Vector2f((window.getSize().x) / 2 - 250, window.getSize().y / 2 - 100),
+            sf::Vector2f((window.getSize().x) / 2 - 250,
+                         window.getSize().y / 2 - 100),
             isPlayAsWhiteHighlighted ? colourSelected : sf::Color::White);
 
         sf::RectangleShape aiPlayButton = Utility::createButton(
             sf::Vector2f(200, 50),
-            sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 + 75),
+            sf::Vector2f((window.getSize().x) / 2 - 100,
+                         window.getSize().y / 2 + 75),
             sf::Color::White);
 
         sf::RectangleShape backButton = Utility::createButton(
             sf::Vector2f(200, 50),
-            sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 + 150),
+            sf::Vector2f((window.getSize().x) / 2 - 100,
+                         window.getSize().y / 2 + 150),
             sf::Color::White);
 
         // Create button texts
@@ -529,27 +607,72 @@ void Render::drawMenuScreen(sf::RenderWindow &window)
         // Draw buttons and texts
         if (State::state == State::GameState::Menu)
         {
-            Utility::drawButton(window, pvpButton, "Player vs Player", font, 20);
-            Utility::drawButton(window, aiButton, "Player vs AI", font, 20);
-            Utility::drawButton(window, aiVsAiButton, "AI vs AI", font, 20);
-            Utility::drawButton(window, masc, "Masc", font, 20);
-            Utility::drawButton(window, fem, "Fem", font, 20);
-            Utility::drawButton(window, third, "Third", font, 20);
-            Utility::drawButton(window, blitz, "Blitz", font, 20);
+            Utility::drawButton(window,
+                                pvpButton,
+                                "Player vs Player",
+                                font,
+                                20);
+            Utility::drawButton(window,
+                                aiButton,
+                                "Player vs AI",
+                                font,
+                                20);
+            Utility::drawButton(window,
+                                aiVsAiButton,
+                                "AI vs AI",
+                                font,
+                                20);
+            Utility::drawButton(window,
+                                masc,
+                                "Masc",
+                                font,
+                                20);
+            Utility::drawButton(window,
+                                fem,
+                                "Fem",
+                                font,
+                                20);
+            Utility::drawButton(window,
+                                third,
+                                "Third",
+                                font,
+                                20);
+            Utility::drawButton(window,
+                                blitz,
+                                "Blitz",
+                                font,
+                                20);
         }
         if (State::state == State::GameState::AIOptions)
         {
-            Utility::drawButton(window, aiWhiteButton, "Player as white", font, 20);
-            Utility::drawButton(window, aiBlackButton, "Player as black", font, 20);
-            Utility::drawButton(window, aiPlayButton, "Play", font, 20);
-            Utility::drawButton(window, backButton, "Back", font, 20);
+            Utility::drawButton(window,
+                                aiWhiteButton,
+                                "Player as white",
+                                font,
+                                20);
+            Utility::drawButton(window,
+                                aiBlackButton,
+                                "Player as black",
+                                font,
+                                20);
+            Utility::drawButton(window,
+                                aiPlayButton,
+                                "Play",
+                                font,
+                                20);
+            Utility::drawButton(window,
+                                backButton,
+                                "Back",
+                                font,
+                                20);
             // Draw the slider
             drawSlider(window, font);
         }
         // Handle button clicks
         sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
         bool mousePressed = sf::Mouse::isButtonPressed(sf::Mouse::Left);
-        if (mousePressed && !wasMousePressed && State::state == State::GameState::Menu)
+        if (mousePressed && !wasMousePressed &&
+            State::state == State::GameState::Menu)
         {
             if (Utility::isButtonClicked(pvpButton, mousePosition))
             {
@@ -591,7 +714,8 @@ void Render::drawMenuScreen(sf::RenderWindow &window)
                 State::alt = !State::alt;
             }
         }
-        if (mousePressed && !wasMousePressed && State::state == State::GameState::AIOptions)
+        if (mousePressed && !wasMousePressed &&
+            State::state == State::GameState::AIOptions)
         {
             if (Utility::isButtonClicked(aiWhiteButton, mousePosition))
             {
@@ -616,10 +740,18 @@ void Render::drawMenuScreen(sf::RenderWindow &window)
             {
                 State::state = State::GameState::Menu;
             }
-            if (slider.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
+            if (slider.getGlobalBounds().contains(
+                    mousePosition.x, mousePosition.y))
             {
-                float newDifficulty = (mousePosition.x - slider.getPosition().x) / slider.getSize().x * 9 + 1;
-                aiDifficulty = std::max(1, std::min(10, static_cast<int>(newDifficulty)));
+                float newDifficulty = (mousePosition.x -
+                                       slider.getPosition().x) /
+                                          slider.getSize().x * 9 +
+                                      1;
+                aiDifficulty = std::max(
+                    1,
+                    std::min(
+                        10,
+                        static_cast<int>(newDifficulty)));
             }
         }
 
@@ -634,11 +766,17 @@ void Render::highlightPreviousMove(sf::RenderWindow &window)
     {
         Types::Turn lastTurn = State::turnHistory.back();
 
-        sf::RectangleShape initialSquare(sf::Vector2f(Chessboard::squareSize, Chessboard::squareSize));
-        sf::RectangleShape finalSquare(sf::Vector2f(Chessboard::squareSize, Chessboard::squareSize));
+        sf::RectangleShape initialSquare(
+            sf::Vector2f(Chessboard::squareSize, Chessboard::squareSize));
+        sf::RectangleShape finalSquare(
+            sf::Vector2f(Chessboard::squareSize, Chessboard::squareSize));
 
-        initialSquare.setPosition((lastTurn.initialSquare.x + 1) * Chessboard::squareSize, lastTurn.initialSquare.y * Chessboard::squareSize);
-        finalSquare.setPosition((lastTurn.finalSquare.x + 1) * Chessboard::squareSize, lastTurn.finalSquare.y * Chessboard::squareSize);
+        initialSquare.setPosition(
+            (lastTurn.initialSquare.x + 1) * Chessboard::squareSize,
+            lastTurn.initialSquare.y * Chessboard::squareSize);
+        finalSquare.setPosition(
+            (lastTurn.finalSquare.x + 1) * Chessboard::squareSize,
+            lastTurn.finalSquare.y * Chessboard::squareSize);
 
         initialSquare.setFillColor(colourPrevMove);
         finalSquare.setFillColor(colourPrevMove);
@@ -648,12 +786,36 @@ void Render::highlightPreviousMove(sf::RenderWindow &window)
     }
 }
 
-void Render::drawCapturedPieces(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages)
+void Render::drawCapturedPieces(
+    sf::RenderWindow &window,
+    const std::map<std::string, sf::Sprite> &pieceImages)
 {
     std::vector<int> numListw, numListb;
     std::vector<std::string> sortedListw, sortedListb;
-    std::map<char, int> pieceToNum = {{'p', 1}, {'E', 2}, {'W', 3}, {'A', 4}, {'V', 5}, {'C', 6}, {'M', 7}, {'T', 8}, {'G', 9}, {'R', 10}, {'K', 11}};
-    std::map<int, std::string> numToPiece = {{1, "px"}, {2, "El"}, {3, "We"}, {4, "Ad"}, {5, "Vi"}, {6, "Ca"}, {7, "Mo"}, {8, "Ta"}, {9, "Gi"}, {10, "Rk"}, {11, "Ka"}};
+    std::map<char, int> pieceToNum = {
+        {'p', 1},
+        {'E', 2},
+        {'W', 3},
+        {'A', 4},
+        {'V', 5},
+        {'C', 6},
+        {'M', 7},
+        {'T', 8},
+        {'G', 9},
+        {'R', 10},
+        {'K', 11}};
+    std::map<int, std::string> numToPiece = {
+        {1, "px"},
+        {2, "El"},
+        {3, "We"},
+        {4, "Ad"},
+        {5, "Vi"},
+        {6, "Ca"},
+        {7, "Mo"},
+        {8, "Ta"},
+        {9, "Gi"},
+        {10, "Rk"},
+        {11, "Ka"}};
 
     // Sort white captured pieces
     for (const auto &piece : State::whitePiecesCaptured)
@@ -699,7 +861,8 @@ void Render::drawCapturedPieces(sf::RenderWindow &window, const std::map<std::st
         if (pieceImages.find(sortedListw[i]) != pieceImages.end())
         {
             sf::Sprite sprite = pieceImages.at(sortedListw[i]);
-            sprite.setPosition(window.getSize().x - 950 + spacew, window.getSize().y - 80);
+            sprite.setPosition(window.getSize().x - 950 + spacew,
+                               window.getSize().y - 80);
             window.draw(sprite);
         }
     }
@@ -711,7 +874,8 @@ void Render::drawCapturedPieces(sf::RenderWindow &window, const std::map<std::st
         if (pieceImages.find(sortedListb[i]) != pieceImages.end())
         {
             sf::Sprite sprite = pieceImages.at(sortedListb[i]);
-            sprite.setPosition(window.getSize().x - 950 + spaceb, window.getSize().y - 150);
+            sprite.setPosition(window.getSize().x - 950 + spaceb,
+                               window.getSize().y - 150);
             window.draw(sprite);
         }
     }
@@ -728,8 +892,11 @@ void Render::drawCapturedPieces(sf::RenderWindow &window, const std::map<std::st
     text.setFont(font);
     text.setCharacterSize(34);
     text.setFillColor(sf::Color::White);
-    text.setString(score > 0 ? "+" + std::to_string(score) : std::to_string(score));
-    text.setPosition(window.getSize().x - 75, window.getSize().y - 95);
+    text.setString(score > 0 ? "+" +
+                                   std::to_string(score)
+                             : std::to_string(score));
+    text.setPosition(window.getSize().x - 75,
+                     window.getSize().y - 95);
     window.draw(text);
 }
 
@@ -745,7 +912,6 @@ void Render::highlightKings(sf::RenderWindow &window)
 // rename and rethink this function, it doesn't fit here
 void Render::renderGameElements(sf::RenderWindow &window)
 {
-
     if (State::state == State::GameState::Game)
     {
         highlightSquares(window);

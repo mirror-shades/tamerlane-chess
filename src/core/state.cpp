@@ -1,5 +1,9 @@
-#include "state.h"
+// Copyright 2024. mirror-shades. GPL-2.0 License.
+#include <map>
+#include <vector>
+#include <string>
 #include <SFML/Graphics.hpp>
+#include "state.h"
 
 int State::turns = 1;
 int State::aiDifficulty = 2;
@@ -35,5 +39,7 @@ char State::player = 'w';
 
 bool State::isPieceSelected = false;
 std::vector<Types::Coord> State::moveList;
-std::string State::selectedPiece;
 Types::Coord State::selectedSquare = {-1, -1};
+
+// this needs to be a char array to avoid global string issues
+Types::Piece State::selectedPiece;

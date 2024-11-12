@@ -33,7 +33,7 @@ public:
     static bool isPieceSelected;
     static bool aiVsAiMode;
     static bool renderNeeded;
-    static std::string selectedPiece;
+    static Types::Piece selectedPiece;
     static Types::Coord selectedSquare;
     static std::vector<Types::Turn> turnHistory;
     static char player;

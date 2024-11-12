@@ -1,8 +1,62 @@
 #pragma once
 #include <string>
-
+#include <cstring>
 namespace Types
 {
+    // used to store the piece code in the selected piece
+    // this is a char array to avoid global string issues
+    struct Piece
+    {
+        char code[4]; // 3 chars + null terminator
+
+        // Default constructor - initializes to "---"
+        Piece()
+        {
+            strcpy(code, "---");
+        }
+
+        // Constructor from C-string
+        Piece(const char *str)
+        {
+            strncpy(code, str, 3);
+            code[3] = '\0';
+        }
+
+        // Constructor from std::string
+        Piece(const std::string &str)
+        {
+            strncpy(code, str.c_str(), 3);
+            code[3] = '\0';
+        }
+
+        // Comparison operators
+        bool operator==(const Piece &other) const
+        {
+            return strncmp(code, other.code, 3) == 0;
+        }
+
+        bool operator==(const char *str) const
+        {
+            return strncmp(code, str, 3) == 0;
+        }
+
+        bool operator!=(const Piece &other) const
+        {
+            return !(*this == other);
+        }
+
+        // Conversion to string
+        std::string toString() const
+        {
+            return std::string(code);
+        }
+
+        // Get individual characters
+        char color() const { return code[0]; }   // 'w' or 'b'
+        char piece() const { return code[1]; }   // piece type
+        char variant() const { return code[2]; } // piece variant
+    };
+
     struct Coord
     {
         int x;
@@ -30,8 +84,8 @@ namespace Types
         char player;
         Coord initialSquare;
         Coord finalSquare;
-        std::string pieceMoved;
-        std::string pieceCaptured;
+        Piece pieceMoved;
+        Piece pieceCaptured;
         float score;
     };
 }

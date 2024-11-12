@@ -1,3 +1,11 @@
+// Copyright 2024. mirror-shades. GPL-2.0 License.
+
+#include <iostream>
+#include <map>
+#include <limits>
+#include <string>
+#include <vector>
+#include <SFML/Audio.hpp>
 #include "types.h"
 #include "globals.h"
 #include "utility.h"
@@ -5,8 +13,6 @@
 #include "gameLogic.h"
 #include "state.h"
 #include "ai.h"
-#include <iostream>
-#include <SFML/Audio.hpp>
 
 // Add these as member variables in the Utility class or as global variables
 sf::SoundBuffer moveSoundBuffer;
@@ -20,9 +26,7 @@ const int squareSize = 75;
 
 Types::Coord Utility::calculateSquare(int x, int y)
 {
-    int _x = x / squareSize - 1;
-    int _y = y / squareSize;
-    return {_x, _y};
+    return {x / squareSize - 1, y / squareSize};
 }
 
 bool Utility::clickInBoard(const int x, const int y)
@@ -41,7 +45,10 @@ void Utility::toggleSelection()
     State::selectedSquare = {-1, -1};
 }
 
-sf::RectangleShape Utility::createButton(const sf::Vector2f &size, const sf::Vector2f &position, const sf::Color &fillColor)
+sf::RectangleShape Utility::createButton(
+    const sf::Vector2f &size,
+    const sf::Vector2f &position,
+    const sf::Color &fillColor)
 {
     sf::RectangleShape button(size);
     button.setPosition(position);
@@ -51,7 +58,12 @@ sf::RectangleShape Utility::createButton(const sf::Vector2f &size, const sf::Vec
     return button;
 }
 
-void Utility::drawButton(sf::RenderWindow &window, const sf::RectangleShape &button, const std::string &text, const sf::Font &font, unsigned int characterSize)
+void Utility::drawButton(
+    sf::RenderWindow &window,
+    const sf::RectangleShape &button,
+    const std::string &text,
+    const sf::Font &font,
+    unsigned int characterSize)
 {
     window.draw(button);
 
@@ -60,19 +72,28 @@ void Utility::drawButton(sf::RenderWindow &window, const sf::RectangleShape &but
 
     // Center the text on the button
     sf::FloatRect textBounds = buttonText.getLocalBounds();
-    buttonText.setOrigin(textBounds.left + textBounds.width / 2.0f, textBounds.top + textBounds.height / 2.0f);
-    buttonText.setPosition(button.getPosition().x + button.getSize().x / 2.0f, button.getPosition().y + button.getSize().y / 2.0f);
+    buttonText.setOrigin(
+        textBounds.left + textBounds.width / 2.0f,
+        textBounds.top + textBounds.height / 2.0f);
+    buttonText.setPosition(
+        button.getPosition().x + button.getSize().x / 2.0f,
+        button.getPosition().y + button.getSize().y / 2.0f);
 
     window.draw(buttonText);
 }
 
-bool Utility::isButtonClicked(const sf::RectangleShape &button, const sf::Vector2i &mousePosition)
+bool Utility::isButtonClicked(
+    const sf::RectangleShape &button,
+    const sf::Vector2i &mousePosition)
 {
     return button.getGlobalBounds().contains(mousePosition.x, mousePosition.y);
 }
 
 // Check if the game has ended (checkmate or stalemate)
-bool Utility::checkVictoryCondition(GameLogic &gameLogic, const char &player, const char &enemy)
+bool Utility::checkVictoryCondition(
+    GameLogic &gameLogic,
+    const char &player,
+    const char &enemy)
 {
     auto boardState = chessboard.getBoardState();
     bool hasLegalMoves = gameLogic.hasLegalMoves(enemy, State::alt);
@@ -98,12 +119,21 @@ bool Utility::checkVictoryCondition(GameLogic &gameLogic, const char &player, co
 }
 
 // Update game state after a move
-void Utility::updateGameState(const Types::Coord &move, const std::string &target, GameLogic &gameLogic)
+void Utility::updateGameState(
+    const Types::Coord &move,
+    const std::string &target,
+    GameLogic &gameLogic)
 {
     auto boardState = chessboard.getBoardState();
 
-    State::isWhiteKingInCheck = gameLogic.isKingInCheck('w', boardState, State::alt);
-    State::isBlackKingInCheck = gameLogic.isKingInCheck('b', boardState, State::alt);
+    State::isWhiteKingInCheck = gameLogic.isKingInCheck(
+        'w',
+        boardState,
+        State::alt);
+    State::isBlackKingInCheck = gameLogic.isKingInCheck(
+        'b',
+        boardState,
+        State::alt);
 
     Types::Turn newTurn = {
         State::turns,
@@ -134,14 +164,30 @@ void Utility::undoLastMove()
         State::turns--;
         auto boardState = chessboard.getBoardState();
 
-        State::isWhiteKingInCheck = gameLogic->isKingInCheck('w', boardState, State::alt);
-        State::isBlackKingInCheck = gameLogic->isKingInCheck('b', boardState, State::alt);
+        State::isWhiteKingInCheck = gameLogic->isKingInCheck(
+            'w',
+            boardState,
+            State::alt);
+        State::isBlackKingInCheck = gameLogic->isKingInCheck(
+            'b',
+            boardState,
+            State::alt);
 
         State::isPieceSelected = false;
         State::moveList.clear();
         State::selectedSquare = {-1, -1};
 
-        std::cout << "Undo move: " << lastTurn.pieceMoved << " from (" << lastTurn.finalSquare.x << ", " << lastTurn.finalSquare.y << ") to (" << lastTurn.initialSquare.x << ", " << lastTurn.initialSquare.y << ")" << std::endl;
+        std::cout << "Undo move: "
+                  << lastTurn.pieceMoved.toString()
+                  << " from ("
+                  << lastTurn.finalSquare.x
+                  << ", "
+                  << lastTurn.finalSquare.y
+                  << ") to ("
+                  << lastTurn.initialSquare.x
+                  << ", "
+                  << lastTurn.initialSquare.y
+                  << ")" << std::endl;
     }
     else
     {
@@ -151,7 +197,18 @@ void Utility::undoLastMove()
 
 int Utility::scoreMaterial()
 {
-    std::map<char, int> pieceValues = {{'p', 1}, {'E', 1.5}, {'W', 1.5}, {'A', 2}, {'V', 2}, {'C', 3}, {'M', 3}, {'T', 3}, {'G', 4}, {'R', 5}, {'K', 100}};
+    std::map<char, int> pieceValues = {
+        {'p', 1},
+        {'E', 1.5},
+        {'W', 1.5},
+        {'A', 2},
+        {'V', 2},
+        {'C', 3},
+        {'M', 3},
+        {'T', 3},
+        {'G', 4},
+        {'R', 5},
+        {'K', 100}};
     int whiteScore = 0, blackScore = 0;
 
     for (const auto &piece : State::whitePiecesCaptured)
@@ -205,15 +262,19 @@ void Utility::initializeSounds()
 
 bool Utility::clickHandler(sf::Event event, sf::RenderWindow &window)
 {
-
     if (event.type == sf::Event::Closed)
         window.close();
 
     if (event.type == sf::Event::MouseButtonPressed)
     {
-        if (!State::gameOver && !State::animationActive && event.mouseButton.button == sf::Mouse::Left)
+        if (
+            !State::gameOver &&
+            !State::animationActive &&
+            event.mouseButton.button == sf::Mouse::Left)
         {
-            bool playerMoved = clickLogic(event.mouseButton.x, event.mouseButton.y);
+            bool playerMoved = clickLogic(
+                event.mouseButton.x,
+                event.mouseButton.y);
             if (playerMoved)
             {
                 if (State::aiActive)
@@ -240,12 +301,21 @@ bool Utility::clickHandler(sf::Event event, sf::RenderWindow &window)
 bool Utility::clickLogic(int x, int y)
 {
     Types::Coord coord = calculateSquare(x, y);
-    std::cout << coord.x << ", " << coord.y << " | " << chessboard.getPiece(coord) << std::endl;
+    std::cout << coord.x
+              << ", "
+              << coord.y
+              << " | "
+              << chessboard.getPiece(coord).toString()
+              << std::endl;
     const char player = (State::turns % 2 == 0) ? 'b' : 'w';
-    std::string selected = chessboard.getPiece(coord);
+    std::string selected = chessboard.getPiece(coord).toString();
 
-    // draw by kings enterning the fortress (click logic takes place outside of the board)
-    if (State::selectedPiece == "wKa" && (State::selectedSquare == Types::Coord{0, 0} || State::selectedSquare == Types::Coord{0, 1} || State::selectedSquare == Types::Coord{0, 2}))
+    // draw by kings enterning the fortress
+    // (click logic takes place outside of the board)
+    if (State::selectedPiece == "wKa" &&
+        (State::selectedSquare == Types::Coord{0, 0} ||
+         State::selectedSquare == Types::Coord{0, 1} ||
+         State::selectedSquare == Types::Coord{0, 2}))
     {
         if (coord == Types::Coord{-1, 1})
         {
@@ -255,7 +325,10 @@ bool Utility::clickLogic(int x, int y)
             return false;
         }
     }
-    if (State::selectedPiece == "bKa" && (State::selectedSquare == Types::Coord{10, 9} || State::selectedSquare == Types::Coord{10, 8} || State::selectedSquare == Types::Coord{10, 7}))
+    if (State::selectedPiece == "bKa" &&
+        (State::selectedSquare == Types::Coord{10, 9} ||
+         State::selectedSquare == Types::Coord{10, 8} ||
+         State::selectedSquare == Types::Coord{10, 7}))
     {
         if (coord == Types::Coord{11, 8})
         {
@@ -275,8 +348,13 @@ bool Utility::clickLogic(int x, int y)
             {
                 if (coord == move)
                 {
-                    handlePieceMovement(State::selectedPiece, State::selectedSquare, move, player);
-                    return true; // Exit the function after handling the move
+                    handlePieceMovement(
+                        State::selectedPiece.toString(),
+                        State::selectedSquare,
+                        move,
+                        player);
+                    // Exit the function after handling the move
+                    return true;
                 }
             }
         }
@@ -298,7 +376,6 @@ void Utility::playMoveSound()
     if (moveSound.getStatus() != sf::Sound::Playing)
     {
         moveSound.play();
-        std::cout << "Playing move sound" << std::endl; // Debug output
     }
 }
 
@@ -307,17 +384,20 @@ void Utility::playCaptureSound()
     if (captureSound.getStatus() != sf::Sound::Playing)
     {
         captureSound.play();
-        std::cout << "Playing capture sound" << std::endl; // Debug output
     }
 }
 
 // Handle piece movement
-void Utility::handlePieceMovement(const std::string &_selectedPiece, const Types::Coord &_selectedSquare, const Types::Coord &move, const char &player)
+void Utility::handlePieceMovement(
+    const std::string &selectedPiece,
+    const Types::Coord &selectedSquare,
+    const Types::Coord &move,
+    const char &player)
 {
-    render->startAnimation(_selectedPiece, _selectedSquare, move, 0.5f);
-    std::string target = chessboard.getPiece(move);
-    chessboard.setCell(_selectedSquare, "---");
-    chessboard.setCell(move, _selectedPiece);
+    render->startAnimation(selectedPiece, selectedSquare, move, 0.5f);
+    std::string target = chessboard.getPiece(move).toString();
+    chessboard.setCell(selectedSquare, "---");
+    chessboard.setCell(move, selectedPiece);
     if (target != "---")
     {
         // Play capture sound
@@ -345,8 +425,8 @@ void Utility::handlePieceMovement(const std::string &_selectedPiece, const Types
     gameLogic->checkPawnForks(enemy);
     // determine if a draw is possible next turn
     State::drawPossible = gameLogic->canDraw(enemy);
-    bool game_over = checkVictoryCondition(*gameLogic, player, enemy);
-    if (game_over)
+    bool gameOver = checkVictoryCondition(*gameLogic, player, enemy);
+    if (gameOver)
     {
         State::gameOver = true;
         std::cout << "Game over. Winner: " << State::winner << std::endl;
@@ -354,25 +434,47 @@ void Utility::handlePieceMovement(const std::string &_selectedPiece, const Types
 }
 
 // Handle piece selection
-void Utility::handlePieceSelection(const Types::Coord &coord, const char &player)
+void Utility::handlePieceSelection(
+    const Types::Coord &coord,
+    const char &player)
 {
     State::selectedSquare = coord;
     State::selectedPiece = chessboard.getPiece(State::selectedSquare);
-    std::vector<Types::Coord> possibleMoves = gameLogic->getMoves(State::selectedSquare, State::selectedPiece, player, State::alt);
-    State::moveList = gameLogic->filterLegalMoves(possibleMoves, State::selectedSquare, State::selectedPiece, player, State::alt);
+    std::vector<Types::Coord> possibleMoves = gameLogic->getMoves(
+        State::selectedSquare,
+        State::selectedPiece,
+        player,
+        State::alt);
+    State::moveList = gameLogic->filterLegalMoves(
+        possibleMoves,
+        State::selectedSquare,
+        State::selectedPiece,
+        player,
+        State::alt);
     State::isPieceSelected = true;
 }
 
 void Utility::handleAiVsAi()
 {
     float aiVsAiMoveDelay = 0.1f;
-    if (State::aiVsAiMode && !State::animationActive && State::winner == '-' && State::aiVsAiClock.getElapsedTime().asSeconds() >= aiVsAiMoveDelay)
+    if (State::aiVsAiMode &&
+        !State::animationActive &&
+        State::winner == '-' &&
+        State::aiVsAiClock.getElapsedTime().asSeconds() >= aiVsAiMoveDelay)
     {
         char aiPlayer = (State::turns % 2 == 0) ? 'b' : 'w';
-        Types::Turn aiMove = ai.minMax(aiPlayer, State::turns, State::alt, State::aiDifficulty,
-                                       -std::numeric_limits<float>::infinity(),
-                                       std::numeric_limits<float>::infinity());
-        handlePieceMovement(aiMove.pieceMoved, aiMove.initialSquare, aiMove.finalSquare, aiPlayer);
+        Types::Turn aiMove = ai.minMax(
+            aiPlayer,
+            State::turns,
+            State::alt,
+            State::aiDifficulty,
+            -std::numeric_limits<float>::infinity(),
+            std::numeric_limits<float>::infinity());
+        handlePieceMovement(
+            aiMove.pieceMoved.toString(),
+            aiMove.initialSquare,
+            aiMove.finalSquare,
+            aiPlayer);
         State::aiVsAiClock.restart();
     }
 }
@@ -386,10 +488,18 @@ void Utility::handleMoves()
     if (State::aiMoveQueued && !State::animationActive && State::winner == '-')
     {
         char aiPlayer = (State::turns % 2 == 0) ? 'b' : 'w';
-        Types::Turn aiMove = ai.minMax(aiPlayer, State::turns, State::alt, State::aiDifficulty,
-                                       -std::numeric_limits<float>::infinity(),
-                                       std::numeric_limits<float>::infinity());
-        handlePieceMovement(aiMove.pieceMoved, aiMove.initialSquare, aiMove.finalSquare, aiPlayer);
+        Types::Turn aiMove = ai.minMax(
+            aiPlayer,
+            State::turns,
+            State::alt,
+            State::aiDifficulty,
+            -std::numeric_limits<float>::infinity(),
+            std::numeric_limits<float>::infinity());
+        handlePieceMovement(
+            aiMove.pieceMoved.toString(),
+            aiMove.initialSquare,
+            aiMove.finalSquare,
+            aiPlayer);
         State::aiMoveQueued = false;
     }
 

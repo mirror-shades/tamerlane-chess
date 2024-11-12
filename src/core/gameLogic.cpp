@@ -1,4 +1,7 @@
+// Copyright 2024. mirror-shades. GPL-2.0 License.
 #include <iostream>
+#include <vector>
+#include <string>
 #include "gameLogic.h"
 #include "pieceLogic.h"
 #include "globals.h"
@@ -6,76 +9,91 @@
 PieceLogic pieceLogic;
 
 // functionality
-std::vector<Types::Coord> GameLogic::getMoves(Types::Coord coord, std::string piece, char player, bool alt)
+std::vector<Types::Coord> GameLogic::getMoves(Types::Coord coord,
+                                              Types::Piece piece,
+                                              char player,
+                                              bool alt)
 {
-    std::vector<Types::Coord> _moveList;
+    std::vector<Types::Coord> moveList;
 
-    if (piece[1] == 'R')
+    if (piece.piece() == 'R')
     {
-        _moveList = pieceLogic.getRookMoves(coord, player);
+        moveList = pieceLogic.getRookMoves(coord, player);
     }
-    else if (piece[1] == 'T')
+    else if (piece.piece() == 'T')
     {
-        _moveList = pieceLogic.PieceLogic::getTaliaMoves(coord, player);
+        moveList = pieceLogic.getTaliaMoves(coord, player);
     }
-    else if (piece[1] == 'K')
+    else if (piece.piece() == 'K')
     {
-        _moveList = pieceLogic.PieceLogic::getKhanMoves(coord, player);
+        moveList = pieceLogic.getKhanMoves(coord, player);
     }
-    else if (piece[1] == 'M')
+    else if (piece.piece() == 'M')
     {
-        _moveList = pieceLogic.PieceLogic::getMongolMoves(coord, player);
+        moveList = pieceLogic.getMongolMoves(coord, player);
     }
-    else if (piece[1] == 'C')
+    else if (piece.piece() == 'C')
     {
-        _moveList = pieceLogic.PieceLogic::getCamelMoves(coord, player);
+        moveList = pieceLogic.getCamelMoves(coord, player);
     }
-    else if (piece[1] == 'G')
+    else if (piece.piece() == 'G')
     {
-        _moveList = pieceLogic.PieceLogic::getGiraffeMoves(coord, player);
+        moveList = pieceLogic.getGiraffeMoves(coord, player);
     }
-    else if (piece[1] == 'p')
+    else if (piece.piece() == 'p')
     {
-        _moveList = alt ? pieceLogic.PieceLogic::getAltPawnMoves(coord, player) : pieceLogic.PieceLogic::getPawnMoves(coord, player);
+        moveList = alt ? pieceLogic.getAltPawnMoves(coord, player)
+                       : pieceLogic.getPawnMoves(coord, player);
     }
-    else if (piece[1] == 'E')
+    else if (piece.piece() == 'E')
     {
-        _moveList = alt ? pieceLogic.PieceLogic::getAltElephantMoves(coord, player) : pieceLogic.PieceLogic::getElephantMoves(coord, player);
+        moveList = alt ? pieceLogic.getAltElephantMoves(coord, player)
+                       : pieceLogic.getElephantMoves(coord, player);
     }
-    else if (piece[1] == 'W')
+    else if (piece.piece() == 'W')
     {
-        _moveList = alt ? pieceLogic.PieceLogic::getAltWarEngineMoves(coord, player) : pieceLogic.PieceLogic::getWarEngineMoves(coord, player);
+        moveList = alt ? pieceLogic.getAltWarEngineMoves(coord, player)
+                       : pieceLogic.getWarEngineMoves(coord, player);
     }
-    else if (piece[1] == 'V')
+    else if (piece.piece() == 'V')
     {
-        _moveList = alt ? pieceLogic.PieceLogic::getAltVizierMoves(coord, player) : pieceLogic.PieceLogic::getVizierMoves(coord, player);
+        moveList = alt ? pieceLogic.getAltVizierMoves(coord, player)
+                       : pieceLogic.getVizierMoves(coord, player);
     }
-    else if (piece[1] == 'A')
+    else if (piece.piece() == 'A')
     {
-        _moveList = alt ? pieceLogic.PieceLogic::getAltAdminMoves(coord, player) : pieceLogic.PieceLogic::getAdminMoves(coord, player);
+        moveList = alt ? pieceLogic.getAltAdminMoves(coord, player)
+                       : pieceLogic.getAdminMoves(coord, player);
     }
     else
     {
-        std::cerr << "Unknown piece type: " << piece << std::endl;
+        std::cerr << "Unknown piece type: " << piece.toString() << std::endl;
     }
 
-    return _moveList;
+    return moveList;
 }
 
-std::vector<std::pair<std::string, std::vector<Types::Coord>>> GameLogic::getAllMoves(char player, bool alt)
+// returns a vector of pairs of strings and vectors of coords
+// {{"piece", {coords}}, {"piece", {coords}}, ...}
+std::vector<std::pair<Types::Piece, std::vector<Types::Coord>>>
+GameLogic::getAllMoves(char player,
+                       bool alt)
 {
-    std::vector<std::pair<std::string, std::vector<Types::Coord>>> allMoves;
+    std::vector<std::pair<Types::Piece, std::vector<Types::Coord>>> allMoves;
     auto boardState = chessboard.getBoardState();
 
     for (int row = 0; row < Chessboard::rows; ++row)
     {
         for (int col = 0; col < Chessboard::cols; ++col)
         {
-            std::string piece = boardState[row][col];
-            if (piece != "---" && piece[0] == player)
+            Types::Piece piece = boardState[row][col];
+            if (piece != "---" && piece.color() == player)
             {
                 Types::Coord coord = {col, row};
-                std::vector<Types::Coord> moves = getMoves(coord, piece, player, alt);
+                std::vector<Types::Coord> moves = getMoves(coord,
+                                                           piece,
+                                                           player,
+                                                           alt);
                 if (!moves.empty())
                 {
                     allMoves.push_back({piece, moves});
@@ -86,19 +104,27 @@ std::vector<std::pair<std::string, std::vector<Types::Coord>>> GameLogic::getAll
     return allMoves;
 }
 
-std::vector<Types::Coord> GameLogic::filterLegalMoves(const std::vector<Types::Coord> &possibleMoves, const Types::Coord &fromCoord, const std::string &piece, char player, bool alt)
+std::vector<Types::Coord>
+GameLogic::filterLegalMoves(const std::vector<Types::Coord> &possibleMoves,
+                            const Types::Coord &fromCoord,
+                            const Types::Piece &piece,
+                            char player,
+                            bool alt)
 {
     std::vector<Types::Coord> legalMoves;
 
-    auto originalBoard = chessboard.getBoardState(); // Save the original state
+    // Backup the original state
+    const auto originalBoard = chessboard.getBoardState();
 
     for (const auto &toCoord : possibleMoves)
     {
-        std::string targetPiece = chessboard.getPiece(toCoord);
+        Types::Piece targetPiece = chessboard.getPiece(toCoord);
         // Check if the target piece is untargetable (wpx or bpx)
-        if (targetPiece[2] == 'x')
+        if (targetPiece.variant() == 'x')
         {
-            continue; // Skip this move
+            // Skip this move, pawns as untargetable
+            // in this stage of promotion
+            continue;
         }
         // Move the piece
         chessboard.setCell(fromCoord, "---");
@@ -127,14 +153,13 @@ void GameLogic::promotePawns(char player)
 
     for (int col = 0; col < Chessboard::cols; col++)
     {
-        std::string piece = chessboard.getPiece({col, row});
-        if (piece[1] != 'p')
+        Types::Piece piece = chessboard.getPiece({col, row});
+        if (piece.piece() != 'p')
             continue;
 
-        std::string promotedPiece = std::string(1, player);
         std::string promotionType;
 
-        switch (piece[2])
+        switch (piece.variant())
         {
         case 'R':
             promotionType = "Rk";
@@ -173,17 +198,17 @@ void GameLogic::promotePawns(char player)
         {
             promotionType = "p2";
             Types::Coord pos = {5, player == 'w' ? 7 : 2};
-            std::string targetPiece = chessboard.getPiece(pos);
-            if (targetPiece[1] == 'K')
+            Types::Piece targetPiece = chessboard.getPiece(pos);
+            if (targetPiece.piece() == 'K')
             {
                 chessboard.setCell({col, row}, "---");
-                std::cout << "Space occupied by king, pawn executed!" << std::endl;
+                std::cout << "Space occupied by king, pawn executed!"
+                          << std::endl;
             }
             else
             {
                 chessboard.setCell({col, row}, "---");
-                chessboard.setCell(pos, player + promotionType);
-                std::cout << "Promoted " << piece << " to " << player + promotionType << " at " << pos.x << "," << pos.y << std::endl;
+                chessboard.setCell(pos, Types::Piece(player + std::string(promotionType)));
             }
             continue;
         }
@@ -194,13 +219,17 @@ void GameLogic::promotePawns(char player)
             checkPawnForks(enemy);
             continue;
         default:
-            std::cout << "Invalid pawn type: " << piece << " at " << col << "," << row << std::endl;
+            std::cout << "Invalid pawn type: "
+                      << piece.toString() << " at "
+                      << col << "," << row << std::endl;
             continue;
         }
 
-        promotedPiece += promotionType;
-        chessboard.setCell({col, row}, promotedPiece);
-        std::cout << "Promoted " << piece << " to " << promotedPiece << " at " << col << "," << row << std::endl;
+        ;
+        chessboard.setCell({col, row}, Types::Piece(player + promotionType));
+        std::cout << "Promoted "
+                  << piece.toString() << " to " << player + promotionType << " at "
+                  << col << "," << row << std::endl;
     }
 }
 
@@ -219,10 +248,10 @@ void GameLogic::checkPawnForks(char player)
     {
         for (int col = 0; col < Chessboard::cols; ++col)
         {
-            std::string piece1 = chessboard.getPiece({col, row});
-            std::string piece2 = chessboard.getPiece({col + 2, row});
+            Types::Piece piece1 = chessboard.getPiece({col, row});
+            Types::Piece piece2 = chessboard.getPiece({col + 2, row});
 
-            if (piece1[0] == enemy && piece2[0] == enemy)
+            if (piece1.color() == enemy && piece2.color() == enemy)
             {
                 int forkCol = col;
                 int forkRow = row + 1;
@@ -237,13 +266,18 @@ void GameLogic::checkPawnForks(char player)
                     forkCol--;
                 }
 
-                std::string targetPiece = chessboard.getPiece({forkCol, forkRow});
-                if (targetPiece == "---" || (targetPiece[0] == enemy && targetPiece[1] != 'K'))
+                Types::Piece targetPiece =
+                    chessboard.getPiece({forkCol, forkRow});
+                if (targetPiece == "---" ||
+                    (targetPiece.color() == enemy && targetPiece.piece() != 'K'))
                 {
                     // Move the pawnX to the fork position
                     chessboard.setCell(pawnXPos, "---");
-                    chessboard.setCell({forkCol, forkRow}, std::string(1, player) + "p1");
-                    std::cout << "Pawn fork placed at " << forkCol << ", " << forkRow << std::endl;
+                    chessboard.setCell({forkCol, forkRow},
+                                       Types::Piece(player + "p1"));
+                    std::cout << "Pawn fork placed at "
+                              << forkCol << ", " << forkRow
+                              << std::endl;
                     return;
                 }
             }
@@ -259,8 +293,8 @@ Types::Coord GameLogic::findPawnX(char player)
     {
         for (int col = 0; col < Chessboard::cols; ++col)
         {
-            std::string piece = boardState[row][col];
-            if (piece[0] == player && piece[1] == 'p' && piece[2] == 'x')
+            Types::Piece piece = boardState[row][col];
+            if (piece.toString() == player + "px")
             {
                 return {col, row};
             }
@@ -269,10 +303,11 @@ Types::Coord GameLogic::findPawnX(char player)
     return {-1, -1};
 }
 
-void GameLogic::findAndSetKingPosition(Types::Coord &kingPosition, const char &player)
+void GameLogic::findAndSetKingPosition(Types::Coord &kingPosition,
+                                       const char &player)
 {
     auto boardState = chessboard.getBoardState();
-    std::string king = (player == 'w') ? "wKa" : "bKa";
+    Types::Piece king = (player == 'w') ? "wKa" : "bKa";
 
     for (int row = 0; row < Chessboard::rows; ++row)
     {
@@ -287,7 +322,9 @@ void GameLogic::findAndSetKingPosition(Types::Coord &kingPosition, const char &p
     }
 }
 
-bool GameLogic::isKingInCheck(const char &player, auto boardState, bool alt)
+bool GameLogic::isKingInCheck(const char &player,
+                              auto boardState,
+                              bool alt)
 {
     // Find the king's position
     Types::Coord kingPosition;
@@ -297,8 +334,8 @@ bool GameLogic::isKingInCheck(const char &player, auto boardState, bool alt)
     {
         for (int col = 0; col < Chessboard::cols; ++col)
         {
-            std::string piece = boardState[row][col];
-            if (piece[0] == player && piece[1] == 'K')
+            Types::Piece piece = boardState[row][col];
+            if (piece.color() == player && piece.piece() == 'K')
             {
                 kingPosition = {col, row};
                 kingFound = true;
@@ -320,10 +357,13 @@ bool GameLogic::isKingInCheck(const char &player, auto boardState, bool alt)
     {
         for (int col = 0; col < Chessboard::cols; ++col)
         {
-            std::string piece = boardState[row][col];
-            if (piece[0] == enemyPlayer)
+            Types::Piece piece = boardState[row][col];
+            if (piece.color() == enemyPlayer)
             {
-                std::vector<Types::Coord> moves = getMoves({col, row}, piece, enemyPlayer, alt);
+                std::vector<Types::Coord> moves = getMoves({col, row},
+                                                           piece,
+                                                           enemyPlayer,
+                                                           alt);
                 for (const auto &move : moves)
                 {
                     if (move == kingPosition)
@@ -340,11 +380,12 @@ bool GameLogic::isKingInCheck(const char &player, auto boardState, bool alt)
 
 bool GameLogic::hasLegalMoves(char player, bool alt)
 {
-    std::vector<std::pair<std::string, std::vector<Types::Coord>>> allMoves = getAllMoves(player, alt);
+    std::vector<std::pair<Types::Piece, std::vector<Types::Coord>>>
+        allMoves = getAllMoves(player, alt);
 
     for (const auto &pieceMoves : allMoves)
     {
-        const std::string &piece = pieceMoves.first;
+        const Types::Piece &piece = pieceMoves.first;
         const std::vector<Types::Coord> &possibleMoves = pieceMoves.second;
 
         Types::Coord fromCoord;
@@ -365,7 +406,8 @@ bool GameLogic::hasLegalMoves(char player, bool alt)
         if (!pieceFound)
             continue;
 
-        std::vector<Types::Coord> legalMoves = filterLegalMoves(possibleMoves, fromCoord, piece, player, alt);
+        std::vector<Types::Coord> legalMoves =
+            filterLegalMoves(possibleMoves, fromCoord, piece, player, alt);
 
         if (!legalMoves.empty())
         {
@@ -380,22 +422,26 @@ bool GameLogic::canDraw(char player)
 {
     std::cout << "Checking for draw" << std::endl;
     std::cout << "Player: " << player << std::endl;
-    std::cout << "Board state: " << chessboard.getPiece({0, 0}) << std::endl;
-    std::cout << "Board state: " << chessboard.getPiece({0, 1}) << std::endl;
-    std::cout << "Board state: " << chessboard.getPiece({0, 2}) << std::endl;
-    std::cout << "Board state: " << chessboard.getPiece({10, 7}) << std::endl;
-    std::cout << "Board state: " << chessboard.getPiece({10, 8}) << std::endl;
-    std::cout << "Board state: " << chessboard.getPiece({10, 9}) << std::endl;
+    std::cout << "Board state: " << chessboard.getPiece({0, 0}).toString() << std::endl;
+    std::cout << "Board state: " << chessboard.getPiece({0, 1}).toString() << std::endl;
+    std::cout << "Board state: " << chessboard.getPiece({0, 2}).toString() << std::endl;
+    std::cout << "Board state: " << chessboard.getPiece({10, 7}).toString() << std::endl;
+    std::cout << "Board state: " << chessboard.getPiece({10, 8}).toString() << std::endl;
+    std::cout << "Board state: " << chessboard.getPiece({10, 9}).toString() << std::endl;
     if (player == 'w')
     {
-        if (chessboard.getPiece({0, 0}) == "wKa" || chessboard.getPiece({0, 1}) == "wKa" || chessboard.getPiece({0, 2}) == "wKa")
+        if (chessboard.getPiece({0, 0}) == "wKa" ||
+            chessboard.getPiece({0, 1}) == "wKa" ||
+            chessboard.getPiece({0, 2}) == "wKa")
         {
             return true;
         }
     }
     else
     {
-        if (chessboard.getPiece({10, 7}) == "bKa" || chessboard.getPiece({10, 8}) == "bKa" || chessboard.getPiece({10, 9}) == "bKa")
+        if (chessboard.getPiece({10, 7}) == "bKa" ||
+            chessboard.getPiece({10, 8}) == "bKa" ||
+            chessboard.getPiece({10, 9}) == "bKa")
         {
             return true;
         }

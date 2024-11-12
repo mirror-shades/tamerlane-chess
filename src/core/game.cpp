@@ -1,3 +1,5 @@
+// Copyright 2024. mirror-shades. GPL-2.0 License.
+#include <iostream>
 #include "render.h"
 #include "ai.h"
 #include "types.h"
@@ -7,13 +9,14 @@
 #include "game.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
-#include <iostream>
 int renders = 1;
 
 // Add at the top with other methods
-Game::Game() : window(sf::VideoMode(State::WINDOW_WIDTH, State::WINDOW_HEIGHT), "Tamerlane Chess"),
+Game::Game() : window(sf::VideoMode(State::WINDOW_WIDTH,
+                                    State::WINDOW_HEIGHT),
+                      "Tamerlane Chess"),
                chessboard(),
-               ai(chessboard), // Initialize AI with chessboard reference
+               ai(chessboard),
                render(),
                utility()
 {
@@ -73,19 +76,25 @@ void Game::initialize()
     }
 
     render.drawBackground(window);
-    
+
     // Add error handling for image loading
-    try {
+    try
+    {
         State::images = render.loadImages(window);
-        if (State::images.empty()) {
+        if (State::images.empty())
+        {
             throw std::runtime_error("No images were loaded successfully");
         }
-    } catch (const std::exception& e) {
-        std::cerr << "Fatal error loading game assets: " << e.what() << std::endl;
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "Fatal error loading game assets: "
+                  << e.what()
+                  << std::endl;
         window.close();
         return;
     }
-    
+
     utility.initializeSounds();
     State::renderNeeded = true;
 }
