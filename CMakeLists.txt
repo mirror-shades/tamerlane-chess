@@ -38,14 +38,18 @@ find_package(SFML 2.6.1 COMPONENTS system window graphics audio REQUIRED)
 # Collect all source files
 set(SOURCES 
     src/main.cpp
-    src/game.cpp
-    src/ai.cpp
-    src/chessboard.cpp
-    src/gameLogic.cpp
-    src/pieceLogic.cpp
-    src/render.cpp
-    src/state.cpp
-    src/utility.cpp
+
+    src/board/chessboard.cpp
+    src/board/pieceLogic.cpp
+
+    src/core/ai.cpp
+    src/core/game.cpp
+    src/core/gameLogic.cpp
+    src/core/state.cpp
+
+    src/render/render.cpp
+
+    src/utils/utility.cpp
 )
 
 # Include the resource file when compiling on Windows
