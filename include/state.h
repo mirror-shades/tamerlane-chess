@@ -14,6 +14,9 @@ public:
         Game
     };
 
+    static constexpr unsigned int WINDOW_WIDTH = 975;
+    static constexpr unsigned int WINDOW_HEIGHT = 900;
+
     static GameState state;
     static sf::Clock aiVsAiClock;
     static char winner;
