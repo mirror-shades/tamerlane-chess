@@ -1,6 +1,8 @@
-# this runs the cmake build to create the proper build 
-# then runs the Tamerlane-Chess executable in the build dir
+# no flag builds release
+# `run` flag builds and runs release
+# `install [path]` installs game to a directory
 
+import platform
 import subprocess
 import os
 import sys
@@ -21,9 +23,15 @@ def run_cmake_build():
     
     print("Running cmake")
     try:
-        # Run cmake with MinGW Makefiles generator
-        subprocess.run(["cmake", "..", "-G", "MinGW Makefiles"], check=True)
-        
+        # Check the operating system
+        if platform.system() == "Windows":
+            # Use MinGW Makefiles generator for Windows
+            command = ["cmake", "..", "-G", "MinGW Makefiles"]
+        else:
+            # Use default generator for other OS
+            command = ["cmake", ".."]
+        subprocess.run(command, check=True)
+
         # Build using cmake --build
         subprocess.run(["cmake", "--build", "."], check=True)
     except Exception as e:
@@ -37,7 +45,7 @@ def run_executable():
     # Run the executable from the build directory
     print("Running executable")
     try:
-        subprocess.run(["./build/Tamerlane-Chess.exe"], check=True)
+        subprocess.run(["./build/Tamerlane-Chess"], check=True)
     except Exception as e:
         print(f"Executable failed to run: {str(e)}")
         sys.exit(1)
@@ -64,33 +72,38 @@ def run_install(path):
         print("Creating Tamerlane-Chess directory")
         os.makedirs(os.path.join(path, "Tamerlane-Chess"), exist_ok=True)
         
-        # List of files to copy from build directory
-        files_to_copy = [
-            "Tamerlane-Chess.exe",
-            "sfml-audio-2.dll",
-            "sfml-graphics-2.dll",
-            "sfml-window-2.dll",
-            "sfml-system-2.dll",
-            "openal32.dll"
-        ]
-        
-        print("Copying files to Tamerlane-Chess directory")
-        # Copy files from build directory
-        for file in files_to_copy:
-            print(f"Copying {file}")
-            shutil.copy(f"build/{file}", os.path.join(path, "TamerlaneChess"))
+        if platform.system() == "Windows":
+            # Windows-specific files
+            files_to_copy = [
+                "Tamerlane-Chess.exe",
+                "sfml-audio-2.dll",
+                "sfml-graphics-2.dll",
+                "sfml-window-2.dll",
+                "sfml-system-2.dll",
+                "openal32.dll"
+            ]
             
-        # Copy files from external DLL directory
-        external_dll_path = "external/RELEASE-DLL-Windows"
-        if os.path.exists(external_dll_path):
-            print("Copying external DLL files")
-            for file in os.listdir(external_dll_path):
+            print("Copying files to Tamerlane-Chess directory")
+            # Copy files from build directory
+            for file in files_to_copy:
                 print(f"Copying {file}")
-                shutil.copy(
-                    os.path.join(external_dll_path, file),
-                    os.path.join(path, "Tamerlane-Chess")
-                )
-                    
+                shutil.copy(f"build/{file}", os.path.join(path, "Tamerlane-Chess"))
+                
+            # Copy files from external DLL directory
+            external_dll_path = "external/RELEASE-DLL-Windows"
+            if os.path.exists(external_dll_path):
+                print("Copying external DLL files")
+                for file in os.listdir(external_dll_path):
+                    print(f"Copying {file}")
+                    shutil.copy(
+                        os.path.join(external_dll_path, file),
+                        os.path.join(path, "Tamerlane-Chess")
+                    )
+        else:
+            # Linux installation - just copy the executable
+            print("Copying executable")
+            shutil.copy("build/Tamerlane-Chess", os.path.join(path, "Tamerlane-Chess"))
+                     
         # Copy the assets folder
         print("Copying assets folder")
         shutil.copytree("assets", os.path.join(path, "Tamerlane-Chess/assets"))
