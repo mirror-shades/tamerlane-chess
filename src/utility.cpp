@@ -210,7 +210,7 @@ bool Utility::clickHandler(sf::Event event, sf::RenderWindow &window)
 
     if (event.type == sf::Event::MouseButtonPressed)
     {
-        if (!State::gameOver && !Render::animationInProgress && event.mouseButton.button == sf::Mouse::Left)
+        if (!State::gameOver && !State::animationActive && event.mouseButton.button == sf::Mouse::Left)
         {
             bool playerMoved = clickLogic(event.mouseButton.x, event.mouseButton.y);
 
@@ -366,7 +366,7 @@ void Utility::handlePieceSelection(const Types::Coord &coord, const char &player
 void Utility::handleAiVsAi()
 {
     float aiVsAiMoveDelay = 0.1f;
-    if (State::aiVsAiMode && !Render::animationInProgress && State::winner == '-' && State::aiVsAiClock.getElapsedTime().asSeconds() >= aiVsAiMoveDelay)
+    if (State::aiVsAiMode && !State::animationActive && State::winner == '-' && State::aiVsAiClock.getElapsedTime().asSeconds() >= aiVsAiMoveDelay)
     {
         char aiPlayer = (State::turns % 2 == 0) ? 'b' : 'w';
         Types::Turn aiMove = ai.minMax(aiPlayer, State::turns, State::alt, State::aiDifficulty,
@@ -383,7 +383,7 @@ void Utility::handleMoves()
     render->updateAnimations();
 
     // Process AI move if queued and animation is finished
-    if (State::aiMoveQueued && !Render::animationInProgress && State::winner == '-')
+    if (State::aiMoveQueued && !State::animationActive && State::winner == '-')
     {
         char aiPlayer = (State::turns % 2 == 0) ? 'b' : 'w';
         Types::Turn aiMove = ai.minMax(aiPlayer, State::turns, State::alt, State::aiDifficulty,

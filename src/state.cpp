@@ -30,3 +30,4 @@ bool State::isPieceSelected = false;
 std::vector<Types::Coord> State::moveList;
 std::string State::selectedPiece;
 Types::Coord State::selectedSquare = {-1, -1};
+bool State::animationActive = false;

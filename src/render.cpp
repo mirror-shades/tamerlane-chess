@@ -16,9 +16,6 @@
 #include <iomanip>
 #include <filesystem>
 
-// Global variables for game state
-bool Render::animationInProgress = false;
-
 // Colors for the chess board and piece highlighting
 sf::Color colour1 = sf::Color(0xE5E5E5ff);
 sf::Color colour2 = sf::Color(0x26403Cff);
@@ -78,7 +75,7 @@ std::string Render::findAssetsPath(const std::string &filename)
 void Render::startAnimation(std::string piece, Types::Coord start, Types::Coord end, float duration)
 {
     animation.isActive = true;
-    animationInProgress = true;
+    State::animationActive = true;
     animation.piece = piece;
     animation.start = start;
     animation.end = end;
@@ -101,7 +98,7 @@ void Render::updateAnimations()
         if (elapsedTime >= animation.duration)
         {
             animation.isActive = false;
-            animationInProgress = false;
+            State::animationActive = false;
         }
     }
 }

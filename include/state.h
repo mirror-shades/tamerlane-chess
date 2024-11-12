@@ -39,4 +39,5 @@ public:
     static std::vector<std::string> blackPiecesCaptured;
     static sf::Clock deltaClock;
     static float deltaTime;
+    static bool animationActive;
 };

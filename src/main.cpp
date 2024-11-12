@@ -4,9 +4,38 @@
 #include "types.h"
 #include "utility.h"
 #include "chessboard.h"
+#include "state.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <iostream>
+
+void _gameRender(sf::RenderWindow &window, auto render, auto utility, auto backgroundSprite, auto pieceImages)
+{
+    utility.handleMoves();
+
+    // Clear the window
+    window.clear(sf::Color::White);
+
+    // Draw the background
+    window.draw(backgroundSprite);
+
+    // Draw the chess board
+    render.drawBoard(window);
+
+    render.drawMenuScreen(window);
+
+    render.gameHandler(window, pieceImages);
+
+    // Display everything that was drawn
+    window.display();
+}
+
+void _gameFrame(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages, auto utility, auto render)
+{
+    utility.handleMoves();
+
+    render.gameHandler(window, pieceImages);
+}
 
 // Main function
 int main()
@@ -28,53 +57,40 @@ int main()
     utility.initializeSounds();
 
     sf::Clock frameClock;
-    const sf::Time frameTime = sf::seconds(1.0f / 60.0f); // 60 FPS cap
 
     // FPS tracking (optional, for debugging)
     static sf::Clock fpsClock;
+
+    bool needsUpdate = true; // Initial render
 
     // Main game loop
     while (window.isOpen())
     {
         // Event handling
         sf::Event event;
-        bool needsUpdate = false;
         while (window.pollEvent(event))
         {
-            if (utility.clickHandler(event, window))
-            {
-                needsUpdate = true;
-            }
+            // Always set needsUpdate when handling clicks, regardless of the return value
+            utility.clickHandler(event, window);
+            needsUpdate = true; // Set update flag for any user interaction
+
             if (event.type == sf::Event::Closed)
             {
                 window.close();
             }
         }
 
-        // Update the frame if needed or if enough time has passed
-        if (needsUpdate || frameClock.getElapsedTime() >= frameTime)
+        // Update the frame if needed (user input or animation)
+        if (needsUpdate || State::animationActive)
         {
-            render.gameFrame(window, pieceImages, backgroundSprite);
-            frameClock.restart();
+            _gameRender(window, render, utility, backgroundSprite, pieceImages);
+            _gameFrame(window, pieceImages, utility, render);
 
-            // FPS tracking (optional, for debugging)
-            static int frameCount = 0;
-            static sf::Clock fpsClock;
-            static float elapsedTime = 0.0f;
-
-            frameCount++;
-            elapsedTime = fpsClock.getElapsedTime().asSeconds();
-            if (elapsedTime >= 5.0f)
+            // Only reset the update flag if there's no animation running
+            if (!State::animationActive)
             {
-                std::cout << "FPS: " << frameCount / elapsedTime << std::endl;
-                frameCount = 0;
-                fpsClock.restart();
+                needsUpdate = false;
             }
-        }
-        else
-        {
-            // Sleep to avoid excessive CPU usage
-            sf::sleep(frameTime - frameClock.getElapsedTime());
         }
     }
 
