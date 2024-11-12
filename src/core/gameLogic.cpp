@@ -323,7 +323,7 @@ void GameLogic::findAndSetKingPosition(Types::Coord &kingPosition,
 }
 
 bool GameLogic::isKingInCheck(const char &player,
-                              auto boardState,
+                              std::array<std::array<Types::Piece, 11>, 10> boardState,
                               bool alt)
 {
     // Find the king's position

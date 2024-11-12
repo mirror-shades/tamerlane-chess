@@ -14,7 +14,7 @@ public:
     void findAndSetKingPosition(Types::Coord &kingPosition, const char &player);
     void promotePawns(char player);
     void checkPawnForks(char player);
-    bool isKingInCheck(const char &player, auto boardState, bool alt);
+    bool isKingInCheck(const char &player, std::array<std::array<Types::Piece, 11>, 10> boardState, bool alt);
     bool hasLegalMoves(char player, bool alt);
     bool canDraw(char player);
 };

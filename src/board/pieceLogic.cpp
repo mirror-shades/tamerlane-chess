@@ -1,16 +1,19 @@
+// Copyright 2024. mirror-shades. GPL-2.0 License.
 #include <iostream>
 #include "pieceLogic.h"
 #include "globals.h"
 
 // move logic
-std::vector<Types::Coord> PieceLogic::getPawnMoves(Types::Coord coord, char player)
+std::vector<Types::Coord> PieceLogic::getPawnMoves(Types::Coord coord,
+                                                   char player)
 {
     std::vector<Types::Coord> moves;
     int direction = (player == 'w') ? -1 : 1;
     char enemy = (player == 'w') ? 'b' : 'w';
 
     Types::Coord forwardMove = {coord.x, coord.y + direction};
-    if (forwardMove.y >= 0 && forwardMove.y < Chessboard::cols && chessboard.getPiece(forwardMove) == "---")
+    if (forwardMove.y >= 0 && forwardMove.y < Chessboard::cols &&
+        chessboard.getPiece(forwardMove) == "---")
     {
         moves.push_back(forwardMove);
     }
@@ -38,228 +41,97 @@ std::vector<Types::Coord> PieceLogic::getRookMoves(Types::Coord coord, char play
 {
     std::vector<Types::Coord> moves;
     char enemy = (player == 'w') ? 'b' : 'w';
-    int spaceDown = Chessboard::rows - coord.y - 1;
-    int spaceUp = coord.y;
-    int spaceRight = Chessboard::rows - coord.x;
-    int spaceLeft = coord.x;
-    for (int i = 0; i < spaceDown; i++)
-    {
-        int newY = coord.y + i + 1;
-        Types::Coord newCoord = {coord.x, newY};
-        Types::Piece target = chessboard.getPiece(newCoord);
-        if (target == "---")
-        {
-            moves.push_back(newCoord);
-        }
-        else if (target.color() == enemy)
-        {
-            moves.push_back(newCoord);
-            break;
-        }
-        else
-        {
-            break;
-        }
-    }
-    for (int i = 0; i < spaceUp; i++)
-    {
-        int newY = coord.y - i - 1;
-        Types::Coord newCoord = {coord.x, newY};
-        Types::Piece target = chessboard.getPiece(newCoord);
-        if (target == "---")
-        {
-            moves.push_back(newCoord);
-        }
-        else if (target.color() == enemy)
-        {
-            moves.push_back(newCoord);
-            break;
-        }
-        else
-        {
-            break;
-        }
-    }
-    for (int i = 0; i < spaceRight; i++)
-    {
-        int newX = coord.x + i + 1;
-        Types::Coord newCoord = {newX, coord.y};
-        Types::Piece target = chessboard.getPiece(newCoord);
-        if (target == "---")
-        {
-            moves.push_back(newCoord);
-        }
-        else if (target.color() == enemy)
-        {
-            moves.push_back(newCoord);
-            break;
-        }
-        else
-        {
-            break;
-        }
-    }
-    for (int i = 0; i < spaceLeft; i++)
-    {
-        int newX = coord.x - i - 1;
-        Types::Coord newCoord = {newX, coord.y};
-        Types::Piece target = chessboard.getPiece(newCoord);
-        if (target == "---")
-        {
-            moves.push_back(newCoord);
-        }
-        else if (target.color() == enemy)
-        {
-            moves.push_back(newCoord);
-            break;
-        }
-        else
-        {
-            break;
-        }
-    }
 
+    // Check all orthogonal directions
+    for (const auto &direction : ORTHOGONAL)
+    {
+        for (int i = 1; i < Chessboard::rows; ++i)
+        {
+            Types::Coord newCoord = {coord.x + (direction.x * i),
+                                     coord.y + (direction.y * i)};
+
+            if (!chessboard.isValidCoord(newCoord))
+            {
+                break;
+            }
+
+            Types::Piece target = chessboard.getPiece(newCoord);
+            if (target == "---")
+            {
+                moves.push_back(newCoord);
+            }
+            else if (target.color() == enemy)
+            {
+                moves.push_back(newCoord);
+                break;
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getTaliaMoves(Types::Coord coord, char player)
+std::vector<Types::Coord> PieceLogic::getTaliaMoves(Types::Coord coord,
+                                                    char player)
 {
     std::vector<Types::Coord> moves;
     char enemy = (player == 'w') ? 'b' : 'w';
 
-    // up right
-    for (int i = 1; coord.x + i <= Chessboard::rows && coord.y - i >= 0; ++i)
+    // Check all diagonal directions
+    for (const auto &direction : DIAGONAL)
     {
-        int newX = coord.x + i;
-        int newY = coord.y - i;
-        Types::Coord newCoord = {newX, newY};
-        Types::Piece target = chessboard.getPiece(newCoord);
-
-        if (i == 1)
+        for (int i = 1; i < Chessboard::rows; ++i)
         {
-            if (target != "---")
+            Types::Coord newCoord = {coord.x + (direction.x * i),
+                                     coord.y + (direction.y * i)};
+            Types::Piece target = chessboard.getPiece(newCoord);
+            // If it's the first move, only check if the target is empty.
+            // Talia cannot move one square and is blocked by any piece
+            if (i == 1)
             {
-                break;
+                if (target != "---")
+                {
+                    break;
+                }
+            }
+            else
+            {
+                if (target == "---")
+                {
+                    moves.push_back(newCoord);
+                }
+                else if (target.color() == enemy)
+                {
+                    moves.push_back(newCoord);
+                    break;
+                }
+                else
+                {
+                    break;
+                }
             }
         }
-        else if (target == "---")
-        {
-            moves.push_back(newCoord);
-        }
-        else if (target.color() == enemy)
-        {
-            moves.push_back(newCoord);
-            break;
-        }
-        else
-        {
-            break;
-        }
     }
-
-    // up left
-    for (int i = 1; coord.x - i >= 0 && coord.y - i >= 0; ++i)
-    {
-        int newX = coord.x - i;
-        int newY = coord.y - i;
-        Types::Coord newCoord = {newX, newY};
-        Types::Piece target = chessboard.getPiece(newCoord);
-
-        if (i == 1)
-        {
-            if (target != "---")
-            {
-                break;
-            }
-        }
-        else if (target == "---")
-        {
-            moves.push_back(newCoord);
-        }
-        else if (target.color() == enemy)
-        {
-            moves.push_back(newCoord);
-            break;
-        }
-        else
-        {
-            break;
-        }
-    }
-
-    // down right
-    for (int i = 1; coord.x + i <= Chessboard::rows && coord.y + i < Chessboard::rows; ++i)
-    {
-        int newX = coord.x + i;
-        int newY = coord.y + i;
-        Types::Coord newCoord = {newX, newY};
-        Types::Piece target = chessboard.getPiece(newCoord);
-
-        if (i == 1)
-        {
-            if (target != "---")
-            {
-                break;
-            }
-        }
-        else if (target == "---")
-        {
-            moves.push_back(newCoord);
-        }
-        else if (target.color() == enemy)
-        {
-            moves.push_back(newCoord);
-            break;
-        }
-        else
-        {
-            break;
-        }
-    }
-
-    // down left
-    for (int i = 1; coord.x - i >= 0 && coord.y + i < Chessboard::rows; ++i)
-    {
-        int newX = coord.x - i;
-        int newY = coord.y + i;
-        Types::Coord newCoord = {newX, newY};
-        Types::Piece target = chessboard.getPiece(newCoord);
-
-        if (i == 1)
-        {
-            if (target != "---")
-            {
-                break;
-            }
-        }
-        else if (target == "---")
-        {
-            moves.push_back(newCoord);
-        }
-        else if (target.color() == enemy)
-        {
-            moves.push_back(newCoord);
-            break;
-        }
-        else
-        {
-            break;
-        }
-    }
-
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getElephantMoves(Types::Coord coord, char player)
+std::vector<Types::Coord> PieceLogic::getElephantMoves(Types::Coord coord,
+                                                       char player)
 {
     std::vector<Types::Coord> moves;
 
     std::vector<Types::Coord> possibleMoves = {
-        {coord.x - 2, coord.y + 2}, // down left
-        {coord.x + 2, coord.y + 2}, // down right
-        {coord.x - 2, coord.y - 2}, // up left
-        {coord.x + 2, coord.y - 2}  // up right
-    };
+        // down left
+        {coord.x - 2, coord.y + 2},
+        // down right
+        {coord.x + 2, coord.y + 2},
+        // up left
+        {coord.x - 2, coord.y - 2},
+        // up right
+        {coord.x + 2, coord.y - 2}};
 
     for (const auto &move : possibleMoves)
     {
@@ -274,19 +146,14 @@ std::vector<Types::Coord> PieceLogic::getElephantMoves(Types::Coord coord, char 
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getVizierMoves(Types::Coord coord, char player)
+std::vector<Types::Coord> PieceLogic::getVizierMoves(Types::Coord coord,
+                                                     char player)
 {
     std::vector<Types::Coord> moves;
 
-    std::vector<Types::Coord> possibleMoves = {
-        {coord.x - 1, coord.y + 1}, // left down
-        {coord.x + 1, coord.y + 1}, // right down
-        {coord.x - 1, coord.y - 1}, // left up
-        {coord.x + 1, coord.y - 1}  // right up
-    };
-
-    for (const auto &move : possibleMoves)
+    for (const auto &direction : DIAGONAL)
     {
+        Types::Coord move = {coord.x + direction.x, coord.y + direction.y};
         if (move.x >= 0 && move.x <= Chessboard::rows &&
             move.y >= 0 && move.y < Chessboard::cols - 1 &&
             chessboard.getPiece(move).color() != player)
@@ -298,23 +165,14 @@ std::vector<Types::Coord> PieceLogic::getVizierMoves(Types::Coord coord, char pl
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getKhanMoves(Types::Coord coord, char player)
+std::vector<Types::Coord> PieceLogic::getKhanMoves(Types::Coord coord,
+                                                   char player)
 {
     std::vector<Types::Coord> moves;
 
-    std::vector<Types::Coord> possibleMoves = {
-        {coord.x, coord.y - 1},     // up
-        {coord.x, coord.y + 1},     // down
-        {coord.x - 1, coord.y},     // left
-        {coord.x + 1, coord.y},     // right
-        {coord.x - 1, coord.y + 1}, // down left
-        {coord.x + 1, coord.y + 1}, // down right
-        {coord.x - 1, coord.y - 1}, // up left
-        {coord.x + 1, coord.y - 1}  // up right
-    };
-
-    for (const auto &move : possibleMoves)
+    for (const auto &direction : ALL_DIRECTIONS)
     {
+        Types::Coord move = {coord.x + direction.x, coord.y + direction.y};
         if (move.x >= 0 && move.x <= Chessboard::rows &&
             move.y >= 0 && move.y < Chessboard::cols - 1 &&
             chessboard.getPiece(move).color() != player)
@@ -326,7 +184,8 @@ std::vector<Types::Coord> PieceLogic::getKhanMoves(Types::Coord coord, char play
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getWarEngineMoves(Types::Coord coord, char player)
+std::vector<Types::Coord> PieceLogic::getWarEngineMoves(Types::Coord coord,
+                                                        char player)
 {
     std::vector<Types::Coord> moves;
 
@@ -350,19 +209,14 @@ std::vector<Types::Coord> PieceLogic::getWarEngineMoves(Types::Coord coord, char
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getAdminMoves(Types::Coord coord, char player)
+std::vector<Types::Coord> PieceLogic::getAdminMoves(Types::Coord coord,
+                                                    char player)
 {
     std::vector<Types::Coord> moves;
 
-    std::vector<Types::Coord> possibleMoves = {
-        {coord.x, coord.y - 1}, // up
-        {coord.x, coord.y + 1}, // down
-        {coord.x - 1, coord.y}, // left
-        {coord.x + 1, coord.y}, // right
-    };
-
-    for (const auto &move : possibleMoves)
+    for (const auto &direction : ORTHOGONAL)
     {
+        Types::Coord move = {coord.x + direction.x, coord.y + direction.y};
         if (move.x >= 0 && move.x <= Chessboard::rows &&
             move.y >= 0 && move.y < Chessboard::cols - 1 &&
             chessboard.getPiece(move).color() != player)
@@ -374,7 +228,8 @@ std::vector<Types::Coord> PieceLogic::getAdminMoves(Types::Coord coord, char pla
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getMongolMoves(Types::Coord coord, char player)
+std::vector<Types::Coord> PieceLogic::getMongolMoves(Types::Coord coord,
+                                                     char player)
 {
     std::vector<Types::Coord> moves;
 
@@ -401,7 +256,8 @@ std::vector<Types::Coord> PieceLogic::getMongolMoves(Types::Coord coord, char pl
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getCamelMoves(Types::Coord coord, char player)
+std::vector<Types::Coord> PieceLogic::getCamelMoves(Types::Coord coord,
+                                                    char player)
 {
     std::vector<Types::Coord> moves;
 
@@ -428,7 +284,8 @@ std::vector<Types::Coord> PieceLogic::getCamelMoves(Types::Coord coord, char pla
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getGiraffeMoves(Types::Coord coord, char player)
+std::vector<Types::Coord> PieceLogic::getGiraffeMoves(Types::Coord coord,
+                                                      char player)
 {
     std::vector<Types::Coord> moves;
     int directions[4][2] = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
@@ -518,7 +375,8 @@ std::vector<Types::Coord> PieceLogic::getGiraffeMoves(Types::Coord coord, char p
 }
 
 // alternative move logic
-std::vector<Types::Coord> PieceLogic::getAltPawnMoves(Types::Coord coord, char player)
+std::vector<Types::Coord> PieceLogic::getAltPawnMoves(Types::Coord coord,
+                                                      char player)
 {
     std::vector<Types::Coord> moves;
     int direction = (player == 'w') ? -1 : 1;
@@ -564,7 +422,8 @@ std::vector<Types::Coord> PieceLogic::getAltPawnMoves(Types::Coord coord, char p
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getAltWarEngineMoves(Types::Coord coord, char player)
+std::vector<Types::Coord> PieceLogic::getAltWarEngineMoves(Types::Coord coord,
+                                                           char player)
 {
     std::vector<Types::Coord> moves;
 
@@ -592,7 +451,8 @@ std::vector<Types::Coord> PieceLogic::getAltWarEngineMoves(Types::Coord coord, c
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getAltElephantMoves(Types::Coord coord, char player)
+std::vector<Types::Coord> PieceLogic::getAltElephantMoves(Types::Coord coord,
+                                                          char player)
 {
     std::vector<Types::Coord> moves;
 
@@ -620,7 +480,8 @@ std::vector<Types::Coord> PieceLogic::getAltElephantMoves(Types::Coord coord, ch
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getAltVizierMoves(Types::Coord coord, char player)
+std::vector<Types::Coord> PieceLogic::getAltVizierMoves(Types::Coord coord,
+                                                        char player)
 {
     std::vector<Types::Coord> moves;
 
@@ -648,7 +509,8 @@ std::vector<Types::Coord> PieceLogic::getAltVizierMoves(Types::Coord coord, char
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getAltAdminMoves(Types::Coord coord, char player)
+std::vector<Types::Coord> PieceLogic::getAltAdminMoves(Types::Coord coord,
+                                                       char player)
 {
     std::vector<Types::Coord> moves;
 
