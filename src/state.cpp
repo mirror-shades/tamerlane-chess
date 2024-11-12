@@ -13,11 +13,18 @@ char State::winner = '-';
 bool State::aiVsAiMode = false;
 bool State::aiActive = false;
 bool State::aiMoveQueued = false;
+bool State::animationActive = false;
+bool State::renderNeeded = true;
 sf::Clock State::aiVsAiClock;
 
 // Calculate time since last frame
 sf::Clock State::deltaClock;
 float State::deltaTime = State::deltaClock.restart().asSeconds();
+
+// Images
+std::map<std::string, sf::Sprite> State::images;
+sf::Sprite State::backgroundSprite;
+sf::Texture State::backgroundTexture;
 
 // Captured pieces
 std::vector<std::string> State::whitePiecesCaptured;
@@ -30,4 +37,3 @@ bool State::isPieceSelected = false;
 std::vector<Types::Coord> State::moveList;
 std::string State::selectedPiece;
 Types::Coord State::selectedSquare = {-1, -1};
-bool State::animationActive = false;

@@ -29,6 +29,7 @@ public:
     static bool drawPossible;
     static bool isPieceSelected;
     static bool aiVsAiMode;
+    static bool renderNeeded;
     static std::string selectedPiece;
     static Types::Coord selectedSquare;
     static std::vector<Types::Turn> turnHistory;
@@ -37,7 +38,10 @@ public:
     static std::vector<std::string> moveHistory;
     static std::vector<std::string> whitePiecesCaptured;
     static std::vector<std::string> blackPiecesCaptured;
+    static std::map<std::string, sf::Sprite> images;
+    static sf::Sprite backgroundSprite;
     static sf::Clock deltaClock;
     static float deltaTime;
     static bool animationActive;
+    static sf::Texture backgroundTexture;
 };

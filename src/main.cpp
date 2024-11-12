@@ -9,90 +9,98 @@
 #include <SFML/Window.hpp>
 #include <iostream>
 
-void _gameRender(sf::RenderWindow &window, auto render, auto utility, auto backgroundSprite, auto pieceImages)
+int renders = 1;
+
+class Game
 {
-    utility.handleMoves();
-
-    // Clear the window
-    window.clear(sf::Color::White);
-
-    // Draw the background
-    window.draw(backgroundSprite);
-
-    // Draw the chess board
-    render.drawBoard(window);
-
-    render.drawMenuScreen(window);
-
-    render.gameHandler(window, pieceImages);
-
-    // Display everything that was drawn
-    window.display();
-}
-
-void _gameFrame(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages, auto utility, auto render)
-{
-    utility.handleMoves();
-
-    render.gameHandler(window, pieceImages);
-}
-
-// Main function
-int main()
-{
+private:
+    sf::RenderWindow window;
     Render render;
     Utility utility;
     Chessboard chessboard;
-    AI ai(chessboard);
-    // Initialize the game window
-    sf::RenderWindow window(sf::VideoMode(975, 900), "Tamerlane Chess");
+    AI ai;
+    sf::Sprite backgroundSprite;
 
-    // Load and set up the background
-    sf::Texture backgroundTexture;
-    sf::Sprite backgroundSprite = render.renderBackground(window, backgroundTexture);
-
-    // Load chess piece images
-    auto pieceImages = render.loadImages();
-    // Initialize sounds
-    utility.initializeSounds();
-
-    sf::Clock frameClock;
-
-    // FPS tracking (optional, for debugging)
-    static sf::Clock fpsClock;
-
-    bool needsUpdate = true; // Initial render
-
-    // Main game loop
-    while (window.isOpen())
+    void handleEvents()
     {
-        // Event handling
         sf::Event event;
         while (window.pollEvent(event))
         {
-            // Always set needsUpdate when handling clicks, regardless of the return value
+            if (event.type != sf::Event::MouseMoved)
+            {
+                State::renderNeeded = true;
+            }
+
             utility.clickHandler(event, window);
-            needsUpdate = true; // Set update flag for any user interaction
 
             if (event.type == sf::Event::Closed)
             {
                 window.close();
             }
         }
+    }
 
-        // Update the frame if needed (user input or animation)
-        if (needsUpdate || State::animationActive)
+    void updateGameState()
+    {
+        // Limit to 60 FPS
+        static sf::Clock frameClock;
+        const float frameTime = 1.0f / 120.0f;
+        if (frameClock.getElapsedTime().asSeconds() < frameTime)
         {
-            _gameRender(window, render, utility, backgroundSprite, pieceImages);
-            _gameFrame(window, pieceImages, utility, render);
+            return;
+        }
+        frameClock.restart();
 
-            // Only reset the update flag if there's no animation running
-            if (!State::animationActive)
+        window.clear(sf::Color::White);
+        render.drawBackground(window);
+        render.drawBoard(window);
+        render.drawMenuScreen(window);
+        render.renderGameElements(window);
+        window.display();
+
+        // BEGIN RENDER COUNT
+        renders++;
+        std::cout << "Total renders: " << renders << std::endl;
+        // END RENDER COUNT
+
+        State::renderNeeded = false;
+    }
+
+    void initialize()
+    {
+        render.drawBackground(window);
+        State::images = render.loadImages(window);
+        utility.initializeSounds();
+        State::renderNeeded = true;
+    }
+
+public:
+    Game() : window(sf::VideoMode(975, 900), "Tamerlane Chess"),
+             ai(chessboard) {}
+
+    void run()
+    {
+        initialize();
+
+        while (window.isOpen())
+        {
+            handleEvents();
+
+            // Always update game logic, regardless of rendering
+            utility.handleMoves();
+
+            // Render only if needed
+            if (State::renderNeeded || State::animationActive)
             {
-                needsUpdate = false;
+                updateGameState();
             }
         }
     }
+};
 
+int main()
+{
+    Game game;
+    game.run();
     return 0;
 }

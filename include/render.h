@@ -13,8 +13,8 @@ public:
     static bool animationInProgress;
     static Types::Coord move;
 
-    sf::Sprite renderBackground(sf::RenderWindow &window, sf::Texture &backgroundTexture);
-    std::map<std::string, sf::Sprite> loadImages();
+    void drawBackground(sf::RenderWindow &window);
+    std::map<std::string, sf::Sprite> loadImages(sf::RenderWindow &window);
     void updateAnimations();
     void drawBoard(sf::RenderWindow &window);
     void drawExitButton(sf::RenderWindow &window);
@@ -26,8 +26,8 @@ public:
     void drawPieces(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages);
     void drawCapturedPieces(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages);
     void startAnimation(std::string piece, Types::Coord start, Types::Coord end, float duration);
-    void gameHandler(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages);
-    void gameFrame(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages, sf::Sprite &backgroundSprite);
+    void renderGameElements(sf::RenderWindow &window);
+    void highlightKings(sf::RenderWindow &window);
 
 private:
     sf::Vector2f interpolate(sf::Vector2f startPos, sf::Vector2f endPos, float t);

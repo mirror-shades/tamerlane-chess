@@ -205,6 +205,7 @@ void Utility::initializeSounds()
 
 bool Utility::clickHandler(sf::Event event, sf::RenderWindow &window)
 {
+
     if (event.type == sf::Event::Closed)
         window.close();
 
@@ -213,16 +214,15 @@ bool Utility::clickHandler(sf::Event event, sf::RenderWindow &window)
         if (!State::gameOver && !State::animationActive && event.mouseButton.button == sf::Mouse::Left)
         {
             bool playerMoved = clickLogic(event.mouseButton.x, event.mouseButton.y);
-
             if (playerMoved)
             {
                 if (State::aiActive)
                 {
                     State::aiMoveQueued = true;
                 }
-                return true;
             }
         }
+        return true;
     }
 
     if (event.type == sf::Event::KeyPressed)

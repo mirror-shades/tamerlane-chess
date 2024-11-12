@@ -332,28 +332,30 @@ void Render::winScreen(sf::RenderWindow &window)
 }
 
 // Render background
-sf::Sprite Render::renderBackground(sf::RenderWindow &window, sf::Texture &backgroundTexture)
+void Render::drawBackground(sf::RenderWindow &window)
 {
-    if (!backgroundTexture.loadFromFile(findAssetsPath("images/wood.png")))
+    // set background sprite from State::backgroundSprite
+    window.draw(State::backgroundSprite);
+}
 
+// Load chess piece images
+std::map<std::string, sf::Sprite> Render::loadImages(sf::RenderWindow &window)
+{
+    // Load background texture (now using global texture variable)
+    std::string assetPath = findAssetsPath("images/wood.png");
+    if (!State::backgroundTexture.loadFromFile(assetPath))
     {
         std::cerr << "Error loading background texture" << std::endl;
         throw;
     }
-
-    sf::Sprite backgroundSprite;
-    backgroundSprite.setTexture(backgroundTexture);
     sf::Vector2u windowSize = window.getSize();
-    sf::Vector2u textureSize = backgroundTexture.getSize();
+    sf::Vector2u textureSize = State::backgroundTexture.getSize();
     float scaleX = static_cast<float>(windowSize.x) / textureSize.x;
     float scaleY = static_cast<float>(windowSize.y) / textureSize.y;
-    backgroundSprite.setScale(scaleX, scaleY);
-    return backgroundSprite;
-}
+    State::backgroundSprite.setScale(scaleX, scaleY);
 
-// Load chess piece images
-std::map<std::string, sf::Sprite> Render::loadImages()
-{
+    State::backgroundSprite.setTexture(State::backgroundTexture);
+
     // List of all piece types in Tamerlane Chess
     std::vector<std::string> pieces = {
         "bKa", "wKa", "bK0", "wK0", "bK1", "wK1", "bAd", "wAd",
@@ -731,43 +733,27 @@ void Render::drawCapturedPieces(sf::RenderWindow &window, const std::map<std::st
     window.draw(text);
 }
 
+void Render::highlightKings(sf::RenderWindow &window)
+{
+    Types::Coord whiteKingPosition, blackKingPosition;
+    gameLogic->findAndSetKingPosition(whiteKingPosition, 'w');
+    gameLogic->findAndSetKingPosition(blackKingPosition, 'b');
+    highlightKing(window, whiteKingPosition, State::isWhiteKingInCheck);
+    highlightKing(window, blackKingPosition, State::isBlackKingInCheck);
+}
+
 // rename and rethink this function, it doesn't fit here
-void Render::gameHandler(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages)
+void Render::renderGameElements(sf::RenderWindow &window)
 {
 
     if (State::state == State::GameState::Game)
     {
         highlightSquares(window);
         highlightPreviousMove(window);
-        Types::Coord whiteKingPosition, blackKingPosition;
-        gameLogic->findAndSetKingPosition(whiteKingPosition, 'w');
-        gameLogic->findAndSetKingPosition(blackKingPosition, 'b');
-        highlightKing(window, whiteKingPosition, State::isWhiteKingInCheck);
-        highlightKing(window, blackKingPosition, State::isBlackKingInCheck);
-        drawPieces(window, pieceImages);
+        highlightKings(window);
+        drawPieces(window, State::images);
         drawExitButton(window);
-        drawCapturedPieces(window, pieceImages);
+        drawCapturedPieces(window, State::images);
         winScreen(window);
     }
-}
-
-void Render::gameFrame(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages, sf::Sprite &backgroundSprite)
-{
-    utility->handleMoves();
-
-    // Clear the window
-    window.clear(sf::Color::White);
-
-    // Draw the background
-    window.draw(backgroundSprite);
-
-    // Draw the chess board
-    drawBoard(window);
-
-    drawMenuScreen(window);
-
-    gameHandler(window, pieceImages);
-
-    // Display everything that was drawn
-    window.display();
 }
