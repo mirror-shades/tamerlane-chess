@@ -8,7 +8,7 @@ An engine for Tamerlane chess built in C++. Tamerlane chess is a medieval chess 
 
 ## Compiling
 
-The game is compiled using SFML 2.6.1 built on minGW 13.1.0 using CMake. SFML is included with the source code and no SFML installation should be necessary. You can build as normal using CMake or use the included python scripts. Currently Windows, Linux, and MacOS builds are supported (macOS is untested).
+The game is compiled using SFML 2.6.1 built on minGW 13.1.0 using CMake. SFML is included with the source code and no SFML installation should be necessary. You can build as normal using CMake or use the included python script. Currently Windows, Linux, and MacOS builds are supported (macOS is untested).
 
 There is a script to build and run the game in the scripts directory called `build.py`. This will use cmake to build the project based on your platform.
 
