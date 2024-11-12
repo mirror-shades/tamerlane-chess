@@ -10,28 +10,28 @@ An engine for Tamerlane chess built in C++. Tamerlane chess is a medieval chess 
 
 The game is compiled using SFML 2.6.1 built on minGW 13.1.0 using CMake. SFML is included with the source code and no SFML installation should be necessary. You can build as normal using CMake or use the included python scripts. Currently Windows, Linux, and MacOS builds are supported (macOS is untested).
 
-There is a script to build and run the game in the scripts directory called `run.py` and a script to install the game in the scripts directory called `install.py` which takes an argument of the install directory.
+There is a script to build and run the game in the scripts directory called `build.py`. This will use cmake to build the project based on your platform.
 
-Alternatively, run in terminal:
-
-```
-cmake -G "MinGW Makefiles" -B build
-cmake --build build
-```
-
-## Installing
-
-If you prefer to manually install rather than download a release, you can do that as well. There is a powershell script to install the game in the scripts directory called `install.ps1`. This script will create a standalone installation in a folder parallel to the source code. This standalone can also be downloaded from the releases page.
+This will build to the build directory in root.
 
 ```
-parent directory
-|-- tamerlane-cpp (source code)
-|-- Tamerlane Chess (Standalone installation)
+python scripts/build.py
+```
+
+To run the game after building, use the following command:
+
+```
+python scripts/build.py run
+```
+
+To install a release of the game, use the following command:
+
+```
+python scripts/build.py install [path]
 ```
 
 ## todo
 
-[ ] qol and bug fixes  
 [ ] ai thinking blocks input for exiting the game  
 [ ] ai thinking should happen after ai options menu is closed
 
@@ -58,6 +58,7 @@ analysis mode:
 [x] play move and capture sounds
 [x] init cmake
 [x] multiplatform build system
+[x] render made reactive, huge performance boost
 
 implement moves:  
 [x] pawn moves  
