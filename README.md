@@ -36,6 +36,7 @@ python scripts/build.py install [path]
 
 ## todo
 
+[ ] bug when game is started, pieces render too early  
 [ ] ai thinking blocks input for exiting the game  
 [ ] ai thinking should happen after ai options menu is closed
 
