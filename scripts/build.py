@@ -6,7 +6,6 @@ import os
 import sys
 import shutil
 
-
 def run_cmake_build():    
     # Create build directory if it doesn't exist
     if os.path.exists("build"):
@@ -65,23 +64,37 @@ def run_install(path):
         print("Creating Tamerlane-Chess directory")
         os.makedirs(os.path.join(path, "Tamerlane-Chess"), exist_ok=True)
         
-        # Could use a list of files to make maintenance easier
+        # List of files to copy from build directory
         files_to_copy = [
             "Tamerlane-Chess.exe",
-            "libsfml-audio.dll",
-            "libsfml-graphics.dll",
-            "libsfml-window.dll",
-            "libsfml-system.dll",
+            "sfml-audio-2.dll",
+            "sfml-graphics-2.dll",
+            "sfml-window-2.dll",
+            "sfml-system-2.dll",
             "openal32.dll"
         ]
         
         print("Copying files to Tamerlane-Chess directory")
+        # Copy files from build directory
         for file in files_to_copy:
             print(f"Copying {file}")
-            shutil.copy(f"build/{file}", os.path.join(path, "Tamerlane-Chess"))
-        #copy the assets folder 
+            shutil.copy(f"build/{file}", os.path.join(path, "TamerlaneChess"))
+            
+        # Copy files from external DLL directory
+        external_dll_path = "external/RELEASE-DLL-Windows"
+        if os.path.exists(external_dll_path):
+            print("Copying external DLL files")
+            for file in os.listdir(external_dll_path):
+                print(f"Copying {file}")
+                shutil.copy(
+                    os.path.join(external_dll_path, file),
+                    os.path.join(path, "Tamerlane-Chess")
+                )
+                    
+        # Copy the assets folder
         print("Copying assets folder")
-        shutil.copytree("build/assets", os.path.join(path, "Tamerlane-Chess/assets"))
+        shutil.copytree("assets", os.path.join(path, "Tamerlane-Chess/assets"))
+        
     except Exception as e:
         print(f"Error during installation: {str(e)}")
         #remove the Tamerlane-Chess directory if it exists
