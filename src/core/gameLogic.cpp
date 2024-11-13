@@ -299,8 +299,7 @@ Types::Coord GameLogic::findPawnX(char player)
     return {-1, -1};
 }
 
-void GameLogic::findAndSetKingPosition(Types::Coord &kingPosition,
-                                       const char &player)
+void GameLogic::findAndSetKingPosition(Types::Coord &kingPosition, const char &player)
 {
     auto boardState = chessboard.getBoardState();
     Types::Piece king = (player == 'w') ? "wKa" : "bKa";

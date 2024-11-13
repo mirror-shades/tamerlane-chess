@@ -3,6 +3,7 @@
 #include <string>
 #include <cstring>
 #include <array>
+
 namespace Types
 {
     // used to store the piece code in the selected piece
@@ -54,9 +55,9 @@ namespace Types
         }
 
         // Get individual characters
-        char color() const { return code[0]; }   // 'w' or 'b'
-        char piece() const { return code[1]; }   // piece type
-        char variant() const { return code[2]; } // piece variant
+        char color() const { return code[0]; }
+        char piece() const { return code[1]; }
+        char variant() const { return code[2]; }
     };
 
     struct Coord

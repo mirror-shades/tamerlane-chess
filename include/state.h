@@ -1,9 +1,9 @@
 // Copyright 2024. mirror-shades. GPL-2.0 License.
 #pragma once
-#include "types.h"
 #include <vector>
 #include <string>
 #include <SFML/Graphics.hpp>
+#include "types.h"
 
 class State
 {

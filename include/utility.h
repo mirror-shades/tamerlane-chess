@@ -25,11 +25,21 @@ public:
     void handleMoves();
     void playMoveSound();
     void playCaptureSound();
-    void handlePieceMovement(const std::string &_selectedPiece, const Types::Coord &_selectedSquare, const Types::Coord &move, const char &player);
+    void handlePieceMovement(const std::string &_selectedPiece,
+                             const Types::Coord &_selectedSquare,
+                             const Types::Coord &move,
+                             const char &player);
 
     // New button-related functions
-    static sf::RectangleShape createButton(const sf::Vector2f &size, const sf::Vector2f &position, const sf::Color &fillColor);
-    static void drawButton(sf::RenderWindow &window, const sf::RectangleShape &button, const std::string &text, const sf::Font &font, unsigned int characterSize);
+
     static bool isButtonClicked(const sf::RectangleShape &button, const sf::Vector2i &mousePosition);
     static void updateGameState(const Types::Coord &move, const std::string &target, GameLogic &gameLogic);
+    static sf::RectangleShape createButton(const sf::Vector2f &size,
+                                           const sf::Vector2f &position,
+                                           const sf::Color &fillColor);
+    static void drawButton(sf::RenderWindow &window,
+                           const sf::RectangleShape &button,
+                           const std::string &text,
+                           const sf::Font &font,
+                           unsigned int characterSize);
 };

@@ -1,10 +1,7 @@
 // Copyright 2024. mirror-shades. GPL-2.0 License.
 #pragma once
-#ifndef CHESSBOARD_H
-#define CHESSBOARD_H
-
-#include "types.h"
 #include <array>
+#include "types.h"
 
 class Chessboard
 {
@@ -34,5 +31,3 @@ public:
 private:
     Types::Board chessboard;
 };
-
-#endif // CHESSBOARD_H

@@ -1,3 +1,4 @@
+// Copyright 2024. mirror-shades. GPL-2.0 License.
 #include <iostream>
 #include <algorithm>
 #include <SFML/Graphics.hpp>

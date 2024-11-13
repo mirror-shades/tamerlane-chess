@@ -10,7 +10,7 @@
 class AI
 {
 public:
-    AI(Chessboard &board) : chessboard(board) {}
+    explicit AI(Chessboard &board) : chessboard(board) {}
     Types::Turn minMax(char player, int turn, bool alt, int depth,
                        float alpha, float beta);
     float minMaxHelper(GameLogic gameLogic, char player, int turn, bool alt,

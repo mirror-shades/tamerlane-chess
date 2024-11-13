@@ -7,11 +7,16 @@
 #include "chessboard.h"
 #include "state.h"
 #include "menu.h"
+
 class Game
 {
+public:
+    Game();
+    void run();
+
 private:
     sf::RenderWindow window;
-    Chessboard chessboard; // Move up
+    Chessboard chessboard;
     AI ai;
     Render render;
     Menu menu;
@@ -20,8 +25,4 @@ private:
     void handleEvents();
     void updateGameState();
     void initialize();
-
-public:
-    Game();
-    void run();
 };
