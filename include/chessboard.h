@@ -13,25 +13,25 @@ public:
     static const int rows = 10;
     static const int cols = 11;
 
-    static const std::array<std::array<Types::Piece, 11>, 10> masculineArray;
-    static const std::array<std::array<Types::Piece, 11>, 10> feminineArray;
-    static const std::array<std::array<Types::Piece, 11>, 10> thirdArray;
+    static const Types::Board masculineArray;
+    static const Types::Board feminineArray;
+    static const Types::Board thirdArray;
 
     Chessboard();
     void resetBoard();
-    void setBoard(const std::array<std::array<Types::Piece, 11>, 10> &newBoard);
+    void setBoard(const Types::Board &newBoard);
     void setMasculineBoard();
     void setFeminineBoard();
     void setThirdBoard();
 
-    const std::array<std::array<Types::Piece, 11>, 10> &getBoardState() const;
+    const Types::Board &getBoardState() const;
     const Types::Piece getPiece(Types::Coord coord) const;
     void setCell(Types::Coord coord, const Types::Piece &value);
     bool isValidCoord(Types::Coord coord) const;
     void printBoard() const;
 
 private:
-    std::array<std::array<Types::Piece, 11>, 10> chessboard;
+    Types::Board chessboard;
 };
 
 #endif // CHESSBOARD_H

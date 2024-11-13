@@ -1,5 +1,6 @@
 // Copyright 2024. mirror-shades. GPL-2.0 License.
 #include <iostream>
+#include <vector>
 #include "pieceLogic.h"
 #include "globals.h"
 
@@ -37,7 +38,8 @@ std::vector<Types::Coord> PieceLogic::getPawnMoves(Types::Coord coord,
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getRookMoves(Types::Coord coord, char player)
+std::vector<Types::Coord> PieceLogic::getRookMoves(Types::Coord coord,
+                                                   char player)
 {
     std::vector<Types::Coord> moves;
     char enemy = (player == 'w') ? 'b' : 'w';
@@ -188,12 +190,15 @@ std::vector<Types::Coord> PieceLogic::getWarEngineMoves(Types::Coord coord,
                                                         char player)
 {
     std::vector<Types::Coord> moves;
-
     std::vector<Types::Coord> possibleMoves = {
-        {coord.x, coord.y - 2}, // up
-        {coord.x, coord.y + 2}, // down
-        {coord.x - 2, coord.y}, // left
-        {coord.x + 2, coord.y}, // right
+        // up
+        {coord.x, coord.y - 2},
+        // down
+        {coord.x, coord.y + 2},
+        // left
+        {coord.x - 2, coord.y},
+        // right
+        {coord.x + 2, coord.y},
     };
 
     for (const auto &move : possibleMoves)
@@ -297,7 +302,8 @@ std::vector<Types::Coord> PieceLogic::getGiraffeMoves(Types::Coord coord,
         Types::Coord diagonalMove = {coord.x + dx, coord.y + dy};
 
         // Check if the one square diagonal move is valid and empty
-        if (!chessboard.isValidCoord(diagonalMove) || chessboard.getPiece(diagonalMove) != "---")
+        if (!chessboard.isValidCoord(diagonalMove) ||
+            chessboard.getPiece(diagonalMove) != "---")
             continue;
 
         // Check if the immediate horizontal and vertical moves are blocked
@@ -308,11 +314,13 @@ std::vector<Types::Coord> PieceLogic::getGiraffeMoves(Types::Coord coord,
             Types::Coord immediateH = {diagonalMove.x + i * dx, diagonalMove.y};
             Types::Coord immediateV = {diagonalMove.x, diagonalMove.y + i * dy};
 
-            if (chessboard.isValidCoord(immediateH) && chessboard.getPiece(immediateH) != "---")
+            if (chessboard.isValidCoord(immediateH) &&
+                chessboard.getPiece(immediateH) != "---")
             {
                 blockedHorizontal = true;
             }
-            if (chessboard.isValidCoord(immediateV) && chessboard.getPiece(immediateV) != "---")
+            if (chessboard.isValidCoord(immediateV) &&
+                chessboard.getPiece(immediateV) != "---")
             {
                 blockedVertical = true;
             }
@@ -323,7 +331,9 @@ std::vector<Types::Coord> PieceLogic::getGiraffeMoves(Types::Coord coord,
         {
             for (int i = 2; i < Chessboard::rows; ++i)
             {
-                Types::Coord straightMoveH = {diagonalMove.x + i * dx, diagonalMove.y};
+                Types::Coord straightMoveH = {diagonalMove.x +
+                                                  i * dx,
+                                              diagonalMove.y};
                 if (chessboard.isValidCoord(straightMoveH))
                 {
                     Types::Piece targetH = chessboard.getPiece(straightMoveH);
@@ -349,7 +359,8 @@ std::vector<Types::Coord> PieceLogic::getGiraffeMoves(Types::Coord coord,
         {
             for (int i = 2; i < Chessboard::rows; ++i)
             {
-                Types::Coord straightMoveV = {diagonalMove.x, diagonalMove.y + i * dy};
+                Types::Coord straightMoveV = {diagonalMove.x,
+                                              diagonalMove.y + i * dy};
                 if (chessboard.isValidCoord(straightMoveV))
                 {
                     Types::Piece targetV = chessboard.getPiece(straightMoveV);
@@ -383,11 +394,13 @@ std::vector<Types::Coord> PieceLogic::getAltPawnMoves(Types::Coord coord,
     char enemy = (player == 'w') ? 'b' : 'w';
 
     // Check if it's the pawn's first move
-    bool isFirstMove = (player == 'w' && coord.y == 7) || (player == 'b' && coord.y == 2);
+    bool isFirstMove = (player == 'w' && coord.y == 7) ||
+                       (player == 'b' && coord.y == 2);
 
     // Single move forward
     Types::Coord forwardMove = {coord.x, coord.y + direction};
-    if (forwardMove.y >= 0 && forwardMove.y < Chessboard::cols && chessboard.getPiece(forwardMove) == "---")
+    if (forwardMove.y >= 0 && forwardMove.y < Chessboard::cols &&
+        chessboard.getPiece(forwardMove) == "---")
     {
         moves.push_back(forwardMove);
 
@@ -395,7 +408,8 @@ std::vector<Types::Coord> PieceLogic::getAltPawnMoves(Types::Coord coord,
         if (isFirstMove)
         {
             Types::Coord doubleMove = {coord.x, coord.y + 2 * direction};
-            if (doubleMove.y >= 0 && doubleMove.y < Chessboard::cols && chessboard.getPiece(doubleMove) == "---")
+            if (doubleMove.y >= 0 && doubleMove.y < Chessboard::cols &&
+                chessboard.getPiece(doubleMove) == "---")
             {
                 moves.push_back(doubleMove);
             }
@@ -427,16 +441,18 @@ std::vector<Types::Coord> PieceLogic::getAltWarEngineMoves(Types::Coord coord,
 {
     std::vector<Types::Coord> moves;
 
+    // Possible moves for alt war engine:
+    // - Orthogonal moves: 2 squares up/down/left/right
+    // - Diagonal moves: 2 squares in each diagonal direction
     std::vector<Types::Coord> possibleMoves = {
-        {coord.x, coord.y - 2},     // up
-        {coord.x, coord.y + 2},     // down
-        {coord.x - 2, coord.y},     // left
-        {coord.x + 2, coord.y},     // right
-        {coord.x + 2, coord.y - 2}, // right up
-        {coord.x - 2, coord.y + 2}, // left down
-        {coord.x - 2, coord.y - 2}, // left up
-        {coord.x + 2, coord.y + 2}, // right down
-    };
+        {coord.x, coord.y - 2},
+        {coord.x, coord.y + 2},
+        {coord.x - 2, coord.y},
+        {coord.x + 2, coord.y},
+        {coord.x + 2, coord.y - 2},
+        {coord.x - 2, coord.y + 2},
+        {coord.x - 2, coord.y - 2},
+        {coord.x + 2, coord.y + 2}};
 
     for (const auto &move : possibleMoves)
     {
@@ -456,16 +472,18 @@ std::vector<Types::Coord> PieceLogic::getAltElephantMoves(Types::Coord coord,
 {
     std::vector<Types::Coord> moves;
 
+    // Possible moves for alt elephant:
+    // Orthogonal moves: 1 square up/down/left/right
+    // Diagonal moves: 2 squares in each diagonal direction
     std::vector<Types::Coord> possibleMoves = {
-        {coord.x, coord.y - 1},     // up
-        {coord.x, coord.y + 1},     // down
-        {coord.x - 1, coord.y},     // left
-        {coord.x + 1, coord.y},     // right
-        {coord.x - 2, coord.y + 2}, // down left
-        {coord.x + 2, coord.y + 2}, // down right
-        {coord.x - 2, coord.y - 2}, // up left
-        {coord.x + 2, coord.y - 2}  // up right
-    };
+        {coord.x, coord.y - 1},
+        {coord.x, coord.y + 1},
+        {coord.x - 1, coord.y},
+        {coord.x + 1, coord.y},
+        {coord.x - 2, coord.y + 2},
+        {coord.x + 2, coord.y + 2},
+        {coord.x - 2, coord.y - 2},
+        {coord.x + 2, coord.y - 2}};
 
     for (const auto &move : possibleMoves)
     {
@@ -485,16 +503,18 @@ std::vector<Types::Coord> PieceLogic::getAltVizierMoves(Types::Coord coord,
 {
     std::vector<Types::Coord> moves;
 
+    // Possible moves for alt vizier:
+    // 1 square diagonally in all directions
+    // 2 squares diagonally in all directions
     std::vector<Types::Coord> possibleMoves = {
-        {coord.x - 1, coord.y + 1}, // left down
-        {coord.x + 1, coord.y + 1}, // right down
-        {coord.x - 1, coord.y - 1}, // left up
-        {coord.x + 1, coord.y - 1}, // right up
-        {coord.x - 2, coord.y + 2}, // left down
-        {coord.x + 2, coord.y + 2}, // right down
-        {coord.x - 2, coord.y - 2}, // left up
-        {coord.x + 2, coord.y - 2}  // right up
-    };
+        {coord.x - 1, coord.y + 1},
+        {coord.x + 1, coord.y + 1},
+        {coord.x - 1, coord.y - 1},
+        {coord.x + 1, coord.y - 1},
+        {coord.x - 2, coord.y + 2},
+        {coord.x + 2, coord.y + 2},
+        {coord.x - 2, coord.y - 2},
+        {coord.x + 2, coord.y - 2}};
 
     for (const auto &move : possibleMoves)
     {
@@ -514,16 +534,17 @@ std::vector<Types::Coord> PieceLogic::getAltAdminMoves(Types::Coord coord,
 {
     std::vector<Types::Coord> moves;
 
+    // Possible moves for alt admin:
+    // 1 or 2 squares orthogonally in all directions
     std::vector<Types::Coord> possibleMoves = {
-        {coord.x, coord.y - 1}, // up
-        {coord.x, coord.y + 1}, // down
-        {coord.x - 1, coord.y}, // left
-        {coord.x + 1, coord.y}, // right
-        {coord.x, coord.y - 2}, // up
-        {coord.x, coord.y + 2}, // down
-        {coord.x - 2, coord.y}, // left
-        {coord.x + 2, coord.y}, // right
-    };
+        {coord.x, coord.y - 1},
+        {coord.x, coord.y + 1},
+        {coord.x - 1, coord.y},
+        {coord.x + 1, coord.y},
+        {coord.x, coord.y - 2},
+        {coord.x, coord.y + 2},
+        {coord.x - 2, coord.y},
+        {coord.x + 2, coord.y}};
 
     for (const auto &move : possibleMoves)
     {

@@ -58,7 +58,8 @@ Types::Turn AI::minMax(char player,
     for (const auto &move : allMoves)
     {
         // Make move
-        std::string originalPiece = chessboard.getPiece(move.finalSquare).toString();
+        std::string originalPiece =
+            chessboard.getPiece(move.finalSquare).toString();
         chessboard.setCell(move.finalSquare, move.pieceMoved);
         chessboard.setCell(move.initialSquare, "---");
 
@@ -528,7 +529,8 @@ float AI::quiescenceSearch(char player, float alpha, float beta, int maxDepth)
     if (maxDepth == 0)
         return standPat;
 
-    std::vector<Types::Turn> captureMoves = generateCaptureMoves(player);
+    std::vector<Types::Turn> captureMoves =
+        generateCaptureMoves(player);
 
     for (const auto &move : captureMoves)
     {
@@ -578,7 +580,8 @@ std::vector<Types::Turn> AI::generateCaptureMoves(char player)
 
                 for (const auto &move : legalMoves)
                 {
-                    std::string capturedPiece = chessboard.getPiece(move).toString();
+                    std::string capturedPiece =
+                        chessboard.getPiece(move).toString();
                     if (capturedPiece != "---" && capturedPiece[0] != player)
                     {
                         // Initialize all fields including score

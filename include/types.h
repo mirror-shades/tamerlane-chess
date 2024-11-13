@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <cstring>
+#include <array>
 namespace Types
 {
     // used to store the piece code in the selected piece
@@ -87,5 +88,10 @@ namespace Types
         Piece pieceMoved;
         Piece pieceCaptured;
         float score;
+    };
+
+    struct Board
+    {
+        std::array<std::array<Piece, 11>, 10> board;
     };
 }

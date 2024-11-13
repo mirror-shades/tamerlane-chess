@@ -255,7 +255,7 @@ void Render::drawPieces(
     {
         for (int col = 0; col < Chessboard::cols; ++col)
         {
-            std::string piece = boardState[row][col].toString();
+            std::string piece = boardState.board[row][col].toString();
             if (piece != "---")
             {
                 sf::Sprite sprite = pieceImages.at(piece);

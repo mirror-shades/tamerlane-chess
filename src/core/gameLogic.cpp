@@ -86,7 +86,7 @@ GameLogic::getAllMoves(char player,
     {
         for (int col = 0; col < Chessboard::cols; ++col)
         {
-            Types::Piece piece = boardState[row][col];
+            Types::Piece piece = boardState.board[row][col];
             if (piece != "---" && piece.color() == player)
             {
                 Types::Coord coord = {col, row};
@@ -114,7 +114,7 @@ GameLogic::filterLegalMoves(const std::vector<Types::Coord> &possibleMoves,
     std::vector<Types::Coord> legalMoves;
 
     // Backup the original state
-    const auto originalBoard = chessboard.getBoardState();
+    const Types::Board originalBoard = chessboard.getBoardState();
 
     for (const auto &toCoord : possibleMoves)
     {
@@ -129,7 +129,7 @@ GameLogic::filterLegalMoves(const std::vector<Types::Coord> &possibleMoves,
         // Move the piece
         chessboard.setCell(fromCoord, "---");
         chessboard.setCell(toCoord, piece);
-        auto newBoard = chessboard.getBoardState();
+        Types::Board newBoard = chessboard.getBoardState();
         // Check if the move results in the king being in check
         if (!isKingInCheck(player, newBoard, alt))
         {
@@ -208,7 +208,9 @@ void GameLogic::promotePawns(char player)
             else
             {
                 chessboard.setCell({col, row}, "---");
-                chessboard.setCell(pos, Types::Piece(player + std::string(promotionType)));
+                chessboard.setCell(pos,
+                                   Types::Piece(player +
+                                                std::string(promotionType)));
             }
             continue;
         }
@@ -225,10 +227,10 @@ void GameLogic::promotePawns(char player)
             continue;
         }
 
-        ;
         chessboard.setCell({col, row}, Types::Piece(player + promotionType));
         std::cout << "Promoted "
-                  << piece.toString() << " to " << player + promotionType << " at "
+                  << piece.toString() << " to "
+                  << player + promotionType << " at "
                   << col << "," << row << std::endl;
     }
 }
@@ -269,7 +271,8 @@ void GameLogic::checkPawnForks(char player)
                 Types::Piece targetPiece =
                     chessboard.getPiece({forkCol, forkRow});
                 if (targetPiece == "---" ||
-                    (targetPiece.color() == enemy && targetPiece.piece() != 'K'))
+                    (targetPiece.color() == enemy &&
+                     targetPiece.piece() != 'K'))
                 {
                     // Move the pawnX to the fork position
                     chessboard.setCell(pawnXPos, "---");
@@ -293,7 +296,7 @@ Types::Coord GameLogic::findPawnX(char player)
     {
         for (int col = 0; col < Chessboard::cols; ++col)
         {
-            Types::Piece piece = boardState[row][col];
+            Types::Piece piece = boardState.board[row][col];
             if (piece.toString() == player + "px")
             {
                 return {col, row};
@@ -313,7 +316,7 @@ void GameLogic::findAndSetKingPosition(Types::Coord &kingPosition,
     {
         for (int col = 0; col < Chessboard::cols; ++col)
         {
-            if (boardState[row][col] == king)
+            if (boardState.board[row][col] == king)
             {
                 kingPosition = {col, row};
                 return;
@@ -323,7 +326,7 @@ void GameLogic::findAndSetKingPosition(Types::Coord &kingPosition,
 }
 
 bool GameLogic::isKingInCheck(const char &player,
-                              std::array<std::array<Types::Piece, 11>, 10> boardState,
+                              const Types::Board &boardState,
                               bool alt)
 {
     // Find the king's position
@@ -334,7 +337,7 @@ bool GameLogic::isKingInCheck(const char &player,
     {
         for (int col = 0; col < Chessboard::cols; ++col)
         {
-            Types::Piece piece = boardState[row][col];
+            Types::Piece piece = boardState.board[row][col];
             if (piece.color() == player && piece.piece() == 'K')
             {
                 kingPosition = {col, row};
@@ -357,7 +360,7 @@ bool GameLogic::isKingInCheck(const char &player,
     {
         for (int col = 0; col < Chessboard::cols; ++col)
         {
-            Types::Piece piece = boardState[row][col];
+            Types::Piece piece = boardState.board[row][col];
             if (piece.color() == enemyPlayer)
             {
                 std::vector<Types::Coord> moves = getMoves({col, row},

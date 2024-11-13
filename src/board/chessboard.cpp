@@ -7,8 +7,7 @@
 // Define the global chessboard variable
 Chessboard chessboard;
 
-void Chessboard::setBoard(
-    const std::array<std::array<Types::Piece, 11>, 10> &newBoard)
+void Chessboard::setBoard(const Types::Board &newBoard)
 {
     chessboard = newBoard;
 }
@@ -20,7 +19,7 @@ void Chessboard::resetBoard()
 
 void Chessboard::setMasculineBoard()
 {
-    chessboard =
+    chessboard.board =
         {{{"bEl", "---", "bCa", "---", "bWe", "---", "bWe", "---", "bCa", "---", "bEl"},
           {"bRk", "bMo", "bTa", "bGi", "bVi", "bKa", "bAd", "bGi", "bTa", "bMo", "bRk"},
           {"bpR", "bpM", "bpT", "bpG", "bpV", "bpK", "bpA", "bpE", "bpC", "bpW", "bp0"},
@@ -35,7 +34,7 @@ void Chessboard::setMasculineBoard()
 
 void Chessboard::setFeminineBoard()
 {
-    chessboard =
+    chessboard.board =
         {{{"bEl", "---", "bCa", "---", "bVi", "bKa", "bAd", "---", "bCa", "---", "bEl"},
           {"bRk", "bMo", "bTa", "bGi", "bWe", "bpK", "bWe", "bGi", "bTa", "bMo", "bRk"},
           {"bpR", "bpM", "bpT", "bpG", "bpV", "---", "bpA", "bpE", "bpC", "bpW", "bp0"},
@@ -50,7 +49,7 @@ void Chessboard::setFeminineBoard()
 
 void Chessboard::setThirdBoard()
 {
-    chessboard =
+    chessboard.board =
         {{{"bEl", "---", "bCa", "---", "bVi", "bKa", "bAd", "---", "bCa", "---", "bEl"},
           {"bRk", "bMo", "bWe", "bTa", "bGi", "bpK", "bGi", "bTa", "bWe", "bMo", "bRk"},
           {"bpR", "bpM", "bpT", "bpG", "bpV", "---", "bpA", "bpE", "bpC", "bpW", "bp0"},
@@ -63,11 +62,7 @@ void Chessboard::setThirdBoard()
           {"wEl", "---", "wCa", "---", "wAd", "wKa", "wVi", "---", "wCa", "---", "wEl"}}};
 }
 
-const std::array<std::array<
-                     Types::Piece,
-                     Chessboard::cols>,
-                 Chessboard::rows> &
-Chessboard::getBoardState() const
+const Types::Board &Chessboard::getBoardState() const
 {
     return chessboard;
 }
@@ -76,7 +71,7 @@ const Types::Piece Chessboard::getPiece(Types::Coord coord) const
 {
     if (isValidCoord(coord))
     {
-        return chessboard[coord.y][coord.x];
+        return chessboard.board[coord.y][coord.x];
     }
     return "Invalid";
 }
@@ -85,7 +80,7 @@ void Chessboard::setCell(Types::Coord coord, const Types::Piece &value)
 {
     if (isValidCoord(coord))
     {
-        chessboard[coord.y][coord.x] = value;
+        chessboard.board[coord.y][coord.x] = value;
     }
 }
 
@@ -97,7 +92,7 @@ bool Chessboard::isValidCoord(Types::Coord coord) const
 
 void Chessboard::printBoard() const
 {
-    for (const auto &row : chessboard)
+    for (const auto &row : chessboard.board)
     {
         for (const auto &cell : row)
         {
