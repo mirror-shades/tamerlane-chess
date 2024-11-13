@@ -48,7 +48,7 @@ set(SOURCES
     src/core/state.cpp
 
     src/render/render.cpp
-
+    src/render/menu.cpp
     src/utils/utility.cpp
 )
 

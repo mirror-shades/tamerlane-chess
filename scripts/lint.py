@@ -10,11 +10,10 @@ def lint_directory(directory):
         for file in files:
             if file.endswith((".h", ".cpp")):
                 print(f"linting {file}")
-                if(file == "chessboard.cpp"):
-                    # Split the command and arguments into separate list items
-                    subprocess.run(["cpplint", "--filter=-whitespace/line_length", os.path.join(root, file)])
-                elif(file == "ai.cpp"):
+                if(file == "ai.cpp"):
                     subprocess.run(["cpplint", "--filter=-whitespace/comments", os.path.join(root, file)])
+                elif(file.endswith(".h")):
+                    subprocess.run(["cpplint", "--filter=-whitespace/indent", os.path.join(root, file)])
                 else:
                     subprocess.run(["cpplint", os.path.join(root, file)])
 

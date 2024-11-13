@@ -43,3 +43,10 @@ Types::Coord State::selectedSquare = {-1, -1};
 
 // this needs to be a char array to avoid global string issues
 Types::Piece State::selectedPiece;
+
+// Colors for the chess board and piece highlighting
+sf::Color State::colour1 = sf::Color(0xE5E5E5ff);
+sf::Color State::colour2 = sf::Color(0x26403Cff);
+sf::Color State::colourSelected = sf::Color(0x6290c8ff);
+sf::Color State::colourPrevMove = sf::Color(0x6290c855);
+sf::Color State::colourMove = sf::Color(0xFBFF1255);

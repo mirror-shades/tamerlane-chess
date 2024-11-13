@@ -5,8 +5,7 @@
 #include "globals.h"
 
 // move logic
-std::vector<Types::Coord> PieceLogic::getPawnMoves(Types::Coord coord,
-                                                   char player)
+std::vector<Types::Coord> PieceLogic::getPawnMoves(Types::Coord coord, char player)
 {
     std::vector<Types::Coord> moves;
     int direction = (player == 'w') ? -1 : 1;
@@ -38,8 +37,7 @@ std::vector<Types::Coord> PieceLogic::getPawnMoves(Types::Coord coord,
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getRookMoves(Types::Coord coord,
-                                                   char player)
+std::vector<Types::Coord> PieceLogic::getRookMoves(Types::Coord coord, char player)
 {
     std::vector<Types::Coord> moves;
     char enemy = (player == 'w') ? 'b' : 'w';
@@ -76,8 +74,7 @@ std::vector<Types::Coord> PieceLogic::getRookMoves(Types::Coord coord,
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getTaliaMoves(Types::Coord coord,
-                                                    char player)
+std::vector<Types::Coord> PieceLogic::getTaliaMoves(Types::Coord coord, char player)
 {
     std::vector<Types::Coord> moves;
     char enemy = (player == 'w') ? 'b' : 'w';
@@ -120,8 +117,7 @@ std::vector<Types::Coord> PieceLogic::getTaliaMoves(Types::Coord coord,
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getElephantMoves(Types::Coord coord,
-                                                       char player)
+std::vector<Types::Coord> PieceLogic::getElephantMoves(Types::Coord coord, char player)
 {
     std::vector<Types::Coord> moves;
 
@@ -148,8 +144,7 @@ std::vector<Types::Coord> PieceLogic::getElephantMoves(Types::Coord coord,
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getVizierMoves(Types::Coord coord,
-                                                     char player)
+std::vector<Types::Coord> PieceLogic::getVizierMoves(Types::Coord coord, char player)
 {
     std::vector<Types::Coord> moves;
 
@@ -167,8 +162,7 @@ std::vector<Types::Coord> PieceLogic::getVizierMoves(Types::Coord coord,
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getKhanMoves(Types::Coord coord,
-                                                   char player)
+std::vector<Types::Coord> PieceLogic::getKhanMoves(Types::Coord coord, char player)
 {
     std::vector<Types::Coord> moves;
 
@@ -186,8 +180,7 @@ std::vector<Types::Coord> PieceLogic::getKhanMoves(Types::Coord coord,
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getWarEngineMoves(Types::Coord coord,
-                                                        char player)
+std::vector<Types::Coord> PieceLogic::getWarEngineMoves(Types::Coord coord, char player)
 {
     std::vector<Types::Coord> moves;
     std::vector<Types::Coord> possibleMoves = {
@@ -214,8 +207,7 @@ std::vector<Types::Coord> PieceLogic::getWarEngineMoves(Types::Coord coord,
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getAdminMoves(Types::Coord coord,
-                                                    char player)
+std::vector<Types::Coord> PieceLogic::getAdminMoves(Types::Coord coord, char player)
 {
     std::vector<Types::Coord> moves;
 
@@ -233,8 +225,7 @@ std::vector<Types::Coord> PieceLogic::getAdminMoves(Types::Coord coord,
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getMongolMoves(Types::Coord coord,
-                                                     char player)
+std::vector<Types::Coord> PieceLogic::getMongolMoves(Types::Coord coord, char player)
 {
     std::vector<Types::Coord> moves;
 
@@ -261,8 +252,7 @@ std::vector<Types::Coord> PieceLogic::getMongolMoves(Types::Coord coord,
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getCamelMoves(Types::Coord coord,
-                                                    char player)
+std::vector<Types::Coord> PieceLogic::getCamelMoves(Types::Coord coord, char player)
 {
     std::vector<Types::Coord> moves;
 
@@ -289,8 +279,7 @@ std::vector<Types::Coord> PieceLogic::getCamelMoves(Types::Coord coord,
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getGiraffeMoves(Types::Coord coord,
-                                                      char player)
+std::vector<Types::Coord> PieceLogic::getGiraffeMoves(Types::Coord coord, char player)
 {
     std::vector<Types::Coord> moves;
     int directions[4][2] = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
@@ -386,8 +375,7 @@ std::vector<Types::Coord> PieceLogic::getGiraffeMoves(Types::Coord coord,
 }
 
 // alternative move logic
-std::vector<Types::Coord> PieceLogic::getAltPawnMoves(Types::Coord coord,
-                                                      char player)
+std::vector<Types::Coord> PieceLogic::getAltPawnMoves(Types::Coord coord, char player)
 {
     std::vector<Types::Coord> moves;
     int direction = (player == 'w') ? -1 : 1;
@@ -436,8 +424,7 @@ std::vector<Types::Coord> PieceLogic::getAltPawnMoves(Types::Coord coord,
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getAltWarEngineMoves(Types::Coord coord,
-                                                           char player)
+std::vector<Types::Coord> PieceLogic::getAltWarEngineMoves(Types::Coord coord, char player)
 {
     std::vector<Types::Coord> moves;
 
@@ -467,8 +454,7 @@ std::vector<Types::Coord> PieceLogic::getAltWarEngineMoves(Types::Coord coord,
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getAltElephantMoves(Types::Coord coord,
-                                                          char player)
+std::vector<Types::Coord> PieceLogic::getAltElephantMoves(Types::Coord coord, char player)
 {
     std::vector<Types::Coord> moves;
 
@@ -498,8 +484,7 @@ std::vector<Types::Coord> PieceLogic::getAltElephantMoves(Types::Coord coord,
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getAltVizierMoves(Types::Coord coord,
-                                                        char player)
+std::vector<Types::Coord> PieceLogic::getAltVizierMoves(Types::Coord coord, char player)
 {
     std::vector<Types::Coord> moves;
 
@@ -529,8 +514,7 @@ std::vector<Types::Coord> PieceLogic::getAltVizierMoves(Types::Coord coord,
     return moves;
 }
 
-std::vector<Types::Coord> PieceLogic::getAltAdminMoves(Types::Coord coord,
-                                                       char player)
+std::vector<Types::Coord> PieceLogic::getAltAdminMoves(Types::Coord coord, char player)
 {
     std::vector<Types::Coord> moves;
 

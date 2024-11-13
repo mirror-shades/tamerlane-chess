@@ -1,3 +1,4 @@
+// Copyright 2024. mirror-shades. GPL-2.0 License.
 #pragma once
 #include "types.h"
 #include <vector>
@@ -47,4 +48,9 @@ public:
     static float deltaTime;
     static bool animationActive;
     static sf::Texture backgroundTexture;
+    static sf::Color colour1;
+    static sf::Color colour2;
+    static sf::Color colourSelected;
+    static sf::Color colourPrevMove;
+    static sf::Color colourMove;
 };

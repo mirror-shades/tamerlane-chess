@@ -37,9 +37,7 @@ Types::Turn AI::minMax(char player,
 {
     auto start = std::chrono::high_resolution_clock::now();
 
-    std::vector<Types::Turn> allMoves = generateAllLegalMoves(player,
-                                                              turn,
-                                                              alt);
+    std::vector<Types::Turn> allMoves = generateAllLegalMoves(player, turn, alt);
     if (allMoves.empty())
     {
         throw std::runtime_error("No legal moves available for AI player");
@@ -58,8 +56,7 @@ Types::Turn AI::minMax(char player,
     for (const auto &move : allMoves)
     {
         // Make move
-        std::string originalPiece =
-            chessboard.getPiece(move.finalSquare).toString();
+        std::string originalPiece = chessboard.getPiece(move.finalSquare).toString();
         chessboard.setCell(move.finalSquare, move.pieceMoved);
         chessboard.setCell(move.initialSquare, "---");
 
@@ -71,8 +68,13 @@ Types::Turn AI::minMax(char player,
         }
         else
         {
-            value = minMaxHelper(gameLogic, (player == 'w' ? 'b' : 'w'),
-                                 turn + 1, alt, depth - 1, alpha, beta);
+            value = minMaxHelper(gameLogic,
+                                 (player == 'w' ? 'b' : 'w'),
+                                 turn + 1,
+                                 alt,
+                                 depth - 1,
+                                 alpha,
+                                 beta);
         }
 
         // Undo move
@@ -114,8 +116,13 @@ Types::Turn AI::minMax(char player,
     return bestMove;
 }
 
-float AI::minMaxHelper(GameLogic gameLogic, char player, int turn, bool alt,
-                       int depth, float alpha, float beta)
+float AI::minMaxHelper(GameLogic gameLogic,
+                       char player,
+                       int turn,
+                       bool alt,
+                       int depth,
+                       float alpha,
+                       float beta)
 {
     if (depth == 0)
         return evaluateBoard();
@@ -140,8 +147,13 @@ float AI::minMaxHelper(GameLogic gameLogic, char player, int turn, bool alt,
         chessboard.setCell(moveInfo.finalSquare, moveInfo.pieceMoved);
         chessboard.setCell(moveInfo.initialSquare, "---");
 
-        float value = minMaxHelper(gameLogic, (player == 'w' ? 'b' : 'w'),
-                                   turn + 1, alt, depth - 1, alpha, beta);
+        float value = minMaxHelper(gameLogic,
+                                   (player == 'w' ? 'b' : 'w'),
+                                   turn + 1,
+                                   alt,
+                                   depth - 1,
+                                   alpha,
+                                   beta);
 
         chessboard.setCell(moveInfo.initialSquare, moveInfo.pieceMoved);
         chessboard.setCell(moveInfo.finalSquare, moveInfo.pieceCaptured);
@@ -274,8 +286,8 @@ float AI::evaluatePawnStructure(int col, int row, bool isWhite)
 
     // Check for isolated pawns
     bool isolated = true;
-    for (int c = std::max(0, col - 1); c <= std::min(Chessboard::cols - 1,
-                                                     col + 1);
+    for (int c = std::max(0, col - 1);
+         c <= std::min(Chessboard::cols - 1, col + 1);
          ++c)
     {
         if (c != col)
@@ -323,9 +335,15 @@ float AI::evaluatePieceMobility(const std::string &piece, int col, int row)
     // Assuming standard moves, not alternate moves
     bool alt = false;
 
-    auto possibleMoves = gameLogic.getMoves(currentSquare, piece, player, alt);
-    auto legalMoves = gameLogic.filterLegalMoves(possibleMoves, currentSquare,
-                                                 piece, player, alt);
+    auto possibleMoves = gameLogic.getMoves(currentSquare,
+                                            piece,
+                                            player,
+                                            alt);
+    auto legalMoves = gameLogic.filterLegalMoves(possibleMoves,
+                                                 currentSquare,
+                                                 piece,
+                                                 player,
+                                                 alt);
 
     // Base mobility score on the number of legal moves
     mobilityScore += legalMoves.size() * 0.1f;
@@ -485,10 +503,8 @@ float AI::evaluateCenterControl(int col, int row)
         centerControlScore += 0.5f;
 
         // Additional score based on how close to the absolute center
-        int distanceFromCenterCol = std::min(col - centerStartCol,
-                                             centerEndCol - col);
-        int distanceFromCenterRow = std::min(row - centerStartRow,
-                                             centerEndRow - row);
+        int distanceFromCenterCol = std::min(col - centerStartCol, centerEndCol - col);
+        int distanceFromCenterRow = std::min(row - centerStartRow, centerEndRow - row);
         centerControlScore += 0.1f * (3 - distanceFromCenterCol) +
                               0.1f * (4 - distanceFromCenterRow);
 

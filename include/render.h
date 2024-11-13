@@ -1,5 +1,5 @@
+// Copyright 2024. mirror-shades. GPL-2.0 License.
 #pragma once
-
 #include "gameLogic.h"
 #include "utility.h"
 #include <SFML/Graphics.hpp>
@@ -19,7 +19,6 @@ public:
     void drawBoard(sf::RenderWindow &window);
     void drawExitButton(sf::RenderWindow &window);
     void winScreen(sf::RenderWindow &window);
-    void drawMenuScreen(sf::RenderWindow &window);
     void highlightSquares(sf::RenderWindow &window);
     void highlightPreviousMove(sf::RenderWindow &window);
     void highlightKing(sf::RenderWindow &window, Types::Coord kingPosition, bool isInCheck);
@@ -28,11 +27,10 @@ public:
     void startAnimation(std::string piece, Types::Coord start, Types::Coord end, float duration);
     void renderGameElements(sf::RenderWindow &window);
     void highlightKings(sf::RenderWindow &window);
+    void tintScreen(sf::RenderWindow &window);
+    std::string findAssetsPath(const std::string &filename);
 
 private:
     sf::Vector2f interpolate(sf::Vector2f startPos, sf::Vector2f endPos, float t);
     void highlightSquare(sf::RenderWindow &window, const Types::Coord &coord);
-    std::string findAssetsPath(const std::string &filename);
-    void tintScreen(sf::RenderWindow &window);
-    void drawSlider(sf::RenderWindow &window, sf::Font &font);
 };

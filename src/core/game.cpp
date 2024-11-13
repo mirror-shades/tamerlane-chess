@@ -12,12 +12,11 @@
 int renders = 1;
 
 // Add at the top with other methods
-Game::Game() : window(sf::VideoMode(State::WINDOW_WIDTH,
-                                    State::WINDOW_HEIGHT),
-                      "Tamerlane Chess"),
+Game::Game() : window(sf::VideoMode(State::WINDOW_WIDTH, State::WINDOW_HEIGHT), "Tamerlane Chess"),
                chessboard(),
                ai(chessboard),
                render(),
+               menu(),
                utility()
 {
 }
@@ -55,7 +54,7 @@ void Game::updateGameState()
     window.clear(sf::Color::White);
     render.drawBackground(window);
     render.drawBoard(window);
-    render.drawMenuScreen(window);
+    menu.drawMenuScreen(window);
     render.renderGameElements(window);
     window.display();
 

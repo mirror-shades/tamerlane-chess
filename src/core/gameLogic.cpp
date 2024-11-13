@@ -208,9 +208,7 @@ void GameLogic::promotePawns(char player)
             else
             {
                 chessboard.setCell({col, row}, "---");
-                chessboard.setCell(pos,
-                                   Types::Piece(player +
-                                                std::string(promotionType)));
+                chessboard.setCell(pos, Types::Piece(player + std::string(promotionType)));
             }
             continue;
         }
@@ -271,16 +269,11 @@ void GameLogic::checkPawnForks(char player)
                 Types::Piece targetPiece =
                     chessboard.getPiece({forkCol, forkRow});
                 if (targetPiece == "---" ||
-                    (targetPiece.color() == enemy &&
-                     targetPiece.piece() != 'K'))
+                    (targetPiece.color() == enemy && targetPiece.piece() != 'K'))
                 {
                     // Move the pawnX to the fork position
                     chessboard.setCell(pawnXPos, "---");
-                    chessboard.setCell({forkCol, forkRow},
-                                       Types::Piece(player + "p1"));
-                    std::cout << "Pawn fork placed at "
-                              << forkCol << ", " << forkRow
-                              << std::endl;
+                    chessboard.setCell({forkCol, forkRow}, Types::Piece(player + "p1"));
                     return;
                 }
             }
@@ -409,8 +402,11 @@ bool GameLogic::hasLegalMoves(char player, bool alt)
         if (!pieceFound)
             continue;
 
-        std::vector<Types::Coord> legalMoves =
-            filterLegalMoves(possibleMoves, fromCoord, piece, player, alt);
+        std::vector<Types::Coord> legalMoves = filterLegalMoves(possibleMoves,
+                                                                fromCoord,
+                                                                piece,
+                                                                player,
+                                                                alt);
 
         if (!legalMoves.empty())
         {
@@ -423,14 +419,6 @@ bool GameLogic::hasLegalMoves(char player, bool alt)
 
 bool GameLogic::canDraw(char player)
 {
-    std::cout << "Checking for draw" << std::endl;
-    std::cout << "Player: " << player << std::endl;
-    std::cout << "Board state: " << chessboard.getPiece({0, 0}).toString() << std::endl;
-    std::cout << "Board state: " << chessboard.getPiece({0, 1}).toString() << std::endl;
-    std::cout << "Board state: " << chessboard.getPiece({0, 2}).toString() << std::endl;
-    std::cout << "Board state: " << chessboard.getPiece({10, 7}).toString() << std::endl;
-    std::cout << "Board state: " << chessboard.getPiece({10, 8}).toString() << std::endl;
-    std::cout << "Board state: " << chessboard.getPiece({10, 9}).toString() << std::endl;
     if (player == 'w')
     {
         if (chessboard.getPiece({0, 0}) == "wKa" ||
