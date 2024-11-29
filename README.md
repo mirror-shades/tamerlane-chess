@@ -1,6 +1,6 @@
 # Tamerlane Chess C++
 
-[![Windows](https://img.shields.io/badge/Windows-Download-blue?style=flat-square&logo=github)](https://github.com/mirror-shades/tamerlane-cpp/releases/latest/download/Tamerlane.Chess-Windows.zip)
+[![Windows](https://img.shields.io/badge/Windows-Download-blue?style=flat-square&logo=github)](https://github.com/mirror-shades/tamerlane-cpp/releases/latest/download/Tamerlane-Chess-Windows.zip)
 </br>
 [![Linux](https://img.shields.io/badge/Linux-Download-blue?style=flat-square&logo=github)](https://github.com/mirror-shades/tamerlane-cpp/releases/latest/download/Tamerlane-Chess-Linux.zip)
 
