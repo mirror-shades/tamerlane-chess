@@ -20,6 +20,8 @@ bool State::aiMoveQueued = false;
 bool State::animationActive = false;
 bool State::renderNeeded = true;
 sf::Clock State::aiVsAiClock;
+sf::Clock State::gameStartClock;
+int State::currentGameId = -1;
 
 // Calculate time since last frame
 sf::Clock State::deltaClock;

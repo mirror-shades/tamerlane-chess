@@ -7,8 +7,9 @@
 
 class Render
 {
-    GameLogic *gameLogic; // Pointer to GameLogic
-    Utility *utility;     // Pointer to Utility
+    GameLogic *gameLogic;
+    Utility *utility;
+
 public:
     static bool animationInProgress;
     static Types::Coord move;

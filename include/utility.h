@@ -18,6 +18,7 @@ public:
     void exitToMenu();
     void handleAiVsAi();
     void initializeSounds();
+    static void initializeNewGame();
     void toggleSelection();
     bool clickHandler(sf::Event event, sf::RenderWindow &window);
     bool clickLogic(int x, int y);
@@ -33,7 +34,7 @@ public:
     // New button-related functions
 
     static bool isButtonClicked(const sf::RectangleShape &button, const sf::Vector2i &mousePosition);
-    static void updateGameState(const Types::Coord &move, const std::string &target, GameLogic &gameLogic);
+    static void updateGameState(const Types::Coord &initialSquare, const Types::Piece &pieceMoved, const Types::Coord &move, const std::string &target, GameLogic &gameLogic);
     static sf::RectangleShape createButton(const sf::Vector2f &size,
                                            const sf::Vector2f &position,
                                            const sf::Color &fillColor);

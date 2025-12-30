@@ -13,6 +13,8 @@
 #include "gameLogic.h"
 #include "state.h"
 #include "ai.h"
+#include "database.h"
+#include <filesystem>
 
 // Add these as member variables in the Utility class or as global variables
 sf::SoundBuffer moveSoundBuffer;
@@ -112,6 +114,10 @@ bool Utility::checkVictoryCondition(
             std::cout << "The game is a draw by stalemate" << std::endl;
         }
         State::gameOver = true;
+        
+        // Save completed game to database
+        Database::saveCompletedGame();
+        
         return true;
     }
 
@@ -120,6 +126,8 @@ bool Utility::checkVictoryCondition(
 
 // Update game state after a move
 void Utility::updateGameState(
+    const Types::Coord &initialSquare,
+    const Types::Piece &pieceMoved,
     const Types::Coord &move,
     const std::string &target,
     GameLogic &gameLogic)
@@ -138,10 +146,10 @@ void Utility::updateGameState(
     Types::Turn newTurn = {
         State::turns,
         State::player,
-        State::selectedSquare,
+        initialSquare,
         move,
-        State::selectedPiece,
-        target,
+        pieceMoved,
+        Types::Piece(target),
         0.0f};
 
     State::turnHistory.push_back(newTurn);
@@ -150,6 +158,9 @@ void Utility::updateGameState(
     State::isPieceSelected = false;
     State::moveList.clear();
     State::selectedSquare = {-1, -1};
+    
+    // Save active game state for resume functionality
+    Database::saveActiveGame();
 }
 
 // Undo the last move
@@ -227,6 +238,12 @@ int Utility::scoreMaterial()
 void Utility::exitToMenu()
 {
     std::cout << "Exiting game" << std::endl;
+    
+    // Save active game state before exiting (if game is in progress)
+    if (!State::gameOver && State::currentGameId >= 0 && !State::turnHistory.empty()) {
+        Database::saveActiveGame();
+    }
+    
     // Reset game state and return to menu
     State::state = State::GameState::Menu;
     State::gameOver = false;
@@ -243,6 +260,7 @@ void Utility::exitToMenu()
     State::aiVsAiMode = false;
     State::whitePiecesCaptured = {};
     State::blackPiecesCaptured = {};
+    State::currentGameId = -1;
 }
 
 // In the Utility class constructor or initialization method
@@ -258,6 +276,22 @@ void Utility::initializeSounds()
     }
     moveSound.setBuffer(moveSoundBuffer);
     captureSound.setBuffer(captureSoundBuffer);
+}
+
+// Initialize a new game - set game ID and start clock
+void Utility::initializeNewGame()
+{
+    State::currentGameId = Database::getNextGameId();
+    State::gameStartClock.restart();
+    State::turnHistory.clear();
+    State::turns = 1;
+    State::player = 'w';
+    State::gameOver = false;
+    State::winner = '-';
+    State::whitePiecesCaptured.clear();
+    State::blackPiecesCaptured.clear();
+    
+    // Active game file will be overwritten when first move is made
 }
 
 bool Utility::clickHandler(sf::Event event, sf::RenderWindow &window)
@@ -322,6 +356,8 @@ bool Utility::clickLogic(int x, int y)
             State::winner = 'd';
             State::gameOver = true;
             std::cout << "Game ended in a draw" << std::endl;
+            // Save completed game to database
+            Database::saveCompletedGame();
             return false;
         }
     }
@@ -335,6 +371,8 @@ bool Utility::clickLogic(int x, int y)
             State::winner = 'd';
             State::gameOver = true;
             std::cout << "Game ended in a draw" << std::endl;
+            // Save completed game to database
+            Database::saveCompletedGame();
             return false;
         }
     }
@@ -417,7 +455,7 @@ void Utility::handlePieceMovement(
         playMoveSound();
     }
 
-    Utility::updateGameState(move, target, *gameLogic);
+    Utility::updateGameState(selectedSquare, Types::Piece(selectedPiece), move, target, *gameLogic);
 
     char enemy = (player == 'w') ? 'b' : 'w';
     gameLogic->promotePawns(player);

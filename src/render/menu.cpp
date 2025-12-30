@@ -16,7 +16,6 @@ sf::CircleShape sliderHandle;
 
 void Menu::drawSlider(sf::RenderWindow &window, sf::Font &font)
 {
-    // Draw slider background
     const float sliderWidth = 200.0f;
     const float sliderHeight = 10.0f;
     const float sliderY = window.getSize().y / 2 + 25;
@@ -27,7 +26,6 @@ void Menu::drawSlider(sf::RenderWindow &window, sf::Font &font)
     slider.setPosition(sliderX, sliderY);
     window.draw(slider);
 
-    // Draw slider handle
     const float handleRadius = 10.0f;
     const float handleOffset = (State::aiDifficulty - 1) * (sliderWidth / 9);
     const float handleX = sliderX + handleOffset;
@@ -40,7 +38,6 @@ void Menu::drawSlider(sf::RenderWindow &window, sf::Font &font)
     sliderHandle.setPosition(handleX - handleRadius, handleY);
     window.draw(sliderHandle);
 
-    // Draw difficulty text
     const int textSize = 20;
     const float textY = sliderY - 40;
 
@@ -55,7 +52,6 @@ void Menu::drawSlider(sf::RenderWindow &window, sf::Font &font)
     window.draw(difficultyText);
 }
 
-// Menu screen
 void Menu::drawMenuScreen(sf::RenderWindow &window)
 {
     if (State::state == State::GameState::Menu ||
@@ -68,10 +64,8 @@ void Menu::drawMenuScreen(sf::RenderWindow &window)
         {
             sf::Sprite titleSprite(titleTexture);
 
-            // Disable smoothing to prevent tearing
             titleTexture.setSmooth(false);
 
-            // Calculate the scale to fit the window width
             float scale = window.getSize().x /
                           static_cast<float>(titleTexture.getSize().x);
             titleSprite.setScale(scale, scale);
@@ -97,16 +91,13 @@ void Menu::drawMenuScreen(sf::RenderWindow &window)
             std::cerr << "Failed to load title.png" << std::endl;
         }
 
-        // Variables to track button states
         static bool isPlayAsWhiteHighlighted = true;
         static bool isPlayAsBlackHighlighted = false;
         static bool isMascHighlighted = true;
         static bool isFemHighlighted = false;
         static bool isThirdHighlighted = false;
-        // Track previous mouse button state
         static bool wasMousePressed = false;
 
-        // Create buttons
         sf::RectangleShape aiButton = Utility::createButton(
             sf::Vector2f(200, 50),
             sf::Vector2f((window.getSize().x - 500) / 2 - 75, window.getSize().y / 2 - 100),
@@ -162,14 +153,12 @@ void Menu::drawMenuScreen(sf::RenderWindow &window)
             sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 + 150),
             sf::Color::White);
 
-        // Create button texts
         sf::Font font;
         if (!font.loadFromFile(render.findAssetsPath("fonts/arial.ttf")))
         {
             std::cerr << "Failed to load font" << std::endl;
         }
 
-        // Draw buttons and texts
         if (State::state == State::GameState::Menu)
         {
             Utility::drawButton(window,
@@ -230,10 +219,8 @@ void Menu::drawMenuScreen(sf::RenderWindow &window)
                                 "Back",
                                 font,
                                 20);
-            // Draw the slider
             drawSlider(window, font);
         }
-        // Handle button clicks
         sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
         bool mousePressed = sf::Mouse::isButtonPressed(sf::Mouse::Left);
         if (mousePressed && !wasMousePressed &&
@@ -241,6 +228,7 @@ void Menu::drawMenuScreen(sf::RenderWindow &window)
         {
             if (Utility::isButtonClicked(pvpButton, mousePosition))
             {
+                Utility::initializeNewGame();
                 State::state = State::GameState::Game;
                 State::aiActive = false;
             }
@@ -270,6 +258,7 @@ void Menu::drawMenuScreen(sf::RenderWindow &window)
             }
             else if (Utility::isButtonClicked(aiVsAiButton, mousePosition))
             {
+                Utility::initializeNewGame();
                 State::state = State::GameState::Game;
                 State::aiVsAiMode = true;
                 State::aiVsAiClock.restart();
@@ -294,6 +283,7 @@ void Menu::drawMenuScreen(sf::RenderWindow &window)
             }
             else if (Utility::isButtonClicked(aiPlayButton, mousePosition))
             {
+                Utility::initializeNewGame();
                 State::state = State::GameState::Game;
                 State::aiActive = true;
                 if (isPlayAsBlackHighlighted)

@@ -6,7 +6,6 @@
 class Chessboard
 {
 public:
-    // Constants for the Tamerlane Chess board
     static const int squareSize = 75;
     static const int rows = 10;
     static const int cols = 11;

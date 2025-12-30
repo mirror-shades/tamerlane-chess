@@ -4,7 +4,6 @@
 #include "pieceLogic.h"
 #include "globals.h"
 
-// move logic
 std::vector<Types::Coord> PieceLogic::getPawnMoves(Types::Coord coord, char player)
 {
     std::vector<Types::Coord> moves;
@@ -374,7 +373,7 @@ std::vector<Types::Coord> PieceLogic::getGiraffeMoves(Types::Coord coord, char p
     return moves;
 }
 
-// alternative move logic
+// alternative move logic (blitz)
 std::vector<Types::Coord> PieceLogic::getAltPawnMoves(Types::Coord coord, char player)
 {
     std::vector<Types::Coord> moves;

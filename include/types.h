@@ -3,11 +3,13 @@
 #include <string>
 #include <cstring>
 #include <array>
+#include <vector>
 
 namespace Types
 {
-    // used to store the piece code in the selected piece
-    // this is a char array to avoid global string issues
+    // this used to be a string, but I changed it to a char array to avoid global string issues
+    // this is a 3 character code for the piece, followed by a null terminator
+    // all pieces are 3 length including empty space "---" so length can be hardcoded
     struct Piece
     {
         char code[4]; // 3 chars + null terminator
@@ -90,6 +92,21 @@ namespace Types
         Piece pieceMoved;
         Piece pieceCaptured;
         float score;
+    };
+
+    struct GameRecord {
+        int id;
+        std::string timestamp;
+        // ai or human
+        std::string whitePlayer;
+        std::string blackPlayer;
+        std::string result;
+        int totalMoves;
+        float duration;
+        std::vector<Turn> turnHistory;
+        
+        // Default constructor - initializes all members
+        GameRecord() : id(-1), totalMoves(0), duration(0.0f) {}
     };
 
     struct Board

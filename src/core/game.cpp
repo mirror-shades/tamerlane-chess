@@ -11,7 +11,6 @@
 #include <SFML/Window.hpp>
 int renders = 1;
 
-// Add at the top with other methods
 Game::Game() : window(sf::VideoMode(State::WINDOW_WIDTH, State::WINDOW_HEIGHT), "Tamerlane Chess"),
                chessboard(),
                ai(chessboard),

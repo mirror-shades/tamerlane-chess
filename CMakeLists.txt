@@ -50,6 +50,7 @@ set(SOURCES
     src/render/render.cpp
     src/render/menu.cpp
     src/utils/utility.cpp
+    src/utils/database.cpp
 )
 
 # Include the resource file when compiling on Windows

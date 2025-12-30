@@ -4,7 +4,6 @@
 #include "globals.h"
 #include "chessboard.h"
 
-// Define the global chessboard variable
 Chessboard chessboard;
 
 void Chessboard::setBoard(const Types::Board &newBoard)

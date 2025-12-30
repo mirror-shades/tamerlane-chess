@@ -152,7 +152,6 @@ void Render::highlightKing(
     }
 }
 
-// Draw the exit button
 void Render::drawExitButton(sf::RenderWindow &window)
 {
     sf::RectangleShape exitButton(sf::Vector2f(exitButtonSize, exitButtonSize));
@@ -191,7 +190,6 @@ void Render::drawExitButton(sf::RenderWindow &window)
     }
 }
 
-// Draw the Tamerlane Chess board
 void Render::drawBoard(sf::RenderWindow &window)
 {
     sf::RectangleShape square(
@@ -210,19 +208,16 @@ void Render::drawBoard(sf::RenderWindow &window)
         }
     }
 
-    // Draw Left Fortress (unique to Tamerlane Chess)
+    // Draw Left Fortresses
     square.setSize(sf::Vector2f(Chessboard::squareSize, Chessboard::squareSize));
     square.setPosition(0, Chessboard::squareSize);
     square.setFillColor(State::colour2);
     window.draw(square);
-
-    // Draw Right Fortress (unique to Tamerlane Chess)
     square.setPosition(Chessboard::squareSize * 12, Chessboard::squareSize * 8);
     square.setFillColor(State::colour1);
     window.draw(square);
 }
 
-// Draw chess pieces on the board
 void Render::drawPieces(
     sf::RenderWindow &window,
     const std::map<std::string, sf::Sprite> &pieceImages)
@@ -264,7 +259,6 @@ void Render::drawPieces(
     }
 }
 
-// Tint screen
 void Render::tintScreen(sf::RenderWindow &window)
 {
     sf::RectangleShape square(
@@ -274,7 +268,6 @@ void Render::tintScreen(sf::RenderWindow &window)
     window.draw(square);
 }
 
-// Display win screen
 void Render::winScreen(sf::RenderWindow &window)
 {
     if (State::winner != '-')
@@ -352,17 +345,13 @@ void Render::winScreen(sf::RenderWindow &window)
     }
 }
 
-// Render background
 void Render::drawBackground(sf::RenderWindow &window)
 {
-    // set background sprite from State::backgroundSprite
     window.draw(State::backgroundSprite);
 }
 
-// Load chess piece images
 std::map<std::string, sf::Sprite> Render::loadImages(sf::RenderWindow &window)
 {
-    // Load background texture (now using global texture variable)
     std::string assetPath = findAssetsPath("images/wood.png");
     if (!State::backgroundTexture.loadFromFile(assetPath))
     {
@@ -377,7 +366,6 @@ std::map<std::string, sf::Sprite> Render::loadImages(sf::RenderWindow &window)
 
     State::backgroundSprite.setTexture(State::backgroundTexture);
 
-    // List of all piece types in Tamerlane Chess
     std::vector<std::string> pieces = {
         "bKa", "wKa", "bK0", "wK0", "bK1", "wK1", "bAd", "wAd",
         "bVi", "wVi", "bGi", "wGi", "bTa", "wTa", "bMo", "wMo",
@@ -413,7 +401,6 @@ std::map<std::string, sf::Sprite> Render::loadImages(sf::RenderWindow &window)
     return images;
 }
 
-// Highlight the previous move
 void Render::highlightPreviousMove(sf::RenderWindow &window)
 {
     if (!State::turnHistory.empty())
