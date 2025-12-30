@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <SFML/Audio.hpp>
+#include <SFML/Graphics.hpp>
 #include "types.h"
 #include "globals.h"
 #include "utility.h"
@@ -64,7 +65,6 @@ void Utility::drawButton(
     sf::RenderWindow &window,
     const sf::RectangleShape &button,
     const std::string &text,
-    const sf::Font &font,
     unsigned int characterSize)
 {
     window.draw(button);
@@ -552,4 +552,39 @@ void Utility::handleMoves()
 
     // Handle AI vs AI gameplay
     handleAiVsAi();
+}
+
+// Static member definition
+sf::Font Utility::font;
+
+void Utility::initializeFont()
+{
+    // Find assets path using the same logic as Render::findAssetsPath
+    std::filesystem::path currentPath = std::filesystem::current_path();
+    std::filesystem::path pathParallel = currentPath / "assets" / "fonts" / "arial.ttf";
+    std::filesystem::path pathOneLevelAbove = currentPath.parent_path() / "assets" / "fonts" / "arial.ttf";
+    
+    std::string fontPath;
+    if (std::filesystem::exists(pathParallel))
+    {
+        fontPath = pathParallel.string();
+    }
+    else if (std::filesystem::exists(pathOneLevelAbove))
+    {
+        fontPath = pathOneLevelAbove.string();
+    }
+    else
+    {
+        fontPath = "assets/fonts/arial.ttf"; // Fallback
+    }
+    
+    if (!font.loadFromFile(fontPath))
+    {
+        std::cerr << "Failed to load font from: " << fontPath << std::endl;
+    }
+}
+
+const sf::Font& Utility::getFont()
+{
+    return font;
 }

@@ -302,13 +302,6 @@ void Render::winScreen(sf::RenderWindow &window)
             (window.getSize().y - textureSize.y) / 2 - 75);
         window.draw(sprite);
 
-        sf::Font font;
-        if (!font.loadFromFile(findAssetsPath("fonts/arial.ttf")))
-        {
-            std::cerr << "Error loading font" << std::endl;
-            return;
-        }
-
         // Create menu button
         sf::RectangleShape menuButton = Utility::createButton(
             sf::Vector2f(150, 50),
@@ -324,8 +317,8 @@ void Render::winScreen(sf::RenderWindow &window)
             sf::Color::White);
 
         // Draw buttons
-        Utility::drawButton(window, menuButton, "Menu", font, 24);
-        Utility::drawButton(window, analysisButton, "Analysis", font, 24);
+        Utility::drawButton(window, menuButton, "Menu", 24);
+        Utility::drawButton(window, analysisButton, "Analysis", 24);
 
         // Check for menu button click
         sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
@@ -519,14 +512,8 @@ void Render::drawCapturedPieces(
 
     // Draw score
     int score = utility->scoreMaterial();
-    sf::Font font;
-    if (!font.loadFromFile(findAssetsPath("fonts/arial.ttf")))
-    {
-        std::cerr << "Error loading font" << std::endl;
-        return;
-    }
     sf::Text text;
-    text.setFont(font);
+    text.setFont(Utility::getFont());
     text.setCharacterSize(34);
     text.setFillColor(sf::Color::White);
     // If score is positive (white is winning), add a + sign

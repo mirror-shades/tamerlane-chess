@@ -9,6 +9,7 @@
 #include "game.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
+#include "analysis.h"
 int renders = 1;
 
 Game::Game() : window(sf::VideoMode(State::WINDOW_WIDTH, State::WINDOW_HEIGHT), "Tamerlane Chess"),
@@ -53,15 +54,16 @@ void Game::updateGameState()
     window.clear(sf::Color::White);
     render.drawBackground(window);
     render.drawBoard(window);
-    menu.drawMenuScreen(window);
-    renderGameElements(window);
-    window.display();
+    if (State::state == State::GameState::Menu ||
+        State::state == State::GameState::AIOptions)
+    {
+        menu.drawMenuScreen(window);
+    }
+    else if (State::state == State::GameState::Analysis)
+    {
+        analysis.drawAnalysisScreen(window, render);
+    }
 
-    State::renderNeeded = false;
-}
-
-void Game::renderGameElements(sf::RenderWindow &window)
-{
     if (State::state == State::GameState::Game)
     {
         render.highlightSquares(window);
@@ -72,8 +74,11 @@ void Game::renderGameElements(sf::RenderWindow &window)
         render.drawCapturedPieces(window, State::images);
         render.winScreen(window);
     }
-}
 
+    window.display();
+
+    State::renderNeeded = false;
+}
 
 void Game::initialize()
 {
@@ -87,6 +92,8 @@ void Game::initialize()
     {
         std::cerr << "Failed to load icon: assets/images/icon.png" << std::endl;
     }
+
+
 
     render.drawBackground(window);
 
@@ -108,6 +115,7 @@ void Game::initialize()
         return;
     }
 
+    utility.initializeFont();
     utility.initializeSounds();
     State::renderNeeded = true;
 }

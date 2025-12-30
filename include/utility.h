@@ -8,6 +8,7 @@
 class Utility
 {
     GameLogic *gameLogic;
+    static sf::Font font;
 
 public:
     static Types::Coord calculateSquare(int x, int y);
@@ -19,6 +20,8 @@ public:
     void handleAiVsAi();
     void initializeSounds();
     static void initializeNewGame();
+    void initializeFont();
+    static const sf::Font& getFont();
     void toggleSelection();
     bool clickHandler(sf::Event event, sf::RenderWindow &window);
     bool clickLogic(int x, int y);
@@ -40,6 +43,5 @@ public:
     static void drawButton(sf::RenderWindow &window,
                            const sf::RectangleShape &button,
                            const std::string &text,
-                           const sf::Font &font,
                            unsigned int characterSize);
 };

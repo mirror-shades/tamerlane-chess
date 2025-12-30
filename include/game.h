@@ -7,6 +7,7 @@
 #include "chessboard.h"
 #include "state.h"
 #include "menu.h"
+#include "analysis.h"
 
 class Game
 {
@@ -21,9 +22,9 @@ private:
     Render render;
     Menu menu;
     Utility utility;
+    Analysis analysis;
 
     void handleEvents();
     void updateGameState();
     void initialize();
-    void renderGameElements(sf::RenderWindow &window);
 };
