@@ -8,12 +8,11 @@
 #include <iostream>
 #include <chrono>
 #include <string>
+#include <cmath>
 #include "types.h"
 #include "globals.h"
 #include "utility.h"
 #include "ai.h"
-
-static std::mt19937 rng(std::random_device{}());
 
 const std::unordered_map<char, float> AI::pieceValues = {
     {'K', 3.5f},
@@ -27,6 +26,19 @@ const std::unordered_map<char, float> AI::pieceValues = {
     {'W', 2.0f},
     {'V', 1.5f},
     {'A', 1.5f}};
+
+// Helper function to round to 2 decimal places
+static float roundToTwoDecimals(float value)
+{
+    return std::round(value * 100.0f) / 100.0f;
+}
+
+// Helper function to compare rounded floats with epsilon
+static bool roundedFloatsEqual(float a, float b)
+{
+    const float epsilon = 0.001f; // Small epsilon for comparison
+    return std::abs(a - b) < epsilon;
+}
 
 Types::Turn AI::minMax(char player,
                        int turn,
@@ -48,7 +60,9 @@ Types::Turn AI::minMax(char player,
               [](const Types::Turn &a, const Types::Turn &b)
               { return a.pieceCaptured != "---" && b.pieceCaptured == "---"; });
 
-    Types::Turn bestMove = allMoves[0];
+    std::vector<Types::Turn> bestMoves;
+    float bestRoundedValue = (player == 'w') ? -std::numeric_limits<float>::infinity()
+                                            : std::numeric_limits<float>::infinity();
     float bestValue = (player == 'w') ? -std::numeric_limits<float>::infinity()
                                       : std::numeric_limits<float>::infinity();
 
@@ -81,22 +95,37 @@ Types::Turn AI::minMax(char player,
         chessboard.setCell(move.initialSquare, move.pieceMoved);
         chessboard.setCell(move.finalSquare, originalPiece);
 
-        // Update best move
+        // Round value to 2 decimal places for comparison
+        float roundedValue = roundToTwoDecimals(value);
+
+        // Update best moves based on rounded value
         if (player == 'w')
         {
-            if (value > bestValue)
+            if (roundedValue > bestRoundedValue)
             {
+                bestRoundedValue = roundedValue;
                 bestValue = value;
-                bestMove = move;
+                bestMoves.clear();
+                bestMoves.push_back(move);
+            }
+            else if (roundedFloatsEqual(roundedValue, bestRoundedValue))
+            {
+                bestMoves.push_back(move);
             }
             alpha = std::max(alpha, value);
         }
         else
         {
-            if (value < bestValue)
+            if (roundedValue < bestRoundedValue)
             {
+                bestRoundedValue = roundedValue;
                 bestValue = value;
-                bestMove = move;
+                bestMoves.clear();
+                bestMoves.push_back(move);
+            }
+            else if (roundedFloatsEqual(roundedValue, bestRoundedValue))
+            {
+                bestMoves.push_back(move);
             }
             beta = std::min(beta, value);
         }
@@ -106,6 +135,15 @@ Types::Turn AI::minMax(char player,
             break;
         }
     }
+
+    // Randomly select from tied moves
+    if (bestMoves.empty())
+    {
+        // Fallback: should never happen, but use first move if it does
+        bestMoves.push_back(allMoves[0]);
+    }
+    std::uniform_int_distribution<size_t> dist(0, bestMoves.size() - 1);
+    Types::Turn bestMove = bestMoves[dist(rng)];
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = end - start;
