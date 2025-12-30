@@ -1,6 +1,6 @@
 # Tamerlane Chess C++
 
-[![Windows](https://img.shields.io/badge/Windows-Download-blue?style=flat-square&logo=github)](https://github.com/mirror-shades/tamerlane-cpp/releases/latest/download/Tamerlane.Chess-Windows.zip)
+[![Windows](https://img.shields.io/badge/Windows-Download-blue?style=flat-square&logo=github)](https://github.com/mirror-shades/tamerlane-cpp/releases/latest/download/Tamerlane-Chess-Windows.zip)
 </br>
 [![Linux](https://img.shields.io/badge/Linux-Download-blue?style=flat-square&logo=github)](https://github.com/mirror-shades/tamerlane-cpp/releases/latest/download/Tamerlane-Chess-Linux.zip)
 
@@ -12,7 +12,7 @@ Rules and additional information can be [found here](https://www.chessvariants.c
 
 ## Compiling
 
-The game is compiled using SFML 2.6.1 built on minGW 13.1.0 using CMake. SFML is included with the source code and no SFML installation should be necessary. You can build as normal using CMake or use the included python script. Currently Windows, Linux, and MacOS builds are supported (macOS is untested).
+The engire uses SFML 2.6.1 for rendering and is compiled with minGW 13.1.0 using CMake. SFML is included with the source code and no additional SFML installation should be necessary. You can build as normal using CMake or use the included python script. Currently Windows, Linux, and MacOS builds are supported (macOS is untested).
 
 There is a script to build and run the game in the scripts directory called `build.py`. This will use cmake to build the project based on your platform.
 
@@ -22,13 +22,13 @@ This will build to the build directory in root.
 python scripts/build.py
 ```
 
-To run the game after building, use the following command:
+To build the game then run, use the following command:
 
 ```
 python scripts/build.py run
 ```
 
-To install a release of the game, use the following command:
+To install a standalone release of the game, use the following command:
 
 ```
 python scripts/build.py install [path]
