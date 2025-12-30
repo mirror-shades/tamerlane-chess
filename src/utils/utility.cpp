@@ -130,6 +130,8 @@ void Utility::updateGameState(
     const Types::Piece &pieceMoved,
     const Types::Coord &move,
     const std::string &target,
+    const char &player,
+    float score,
     GameLogic &gameLogic)
 {
     auto boardState = chessboard.getBoardState();
@@ -145,15 +147,18 @@ void Utility::updateGameState(
 
     Types::Turn newTurn = {
         State::turns,
-        State::player,
+        player,
         initialSquare,
         move,
         pieceMoved,
         Types::Piece(target),
-        0.0f};
+        score};
 
     State::turnHistory.push_back(newTurn);
     State::turns++;
+    
+    // Update State::player for next turn
+    State::player = (player == 'w') ? 'b' : 'w';
 
     State::isPieceSelected = false;
     State::moveList.clear();
@@ -390,7 +395,8 @@ bool Utility::clickLogic(int x, int y)
                         State::selectedPiece.toString(),
                         State::selectedSquare,
                         move,
-                        player);
+                        player,
+                        0.0f);  // Human moves don't have evaluation scores
                     // Exit the function after handling the move
                     return true;
                 }
@@ -430,7 +436,8 @@ void Utility::handlePieceMovement(
     const std::string &selectedPiece,
     const Types::Coord &selectedSquare,
     const Types::Coord &move,
-    const char &player)
+    const char &player,
+    float score)
 {
     render->startAnimation(selectedPiece, selectedSquare, move, 0.5f);
     std::string target = chessboard.getPiece(move).toString();
@@ -455,7 +462,7 @@ void Utility::handlePieceMovement(
         playMoveSound();
     }
 
-    Utility::updateGameState(selectedSquare, Types::Piece(selectedPiece), move, target, *gameLogic);
+    Utility::updateGameState(selectedSquare, Types::Piece(selectedPiece), move, target, player, score, *gameLogic);
 
     char enemy = (player == 'w') ? 'b' : 'w';
     gameLogic->promotePawns(player);
@@ -512,7 +519,8 @@ void Utility::handleAiVsAi()
             aiMove.pieceMoved.toString(),
             aiMove.initialSquare,
             aiMove.finalSquare,
-            aiPlayer);
+            aiPlayer,
+            aiMove.score);
         State::aiVsAiClock.restart();
     }
 }
@@ -537,7 +545,8 @@ void Utility::handleMoves()
             aiMove.pieceMoved.toString(),
             aiMove.initialSquare,
             aiMove.finalSquare,
-            aiPlayer);
+            aiPlayer,
+            aiMove.score);
         State::aiMoveQueued = false;
     }
 
