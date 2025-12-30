@@ -132,6 +132,11 @@ void Menu::drawMenuScreen(sf::RenderWindow &window)
             sf::Vector2f(200, 50),
             sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 + 50),
             State::alt ? State::colourSelected : sf::Color::White);
+            
+        sf::RectangleShape analysis = Utility::createButton(
+            sf::Vector2f(200, 50),
+            sf::Vector2f((window.getSize().x) / 2 - 100, window.getSize().y / 2 + 200),
+            sf::Color::White);
 
         sf::RectangleShape aiBlackButton = Utility::createButton(
             sf::Vector2f(200, 50),
@@ -194,6 +199,11 @@ void Menu::drawMenuScreen(sf::RenderWindow &window)
             Utility::drawButton(window,
                                 blitz,
                                 "Blitz",
+                                font,
+                                20);
+            Utility::drawButton(window,
+                                analysis,
+                                "Analysis",
                                 font,
                                 20);
         }
@@ -266,6 +276,10 @@ void Menu::drawMenuScreen(sf::RenderWindow &window)
             else if (Utility::isButtonClicked(blitz, mousePosition))
             {
                 State::alt = !State::alt;
+            }
+            else if (Utility::isButtonClicked(analysis, mousePosition))
+            {
+                State::state = State::GameState::Analysis;
             }
         }
         if (mousePressed && !wasMousePressed &&

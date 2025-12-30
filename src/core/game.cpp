@@ -54,11 +54,26 @@ void Game::updateGameState()
     render.drawBackground(window);
     render.drawBoard(window);
     menu.drawMenuScreen(window);
-    render.renderGameElements(window);
+    renderGameElements(window);
     window.display();
 
     State::renderNeeded = false;
 }
+
+void Game::renderGameElements(sf::RenderWindow &window)
+{
+    if (State::state == State::GameState::Game)
+    {
+        render.highlightSquares(window);
+        render.highlightPreviousMove(window);
+        render.highlightKings(window);
+        render.drawPieces(window, State::images);
+        render.drawExitButton(window);
+        render.drawCapturedPieces(window, State::images);
+        render.winScreen(window);
+    }
+}
+
 
 void Game::initialize()
 {

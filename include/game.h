@@ -25,4 +25,5 @@ private:
     void handleEvents();
     void updateGameState();
     void initialize();
+    void renderGameElements(sf::RenderWindow &window);
 };

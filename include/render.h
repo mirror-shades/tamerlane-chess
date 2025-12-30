@@ -26,10 +26,10 @@ public:
     void drawPieces(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages);
     void drawCapturedPieces(sf::RenderWindow &window, const std::map<std::string, sf::Sprite> &pieceImages);
     void startAnimation(std::string piece, Types::Coord start, Types::Coord end, float duration);
-    void renderGameElements(sf::RenderWindow &window);
     void highlightKings(sf::RenderWindow &window);
     void tintScreen(sf::RenderWindow &window);
     std::string findAssetsPath(const std::string &filename);
+    void drawAnalysisMenu(sf::RenderWindow &window);
 
 private:
     sf::Vector2f interpolate(sf::Vector2f startPos, sf::Vector2f endPos, float t);

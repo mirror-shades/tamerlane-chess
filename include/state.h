@@ -12,6 +12,7 @@ public:
     {
         Menu,
         AIOptions,
+        Analysis,
         Game
     };
 
@@ -20,7 +21,7 @@ public:
 
     static GameState state;
     static sf::Clock aiVsAiClock;
-    static sf::Clock gameStartClock;  // Track game start time for duration
+    static sf::Clock gameStartClock;  
     static char winner;
     static bool gameOver;
     static bool alt;
@@ -35,7 +36,7 @@ public:
     static bool isPieceSelected;
     static bool aiVsAiMode;
     static bool renderNeeded;
-    static int currentGameId;  // Track current game ID for active game saving
+    static int currentGameId; 
     static Types::Piece selectedPiece;
     static Types::Coord selectedSquare;
     static std::vector<Types::Turn> turnHistory;

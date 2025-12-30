@@ -32,8 +32,6 @@ public:
                              const char &player,
                              float score = 0.0f);
 
-    // New button-related functions
-
     static bool isButtonClicked(const sf::RectangleShape &button, const sf::Vector2i &mousePosition);
     static void updateGameState(const Types::Coord &initialSquare, const Types::Piece &pieceMoved, const Types::Coord &move, const std::string &target, const char &player, float score, GameLogic &gameLogic);
     static sf::RectangleShape createButton(const sf::Vector2f &size,

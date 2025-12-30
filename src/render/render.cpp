@@ -545,18 +545,3 @@ void Render::highlightKings(sf::RenderWindow &window)
     highlightKing(window, whiteKingPosition, State::isWhiteKingInCheck);
     highlightKing(window, blackKingPosition, State::isBlackKingInCheck);
 }
-
-// rename and rethink this function, it doesn't fit here
-void Render::renderGameElements(sf::RenderWindow &window)
-{
-    if (State::state == State::GameState::Game)
-    {
-        highlightSquares(window);
-        highlightPreviousMove(window);
-        highlightKings(window);
-        drawPieces(window, State::images);
-        drawExitButton(window);
-        drawCapturedPieces(window, State::images);
-        winScreen(window);
-    }
-}
