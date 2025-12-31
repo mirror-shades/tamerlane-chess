@@ -33,15 +33,15 @@ public:
     void drawAnalysisMenu(sf::RenderWindow &window);
     void drawGrid(sf::RenderWindow &window, int px);
     
-    // Camera/zoom system
     void updateCamera(sf::RenderWindow &window);
     void setZoomLevel(State::ZoomLevel targetZoom);
     sf::View getCurrentView(sf::RenderWindow &window);
-    static constexpr float ZOOMED_OUT_SCALE = 0.75f; // Scale factor for zoomed out view
-    static constexpr float ZOOM_TRANSITION_TIME = 0.5f; // Seconds for zoom transition
+    static constexpr float ZOOMED_OUT_SCALE = 0.75f;
+    static constexpr float ZOOM_TRANSITION_TIME = 0.5f; 
 
 private:
     sf::Vector2f interpolate(sf::Vector2f startPos, sf::Vector2f endPos, float t);
     void highlightSquare(sf::RenderWindow &window, const Types::Coord &coord);
     sf::Clock zoomClock;
+    int getSpecing(int size);
 };

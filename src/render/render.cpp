@@ -519,19 +519,8 @@ void Render::drawCapturedPieces(
     }
 
     // Determine spacing
-    int modw = 50, modb = 50;
-    if (sortedListw.size() > 17)
-        modw = 40;
-    if (sortedListw.size() > 21)
-        modw = 35;
-    if (sortedListw.size() > 24)
-        modw = 31;
-    if (sortedListb.size() > 17)
-        modb = 40;
-    if (sortedListb.size() > 21)
-        modb = 35;
-    if (sortedListb.size() > 24)
-        modb = 31;
+    int modw = getSpecing(sortedListw.size());
+    int modb = getSpecing(sortedListb.size());
 
     // Draw white captured pieces
     for (size_t i = 0; i < sortedListw.size(); ++i)
@@ -569,6 +558,14 @@ void Render::drawCapturedPieces(
                              : std::to_string(score));
     text.setPosition(window.getSize().x - 75, window.getSize().y - 95);
     window.draw(text);
+}
+
+int Render::getSpecing(int size)
+{
+    if (size > 24) return 31;
+    if (size > 21) return 35;
+    if (size > 17) return 40;
+    return 50;
 }
 
 void Render::highlightKings(sf::RenderWindow &window)
