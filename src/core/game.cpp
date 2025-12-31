@@ -23,6 +23,8 @@ Game::Game() : window(sf::VideoMode(State::WINDOW_WIDTH, State::WINDOW_HEIGHT), 
 
 void Game::handleEvents()
 {
+    static State::GameState previousState = State::GameState::Menu;
+    
     sf::Event event;
     while (window.pollEvent(event))
     {
@@ -31,12 +33,39 @@ void Game::handleEvents()
             State::renderNeeded = true;
         }
 
+        // Pass events to analysis screen if in Analysis state
+        if (State::state == State::GameState::Analysis)
+        {
+            analysis.handleEvent(event, window);
+        }
+
         utility.clickHandler(event, window);
 
         if (event.type == sf::Event::Closed)
         {
             window.close();
         }
+    }
+    
+    // Handle zoom transitions based on state changes
+    if (previousState != State::state)
+    {
+        if (State::state == State::GameState::Game)
+        {
+            // Game started - zoom in
+            render.setZoomLevel(State::ZoomLevel::ZoomedIn);
+        }
+        else if (State::state == State::GameState::Menu || State::state == State::GameState::AIOptions)
+        {
+            // Returned to menu - zoom out and show tint
+            render.setZoomLevel(State::ZoomLevel::ZoomedOut);
+        }
+        else if (State::state == State::GameState::Analysis)
+        {
+            // Analysis mode - zoom out (no tint)
+            render.setZoomLevel(State::ZoomLevel::ZoomedOut);
+        }
+        previousState = State::state;
     }
 }
 
@@ -51,33 +80,72 @@ void Game::updateGameState()
     }
     frameClock.restart();
 
-    window.clear(sf::Color::White);
-    render.drawBackground(window);
-    render.drawBoard(window);
-    if (State::state == State::GameState::Menu ||
-        State::state == State::GameState::AIOptions)
-    {
-        menu.drawMenuScreen(window);
-    }
-    else if (State::state == State::GameState::Analysis)
-    {
-        analysis.drawAnalysisScreen(window, render);
-    }
+    // Update camera system
+    render.updateCamera(window);
+    
+    // Get and apply current view
+    sf::View currentView = render.getCurrentView(window);
+    sf::View oldView = window.getView();
+    window.setView(currentView);
 
+    window.clear(sf::Color::White);
+    render.drawBackground(window, currentView);
+    render.drawBoard(window);
+    
+    // Draw game elements that are affected by zoom
     if (State::state == State::GameState::Game)
     {
         render.highlightSquares(window);
         render.highlightPreviousMove(window);
         render.highlightKings(window);
         render.drawPieces(window, State::images);
-        render.drawExitButton(window);
         render.drawCapturedPieces(window, State::images);
         render.winScreen(window);
     }
+    else if (State::state == State::GameState::Analysis)
+    {
+        // Draw board elements in analysis mode (pieces, etc.)
+        render.highlightPreviousMove(window);
+        render.highlightKings(window);
+        render.drawPieces(window, State::images);
+        render.drawCapturedPieces(window, State::images);
+    }
+
+    // Restore original view for UI elements that need window coordinates
+    window.setView(oldView);
+    
+    // Draw UI elements that should not be affected by zoom (menus, buttons, etc.)
+    if (State::state == State::GameState::Menu ||
+        State::state == State::GameState::AIOptions)
+    {
+        // Draw tint overlay for menu
+        if (State::currentZoomLevel == State::ZoomLevel::ZoomedOut)
+        {
+            render.tintScreen(window);
+        }
+        menu.drawMenuScreen(window);
+    }
+    else if (State::state == State::GameState::Analysis)
+    {
+        // Analysis UI is drawn in window coordinates (not affected by zoom)
+        analysis.drawAnalysisScreen(window, render);
+    }
+    else if (State::state == State::GameState::Game)
+    {
+        // Game UI elements (exit button, etc.)
+        render.drawExitButton(window);
+    }
+
+    //for centering
+    //render.drawGrid(window, 75);
 
     window.display();
 
-    State::renderNeeded = false;
+    // Keep rendering if zooming is in progress
+    if (!State::isZooming)
+    {
+        State::renderNeeded = false;
+    }
 }
 
 void Game::initialize()
@@ -93,9 +161,9 @@ void Game::initialize()
         std::cerr << "Failed to load icon: assets/images/icon.png" << std::endl;
     }
 
-
-
-    render.drawBackground(window);
+    // Create a default view for initialization
+    sf::View defaultView = render.getCurrentView(window);
+    render.drawBackground(window, defaultView);
 
     // Add error handling for image loading
     try
@@ -132,8 +200,8 @@ void Game::run()
         // Always update game logic, regardless of rendering
         utility.handleMoves();
 
-        // Render only if needed
-        if (State::renderNeeded || State::animationActive)
+        // Render only if needed, or if zooming (to ensure smooth zoom transitions)
+        if (State::renderNeeded || State::animationActive || State::isZooming)
         {
             updateGameState();
         }

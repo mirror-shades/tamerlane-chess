@@ -259,6 +259,30 @@ void Render::drawPieces(
     }
 }
 
+void Render::drawGrid(sf::RenderWindow &window, int px)
+{
+    unsigned int windowWidth = window.getSize().x;
+    unsigned int windowHeight = window.getSize().y;
+    
+    // Draw vertical lines every px pixels
+    for (int x = 0; x <= static_cast<int>(windowWidth); x += px)
+    {
+        sf::RectangleShape line(sf::Vector2f(1, windowHeight));
+        line.setFillColor(sf::Color::White);
+        line.setPosition(static_cast<float>(x), 0);
+        window.draw(line);
+    }
+    
+    // Draw horizontal lines every px pixels
+    for (int y = 0; y <= static_cast<int>(windowHeight); y += px)
+    {
+        sf::RectangleShape line(sf::Vector2f(windowWidth, 1));
+        line.setFillColor(sf::Color::White);
+        line.setPosition(0, static_cast<float>(y));
+        window.draw(line);
+    }
+}
+
 void Render::tintScreen(sf::RenderWindow &window)
 {
     sf::RectangleShape square(
@@ -338,9 +362,32 @@ void Render::winScreen(sf::RenderWindow &window)
     }
 }
 
-void Render::drawBackground(sf::RenderWindow &window)
+void Render::drawBackground(sf::RenderWindow &window, const sf::View &view)
 {
-    window.draw(State::backgroundSprite);
+    // Get the current view center
+    sf::Vector2f viewCenter = view.getCenter();
+    
+    // Draw background at a fixed world position and size
+    // As the view zooms, it naturally shows more/less of the background
+    const float maxViewWidth = static_cast<float>(State::WINDOW_WIDTH) / ZOOMED_OUT_SCALE;
+    const float maxViewHeight = static_cast<float>(State::WINDOW_HEIGHT) / ZOOMED_OUT_SCALE;
+    
+    // Position background centered on the board center (same as view center)
+    float bgLeft = viewCenter.x - maxViewWidth / 2.0f;
+    float bgTop = viewCenter.y - maxViewHeight / 2.0f;
+    
+    // Get texture dimensions and scale to cover maximum zoomed-out area
+    sf::Vector2u textureSize = State::backgroundTexture.getSize();
+    float scaleX = maxViewWidth / static_cast<float>(textureSize.x);
+    float scaleY = maxViewHeight / static_cast<float>(textureSize.y);
+    
+    // Draw background sprite at fixed world position
+    sf::Sprite bgSprite(State::backgroundTexture);
+    bgSprite.setOrigin(0.0f, 0.0f);
+    bgSprite.setScale(scaleX, scaleY);
+    bgSprite.setPosition(bgLeft, bgTop);
+    
+    window.draw(bgSprite);
 }
 
 std::map<std::string, sf::Sprite> Render::loadImages(sf::RenderWindow &window)
@@ -355,9 +402,9 @@ std::map<std::string, sf::Sprite> Render::loadImages(sf::RenderWindow &window)
     sf::Vector2u textureSize = State::backgroundTexture.getSize();
     float scaleX = static_cast<float>(windowSize.x) / textureSize.x;
     float scaleY = static_cast<float>(windowSize.y) / textureSize.y;
-    State::backgroundSprite.setScale(scaleX, scaleY);
-
     State::backgroundSprite.setTexture(State::backgroundTexture);
+    State::backgroundSprite.setPosition(0, 0); // Initialize position to origin
+    State::backgroundSprite.setScale(scaleX, scaleY); // Initial scale (will be recalculated each frame)
 
     std::vector<std::string> pieces = {
         "bKa", "wKa", "bK0", "wK0", "bK1", "wK1", "bAd", "wAd",
@@ -531,4 +578,78 @@ void Render::highlightKings(sf::RenderWindow &window)
     gameLogic->findAndSetKingPosition(blackKingPosition, 'b');
     highlightKing(window, whiteKingPosition, State::isWhiteKingInCheck);
     highlightKing(window, blackKingPosition, State::isBlackKingInCheck);
+}
+
+// Camera/zoom system implementation
+void Render::updateCamera([[maybe_unused]] sf::RenderWindow &window)
+{
+    if (State::isZooming)
+    {
+        float elapsed = zoomClock.getElapsedTime().asSeconds();
+        State::zoomProgress = std::min(1.0f, elapsed / ZOOM_TRANSITION_TIME);
+        
+        // Keep rendering during zoom transition
+        State::renderNeeded = true;
+        
+        if (State::zoomProgress >= 1.0f)
+        {
+            State::isZooming = false;
+            State::zoomProgress = 1.0f;
+        }
+    }
+}
+
+void Render::setZoomLevel(State::ZoomLevel targetZoom)
+{
+    if (State::currentZoomLevel != targetZoom)
+    {
+        State::previousZoomLevel = State::currentZoomLevel;
+        State::currentZoomLevel = targetZoom;
+        State::isZooming = true;
+        State::zoomProgress = 0.0f;
+        State::renderNeeded = true; // Trigger rendering for zoom transition
+        zoomClock.restart();
+    }
+}
+
+sf::View Render::getCurrentView([[maybe_unused]] sf::RenderWindow &window)
+{
+    // Board dimensions: 12 squares wide (11 + 1 fortress), 10 squares tall
+    // Square size: 75px
+    const float boardWidth = 12.0f * Chessboard::squareSize;  // 900px
+    const float boardHeight = 10.0f * Chessboard::squareSize; // 750px
+    const float boardCenterX = boardWidth / 2.0f + 37.0f;  // 450px + 25px (board appears 25px left)
+    const float boardCenterY = boardHeight / 2.0f + 75.0f; // 375px + 50px (board appears 50px up)
+    
+    sf::View view;
+    
+    // Calculate smooth interpolation if zooming
+    float scale = 1.0f;
+    
+    if (State::isZooming)
+    {
+        // Determine start and end scales based on zoom direction
+        // Use previousZoomLevel to know where we started from
+        float startScale = (State::previousZoomLevel == State::ZoomLevel::ZoomedIn) ? 1.0f : ZOOMED_OUT_SCALE;
+        float endScale = (State::currentZoomLevel == State::ZoomLevel::ZoomedIn) ? 1.0f : ZOOMED_OUT_SCALE;
+        
+        // Smooth interpolation (ease in-out)
+        float t = State::zoomProgress;
+        t = t * t * (3.0f - 2.0f * t); // Smoothstep
+        scale = startScale + (endScale - startScale) * t;
+    }
+    else
+    {
+        // Not zooming - use current zoom level
+        scale = (State::currentZoomLevel == State::ZoomLevel::ZoomedIn) ? 1.0f : ZOOMED_OUT_SCALE;
+    }
+    
+    // Set view size (smaller size = more zoomed in)
+    view.setSize(
+        static_cast<float>(State::WINDOW_WIDTH) / scale,
+        static_cast<float>(State::WINDOW_HEIGHT) / scale
+    );
+    view.setCenter(boardCenterX, boardCenterY);
+    
+    return view;
 }

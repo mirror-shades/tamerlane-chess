@@ -5,6 +5,7 @@
 #include "gameLogic.h"
 #include "pieceLogic.h"
 #include "globals.h"
+#include "state.h"
 
 PieceLogic pieceLogic;
 
@@ -437,4 +438,39 @@ bool GameLogic::canDraw(char player)
         }
     }
     return false;
+}
+
+std::string GameLogic::getPositionHash(const Types::Board &boardState, char playerToMove)
+{
+    // Create a string representation of the board position
+    // Format: "player:board_state" where board_state is all pieces concatenated
+    std::string hash = std::string(1, playerToMove) + ":";
+    
+    for (int row = 0; row < Chessboard::rows; ++row)
+    {
+        for (int col = 0; col < Chessboard::cols; ++col)
+        {
+            hash += boardState.board[row][col].toString();
+        }
+    }
+    
+    return hash;
+}
+
+bool GameLogic::checkThreefoldRepetition(const Types::Board &boardState, char playerToMove)
+{
+    std::string currentPosition = getPositionHash(boardState, playerToMove);
+    
+    // Count how many times this position has occurred
+    int count = 0;
+    for (const auto &position : State::positionHistory)
+    {
+        if (position == currentPosition)
+        {
+            count++;
+        }
+    }
+    
+    // If this position has occurred 2 times before (making this the 3rd), it's a threefold repetition
+    return count >= 2;
 }

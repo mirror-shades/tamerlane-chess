@@ -36,6 +36,7 @@ sf::Texture State::backgroundTexture;
 std::vector<std::string> State::whitePiecesCaptured;
 std::vector<std::string> State::blackPiecesCaptured;
 std::vector<Types::Turn> State::turnHistory;
+std::vector<std::string> State::positionHistory;
 State::GameState State::state = State::GameState::Menu;
 char State::player = 'w';
 
@@ -52,3 +53,9 @@ sf::Color State::colour2 = sf::Color(0x26403Cff);
 sf::Color State::colourSelected = sf::Color(0x6290c8ff);
 sf::Color State::colourPrevMove = sf::Color(0x6290c855);
 sf::Color State::colourMove = sf::Color(0xFBFF1255);
+
+// Camera/zoom system
+State::ZoomLevel State::currentZoomLevel = State::ZoomLevel::ZoomedOut;
+State::ZoomLevel State::previousZoomLevel = State::ZoomLevel::ZoomedOut;
+bool State::isZooming = false;
+float State::zoomProgress = 0.0f;

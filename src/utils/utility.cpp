@@ -160,6 +160,23 @@ void Utility::updateGameState(
     // Update State::player for next turn
     State::player = (player == 'w') ? 'b' : 'w';
 
+    // Get position hash for the new position (after the move, with next player to move)
+    std::string positionHash = gameLogic.getPositionHash(boardState, State::player);
+    
+    // Check for threefold repetition BEFORE adding current position
+    // (check if this position has occurred 2 times already, making this the 3rd)
+    if (gameLogic.checkThreefoldRepetition(boardState, State::player))
+    {
+        State::winner = 'd';
+        State::gameOver = true;
+        std::cout << "Game ended in a draw by threefold repetition" << std::endl;
+        // Save completed game to database
+        Database::saveCompletedGame();
+    }
+    
+    // Add current position to position history for threefold repetition detection
+    State::positionHistory.push_back(positionHash);
+
     State::isPieceSelected = false;
     State::moveList.clear();
     State::selectedSquare = {-1, -1};
@@ -178,6 +195,13 @@ void Utility::undoLastMove()
         chessboard.setCell(lastTurn.finalSquare, lastTurn.pieceCaptured);
         chessboard.setCell(lastTurn.initialSquare, lastTurn.pieceMoved);
         State::turns--;
+        
+        // Remove the last position from position history (if it exists)
+        if (!State::positionHistory.empty())
+        {
+            State::positionHistory.pop_back();
+        }
+        
         auto boardState = chessboard.getBoardState();
 
         State::isWhiteKingInCheck = gameLogic->isKingInCheck(
@@ -257,6 +281,7 @@ void Utility::exitToMenu()
     State::selectedSquare = {-1, -1};
     chessboard.resetBoard();
     State::turnHistory.clear();
+    State::positionHistory.clear();
     State::turns = 1;
     State::drawPossible = false;
     State::isWhiteKingInCheck = false;
@@ -289,12 +314,19 @@ void Utility::initializeNewGame()
     State::currentGameId = Database::getNextGameId();
     State::gameStartClock.restart();
     State::turnHistory.clear();
+    State::positionHistory.clear();
     State::turns = 1;
     State::player = 'w';
     State::gameOver = false;
     State::winner = '-';
     State::whitePiecesCaptured.clear();
     State::blackPiecesCaptured.clear();
+    
+    // Add initial position to position history
+    GameLogic gameLogic;
+    auto boardState = chessboard.getBoardState();
+    std::string initialPosition = gameLogic.getPositionHash(boardState, State::player);
+    State::positionHistory.push_back(initialPosition);
     
     // Active game file will be overwritten when first move is made
 }

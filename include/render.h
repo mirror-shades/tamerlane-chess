@@ -2,6 +2,7 @@
 #pragma once
 #include "gameLogic.h"
 #include "utility.h"
+#include "state.h"
 #include <SFML/Graphics.hpp>
 #include "types.h"
 
@@ -14,7 +15,7 @@ public:
     static bool animationInProgress;
     static Types::Coord move;
 
-    void drawBackground(sf::RenderWindow &window);
+    void drawBackground(sf::RenderWindow &window, const sf::View &view);
     std::map<std::string, sf::Sprite> loadImages(sf::RenderWindow &window);
     void updateAnimations();
     void drawBoard(sf::RenderWindow &window);
@@ -30,8 +31,17 @@ public:
     void tintScreen(sf::RenderWindow &window);
     std::string findAssetsPath(const std::string &filename);
     void drawAnalysisMenu(sf::RenderWindow &window);
+    void drawGrid(sf::RenderWindow &window, int px);
+    
+    // Camera/zoom system
+    void updateCamera(sf::RenderWindow &window);
+    void setZoomLevel(State::ZoomLevel targetZoom);
+    sf::View getCurrentView(sf::RenderWindow &window);
+    static constexpr float ZOOMED_OUT_SCALE = 0.75f; // Scale factor for zoomed out view
+    static constexpr float ZOOM_TRANSITION_TIME = 0.5f; // Seconds for zoom transition
 
 private:
     sf::Vector2f interpolate(sf::Vector2f startPos, sf::Vector2f endPos, float t);
     void highlightSquare(sf::RenderWindow &window, const Types::Coord &coord);
+    sf::Clock zoomClock;
 };

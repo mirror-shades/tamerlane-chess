@@ -45,6 +45,7 @@ public:
     static std::vector<std::string> moveHistory;
     static std::vector<std::string> whitePiecesCaptured;
     static std::vector<std::string> blackPiecesCaptured;
+    static std::vector<std::string> positionHistory;
     static std::map<std::string, sf::Sprite> images;
     static sf::Sprite backgroundSprite;
     static sf::Clock deltaClock;
@@ -56,4 +57,15 @@ public:
     static sf::Color colourSelected;
     static sf::Color colourPrevMove;
     static sf::Color colourMove;
+    
+    // Camera/zoom system
+    enum class ZoomLevel
+    {
+        ZoomedOut,  // Show entire board with UI space
+        ZoomedIn    // Focus on board for gameplay
+    };
+    static ZoomLevel currentZoomLevel;
+    static ZoomLevel previousZoomLevel; // Track previous zoom level for smooth transitions
+    static bool isZooming;
+    static float zoomProgress; // 0.0 to 1.0 for smooth transitions
 };

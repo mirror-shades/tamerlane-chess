@@ -14,6 +14,8 @@ public:
     bool isKingInCheck(const char &player, const Types::Board &boardState, bool alt);
     bool hasLegalMoves(char player, bool alt);
     bool canDraw(char player);
+    bool checkThreefoldRepetition(const Types::Board &boardState, char playerToMove);
+    std::string getPositionHash(const Types::Board &boardState, char playerToMove);
     std::vector<std::pair<Types::Piece, std::vector<Types::Coord>>> getAllMoves(char player, bool alt);
     std::vector<Types::Coord> getMoves(Types::Coord coord, Types::Piece piece, char player, bool alt);
     Types::Coord findPawnX(char player);
