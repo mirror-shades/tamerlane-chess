@@ -1,0 +1,14 @@
+# Game Metadata
+id,3
+timestamp,2025-12-30T23:20:10
+whitePlayer,AI
+blackPlayer,AI
+result,In Progress
+totalMoves,3
+duration,1.40658
+
+# Move History
+turn,player,fromX,fromY,toX,toY,pieceMoved,pieceCaptured,score
+1,w,2,9,3,6,wCa,---,6.08
+2,b,2,0,3,3,bCa,---,5.33
+3,w,7,7,7,6,wpG,---,5.255

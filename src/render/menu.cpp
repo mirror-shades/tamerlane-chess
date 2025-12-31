@@ -59,6 +59,33 @@ void Menu::drawMenuScreen(sf::RenderWindow &window)
 
     if (titleTexture.loadFromFile(render.findAssetsPath("images/title.png")))
     {
+        // Load shader on first use
+        if (!shaderLoaded)
+        {
+            if (!sf::Shader::isAvailable())
+            {
+                std::cerr << "Warning: Shaders are not available on this system" << std::endl;
+                shaderLoaded = false; // Mark as attempted so we don't try again
+            }
+            else
+            {
+                std::string shaderPath = render.findAssetsPath("shaders/logo_glow.frag");
+                if (shaderPath.empty())
+                {
+                    std::cerr << "Warning: Could not find shader path for logo_glow.frag" << std::endl;
+                }
+                else if (logoShader.loadFromFile(shaderPath, sf::Shader::Fragment))
+                {
+                    shaderLoaded = true;
+                    std::cout << "Logo shader loaded successfully from: " << shaderPath << std::endl;
+                }
+                else
+                {
+                    std::cerr << "Warning: Failed to load logo shader from: " << shaderPath << std::endl;
+                }
+            }
+        }
+
         sf::Sprite titleSprite(titleTexture);
 
         titleTexture.setSmooth(false);
@@ -81,7 +108,26 @@ void Menu::drawMenuScreen(sf::RenderWindow &window)
             static_cast<int>(position.x + 0.5f),
             static_cast<int>(position.y + 0.5f));
 
-        window.draw(titleSprite);
+        // Apply shader if loaded, otherwise draw normally
+        if (shaderLoaded)
+        {
+            float time = logoAnimationClock.getElapsedTime().asSeconds();
+            logoShader.setUniform("time", time);
+            logoShader.setUniform("textureSize", sf::Vector2f(
+                static_cast<float>(titleTexture.getSize().x),
+                static_cast<float>(titleTexture.getSize().y)));
+            
+            sf::RenderStates states;
+            states.shader = &logoShader;
+            window.draw(titleSprite, states);
+            
+            // Keep rendering active so shader animation updates continuously
+            State::renderNeeded = true;
+        }
+        else
+        {
+            window.draw(titleSprite);
+        }
     }
     else
     {

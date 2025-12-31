@@ -4,6 +4,11 @@
 
 class Menu
 {
+private:
+    sf::Shader logoShader;
+    sf::Clock logoAnimationClock;
+    bool shaderLoaded = false;
+    
 public:
     void drawMenuScreen(sf::RenderWindow &window);
     void drawSlider(sf::RenderWindow &window);

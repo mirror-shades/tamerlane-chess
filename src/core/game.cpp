@@ -141,8 +141,10 @@ void Game::updateGameState()
 
     window.display();
 
-    // Keep rendering if zooming is in progress
-    if (!State::isZooming)
+    // Keep rendering if zooming is in progress, or if we're in menu state (for shader animations)
+    if (!State::isZooming && 
+        State::state != State::GameState::Menu && 
+        State::state != State::GameState::AIOptions)
     {
         State::renderNeeded = false;
     }
