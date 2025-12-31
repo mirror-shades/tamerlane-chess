@@ -604,7 +604,7 @@ void Render::setZoomLevel(State::ZoomLevel targetZoom)
         State::currentZoomLevel = targetZoom;
         State::isZooming = true;
         State::zoomProgress = 0.0f;
-        State::renderNeeded = true; // Trigger rendering for zoom transition
+        State::renderNeeded = true;
         zoomClock.restart();
     }
 }
