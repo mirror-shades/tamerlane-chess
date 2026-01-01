@@ -447,18 +447,13 @@ std::string Analysis::formatMove(const Types::Turn &turn, int moveNumber)
 {
     std::stringstream ss;
     ss << moveNumber << ". ";
-    if (turn.player == 'w')
-        ss << "White: ";
-    else
-        ss << "Black: ";
-    
     // Format move (e.g., "e2-e4")
-    ss << "(" << turn.initialSquare.x << "," << turn.initialSquare.y << ") -> "
+    ss << "(" << turn.initialSquare.x << "," << turn.initialSquare.y << ")>"
        << "(" << turn.finalSquare.x << "," << turn.finalSquare.y << ")";
     
     if (turn.pieceCaptured.toString() != "---")
     {
-        ss << " captures " << turn.pieceCaptured.toString();
+        ss << " x " << turn.pieceCaptured.toString();
     }
     
     return ss.str();
@@ -654,11 +649,11 @@ void Analysis::drawAnalysisBoard(sf::RenderWindow &window, [[maybe_unused]] Rend
     
     // Draw UI panels on the sides (in window coordinates, not affected by zoom)
     // Left panel: Move list
-    float panelWidth = 250.0f;
-    float panelHeight = static_cast<float>(window.getSize().y) - 100.0f;
+    float panelWidth = 160.0f;
+    float panelHeight = static_cast<float>(window.getSize().y) - 400.0f;
     
     sf::RectangleShape moveListPanel(sf::Vector2f(panelWidth, panelHeight));
-    moveListPanel.setPosition(10, 50);
+    moveListPanel.setPosition(9, 235);
     moveListPanel.setFillColor(sf::Color(30, 30, 30, 240));
     moveListPanel.setOutlineColor(sf::Color::White);
     moveListPanel.setOutlineThickness(2);
